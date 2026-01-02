@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | View Listing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0B0E14; color: white; font-family: 'Inter', sans-serif; }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .contact-card { border-top: 4px solid #8B5CF6; }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <header class="sticky top-0 z-50 bg-[#0B0E14]/80 backdrop-blur-md border-b border-white/10 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='index.html'">
+                <div class="w-8 h-8 neon-gradient rounded-lg flex items-center justify-center font-bold text-white">K</div>
+                <span class="text-xl font-bold tracking-tight">K-Hub</span>
+            </div>
+            <div id="nav-auth-section"></div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <div id="loading-state" class="text-center py-20 text-gray-500">Fetching listing details...</div>
+        
+        <div id="listing-content" class="hidden">
+            <section class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-10">
+                <div class="lg:col-span-3 h-[400px] md:h-[500px] rounded-3xl overflow-hidden bg-gray-800">
+                    <img id="main-image" src="" class="w-full h-full object-cover" alt="Property">
+                </div>
+                <div class="hidden lg:flex flex-col gap-4">
+                    <div class="h-[242px] rounded-2xl overflow-hidden bg-gray-800"><img id="sub-image-1" src="https://via.placeholder.com/400" class="w-full h-full object-cover"></div>
+                    <div class="h-[242px] rounded-2xl overflow-hidden bg-gray-800 relative">
+                        <img id="sub-image-2" src="https://via.placeholder.com/400" class="w-full h-full object-cover opacity-40">
+                        <div class="absolute inset-0 flex items-center justify-center font-bold text-lg">K-Hub</div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div class="lg:col-span-2 space-y-8">
+                    <div>
+                        <div id="category-badge" class="text-purple-400 font-bold text-sm mb-2 uppercase tracking-widest">Category</div>
+                        <h1 id="title" class="text-3xl md:text-4xl font-bold mb-4">...</h1>
+                        <div class="flex flex-wrap gap-4 text-sm text-gray-400">
+                            <span id="post-date">📅 Posted: --</span>
+                            <span id="location-text">📍 Location: Kano</span>
+                        </div>
+                    </div>
+
+                    <div id="dynamic-specs" class="glass-card p-6 rounded-3xl grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                        </div>
+
+                    <div class="space-y-4">
+                        <h3 class="text-xl font-bold">Description</h3>
+                        <p id="description" class="text-gray-400 leading-relaxed">...</p>
+                    </div>
+                </div>
+
+                <aside class="space-y-6">
+                    <div class="glass-card p-8 rounded-3xl contact-card sticky top-24">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div id="owner-initial" class="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center font-bold">?</div>
+                            <div>
+                                <p id="owner-name" class="font-bold">Loading...</p>
+                                <p class="text-xs text-gray-500">Verified K-Hub User</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <a id="call-btn" href="#" class="block w-full py-4 neon-gradient text-center rounded-xl font-bold hover:scale-[1.02] transition">Call Owner</a>
+                            <a id="wa-btn" href="#" target="_blank" class="block w-full py-4 bg-white/5 border border-white/10 text-center rounded-xl font-bold hover:bg-white/10 transition">WhatsApp Message</a>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <footer class="border-t border-white/10 py-10 px-6 text-center text-xs text-gray-500 mt-20">
+        <p>Made for Kano Residents | © 2026 K-Hub</p>
+    </footer>
+
+    <script type="module" src="./nav.js"></script>
+    <script type="module">
+        import { db } from './firebase-config.js';
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const params = new URLSearchParams(window.location.search);
+        const itemId = params.get('id');
+        const type = params.get('type');
+
+        async function initListing() {
+            if (!itemId || !type) return;
+
+            try {
+                const docRef = doc(db, type, itemId);
+                const snap = await getDoc(docRef);
+
+                if (snap.exists()) {
+                    const data = snap.data();
+                    
+                    // Basic Info
+                    document.getElementById('main-image').src = data.imageUrl || 'https://via.placeholder.com/800';
+                    document.getElementById('title').innerText = data.name || data.title;
+                    document.getElementById('description').innerText = data.description;
+                    document.getElementById('category-badge').innerText = type.replace('s', '');
+                    document.getElementById('location-text').innerText = `📍 Location: ${data.location || data.route || 'Kano'}`;
+
+                    // Handle Dynamic Grid Specs
+                    const specGrid = document.getElementById('dynamic-specs');
+                    let priceVal = `₦${Number(data.price || data.salary || data.fare || 0).toLocaleString()}`;
+                    
+                    if (type === 'transports') {
+                        specGrid.innerHTML = `
+                            <div><p class="text-[10px] text-gray-500 uppercase font-bold">Fare</p><p class="text-lg font-bold text-orange-400">${priceVal}</p></div>
+                            <div><p class="text-[10px] text-gray-500 uppercase font-bold">Vehicle</p><p class="text-lg font-bold">${data.vehicleType || 'Car'}</p></div>
+                            <div><p class="text-[10px] text-gray-500 uppercase font-bold">Availability</p><p class="text-lg font-bold">Daily</p></div>
+                            <div><p class="text-[10px] text-gray-500 uppercase font-bold">Route</p><p class="text-lg font-bold text-sm">${data.route || 'Central'}</p></div>
+                        `;
+                    } else if (type === 'jobs') {
+                        specGrid.innerHTML = `
+                            <div><p class="text-[10px] text-gray-500 uppercase font-bold">Salary</p><p class="text-lg font-bold text-blue-400">${priceVal}</p></div>
+                            <div><p class="text-[10px] text-gray-500 uppercase font-bold">Type</p><p class="text-lg font-bold">${data.jobType || 'Full-time'}</p></div>
+                            <div><p class="text-[10px] text-gray-500 uppercase font-bold">Experience</p><p class="text-lg font-bold">1-2 Yrs</p></div>
+                            <div><p class="text-[10px] text-gray-500 uppercase font-bold">Deadline</p><p class="text-lg font-bold text-red-400">Soon</p></div>
+                        `;
+                    } else {
+                        // Default for Shop & Rentals
+                        specGrid.innerHTML = `
+                            <div><p class="text-[10px] text-gray-500 uppercase font-bold">Price</p><p class="text-lg font-bold text-emerald-400">${priceVal}</p></div>
+                            <div><p class="text-[10px] text-gray-500 uppercase font-bold">Status</p><p class="text-lg font-bold">Available</p></div>
+                            <div><p class="text-[10px] text-gray-500 uppercase font-bold">Condition</p><p class="text-lg font-bold">${data.condition || 'New'}</p></div>
+                            <div><p class="text-[10px] text-gray-500 uppercase font-bold">Views</p><p class="text-lg font-bold">Active</p></div>
+                        `;
+                    }
+
+                    // Owner Data Fetching
+                    const userSnap = await getDoc(doc(db, "users", data.userId));
+                    if (userSnap.exists()) {
+                        const u = userSnap.data();
+                        document.getElementById('owner-name').innerText = u.fullName;
+                        document.getElementById('owner-initial').innerText = u.fullName.charAt(0);
+                        document.getElementById('call-btn').href = `tel:${u.phone}`;
+                        document.getElementById('wa-btn').href = `https://wa.me/${u.phone.replace(/^0/, '234')}`;
+                    }
+
+                    document.getElementById('loading-state').classList.add('hidden');
+                    document.getElementById('listing-content').classList.remove('hidden');
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('loading-state').innerText = "Failed to load listing.";
+            }
+        }
+        initListing();
+    </script>
+</body>
+</html>
