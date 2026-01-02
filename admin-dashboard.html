@@ -1,0 +1,208 @@
+<script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { 
+        collection, query, where, getDocs, getDoc, doc, updateDoc, deleteDoc, getCountFromServer 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // --- EMAILJS CONFIGURATION ---
+    import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+    
+    // Replace with your actual Public Key from EmailJS
+    emailjs.init("YOUR_PUBLIC_KEY"); 
+
+    const MY_ADMIN_EMAIL = "clintzyarts@gmail.com"; 
+    let allUsers = []; 
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user && user.email === MY_ADMIN_EMAIL) {
+            document.body.classList.add('authorized');
+            document.getElementById('logged-admin').innerText = user.email;
+            refreshDashboard();
+        } else {
+            window.location.href = "index.html";
+        }
+    });
+
+    async function refreshDashboard() {
+        updateStats();
+        loadPendingItems();
+        loadUsers();
+        calculateRevenue();
+    }
+
+    // --- UPDATED NOTIFICATION LOGIC ---
+    async function sendNotification(coll, itemId, action) {
+        try {
+            // 1. Fetch item data to find the owner's userId
+            const itemRef = doc(db, coll, itemId);
+            const itemSnap = await getDoc(itemRef);
+            if (!itemSnap.exists()) return;
+            const itemData = itemSnap.data();
+
+            // 2. Fetch user profile to get their email address
+            const userRef = doc(db, "users", itemData.userId);
+            const userSnap = await getDoc(userRef);
+            if (!userSnap.exists()) {
+                console.warn("User profile not found. Skipping email.");
+                return;
+            }
+            const userData = userSnap.data();
+
+            // 3. Define the template variables
+            const templateParams = {
+                user_email: userData.email,
+                user_name: userData.fullName || "K-Hub User",
+                item_name: itemData.name || itemData.title || "your listing",
+                action_status: action === 'approve' ? "APPROVED ✅" : "REJECTED ❌",
+                message: action === 'approve' 
+                    ? "Your listing is now live! Customers in Kano can now view it." 
+                    : "Unfortunately, your listing was removed. Please ensure it follows our community guidelines."
+            };
+
+            // 4. Send the email via EmailJS
+            await emailjs.send(
+                "YOUR_SERVICE_ID",  // Replace with Service ID
+                "YOUR_TEMPLATE_ID", // Replace with Template ID
+                templateParams
+            );
+            
+            console.log(`Notification sent successfully to ${userData.email}`);
+        } catch (err) {
+            console.error("Notification System Error:", err.message);
+        }
+    }
+
+    // --- 1. REVENUE CALCULATION ---
+    async function calculateRevenue() {
+        const categories = ['products', 'jobs', 'rentals', 'transport'];
+        for (const cat of categories) {
+            let total = 0;
+            const q = query(collection(db, cat), where("status", "==", "active"));
+            const snapshot = await getDocs(q);
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const val = data.price || data.salary || data.fare || 0;
+                total += Number(val);
+            });
+            const el = document.getElementById(`revenue-${cat}`);
+            if (el) el.innerText = `₦${total.toLocaleString()}`;
+        }
+    }
+
+    // --- 2. USER MANAGEMENT ---
+    async function loadUsers() {
+        try {
+            const snapshot = await getDocs(collection(db, "users"));
+            allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderUsers(allUsers);
+        } catch (e) { console.error("Load Users Error:", e); }
+    }
+
+    function renderUsers(usersToDisplay) {
+        const userTable = document.getElementById('users-table-body');
+        if (!userTable) return;
+        userTable.innerHTML = "";
+        usersToDisplay.forEach(u => {
+            const isPremium = u.isPremium === true;
+            userTable.innerHTML += `
+                <tr class="hover:bg-white/5 transition">
+                    <td class="px-6 py-4 font-medium flex items-center gap-2">
+                        ${u.fullName || 'Anonymous'} ${isPremium ? '<span class="text-blue-400">✅</span>' : ''}
+                    </td>
+                    <td class="px-6 py-4 text-gray-400 text-xs">${u.email || 'No Email'}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 ${isPremium ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'} rounded text-[10px] font-bold">
+                            ${isPremium ? 'VERIFIED' : 'STANDARD'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <button onclick="toggleVerify('${u.id}', ${isPremium})" class="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-md text-[10px] font-bold transition">
+                            ${isPremium ? 'Revoke' : 'Verify'}
+                        </button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    // --- 3. PENDING LISTINGS ---
+    async function loadPendingItems() {
+        const tableBody = document.getElementById('pending-table-body');
+        if (!tableBody) return;
+        tableBody.innerHTML = "";
+        const collections = ['products', 'jobs', 'rentals', 'transport'];
+        let hasItems = false;
+
+        for (const collName of collections) {
+            const q = query(collection(db, collName), where("status", "==", "pending"));
+            const snapshot = await getDocs(q);
+            snapshot.forEach(item => {
+                hasItems = true;
+                const data = item.data();
+                const title = data.name || data.title || `${data.from} to ${data.to}`;
+                const priceDisplay = data.price || data.salary || data.fare || 0;
+
+                tableBody.innerHTML += `
+                    <tr class="hover:bg-white/5 transition">
+                        <td class="px-6 py-4 flex items-center gap-3">
+                            ${data.imageUrl ? `<img src="${data.imageUrl}" class="w-10 h-10 rounded object-cover border border-white/10">` : `<div class="w-10 h-10 bg-white/5 rounded flex items-center justify-center text-[10px]">🚗</div>`}
+                            <div class="flex flex-col"><span class="font-medium text-xs">${title}</span></div>
+                        </td>
+                        <td class="px-6 py-4 text-orange-400 uppercase text-[10px] font-bold">${collName}</td>
+                        <td class="px-6 py-4 text-gray-400 text-xs">${data.location || data.from || 'Kano'}</td>
+                        <td class="px-6 py-4 font-bold text-emerald-400">₦${Number(priceDisplay).toLocaleString()}</td>
+                        <td class="px-6 py-4 flex gap-2">
+                            <button onclick="approveItem('${collName}', '${item.id}')" class="px-3 py-1 bg-emerald-500 text-white rounded-md text-[10px] font-bold">Approve</button>
+                            <button onclick="rejectItem('${collName}', '${item.id}')" class="px-3 py-1 bg-red-500/20 text-red-500 rounded-md text-[10px] font-bold">Reject</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+        if (!hasItems) tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-gray-500 text-xs italic">All clear! No pending items.</td></tr>`;
+    }
+
+    // --- GLOBAL ACTIONS ---
+    window.approveItem = async (coll, id) => {
+        try {
+            await sendNotification(coll, id, 'approve');
+            await updateDoc(doc(db, coll, id), { status: 'active', approvedBy: MY_ADMIN_EMAIL });
+            refreshDashboard();
+        } catch(e) { alert("Approval Error: " + e.message); }
+    };
+
+    window.rejectItem = async (coll, id) => {
+        if(confirm("Permanently delete this? User will be notified.")) {
+            try {
+                await sendNotification(coll, id, 'reject');
+                await deleteDoc(doc(db, coll, id));
+                refreshDashboard();
+            } catch(e) { alert("Rejection Error: " + e.message); }
+        }
+    };
+
+    window.toggleVerify = async (uid, currentStatus) => {
+        try {
+            await updateDoc(doc(db, "users", uid), { isPremium: !currentStatus });
+            loadUsers();
+        } catch (e) { alert("Verification Error: " + e.message); }
+    };
+
+    async function updateStats() {
+        try {
+            const uSnap = await getCountFromServer(collection(db, "users"));
+            const el = document.getElementById('total-users');
+            if (el) el.innerText = uSnap.data().count;
+        } catch (e) { console.warn("Stats failed to load."); }
+    }
+
+    document.getElementById('admin-logout').addEventListener('click', () => signOut(auth).then(() => window.location.href = "index.html"));
+    
+    document.getElementById('user-search').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = allUsers.filter(u => 
+            (u.fullName && u.fullName.toLowerCase().includes(term)) || 
+            (u.email && u.email.toLowerCase().includes(term))
+        );
+        renderUsers(filtered);
+    });
+</script>
