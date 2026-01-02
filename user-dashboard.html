@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | My Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0B0E14; color: white; font-family: 'Inter', sans-serif; }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .stat-card:hover { transform: translateY(-5px); transition: all 0.3s ease; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        .modal.active { display: flex; }
+        .sold-item { opacity: 0.5; filter: grayscale(1); }
+    </style>
+</head>
+<body class="min-h-screen bg-[#0B0E14]">
+
+    <div id="edit-modal" class="modal">
+        <div class="glass-card p-8 rounded-[32px] w-full max-w-lg relative">
+            <h2 class="text-2xl font-bold mb-6">Edit Listing</h2>
+            <input type="hidden" id="edit-id">
+            <input type="hidden" id="edit-coll">
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">Title / Name</label>
+                    <input type="text" id="edit-title" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">Price / Salary / Fare (₦)</label>
+                    <input type="number" id="edit-price" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">Description</label>
+                    <textarea id="edit-desc" rows="3" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"></textarea>
+                </div>
+                
+                <div class="flex gap-3 mt-6">
+                    <button onclick="closeEditModal()" class="flex-1 py-3 text-gray-400 font-bold hover:text-white transition">Cancel</button>
+                    <button id="save-edit-btn" class="flex-1 neon-gradient py-3 rounded-xl font-bold shadow-lg">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="border-b border-white/10 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='index.html'">
+            <div class="w-8 h-8 neon-gradient rounded-lg flex items-center justify-center font-bold">K</div>
+            <span class="font-bold text-xl tracking-tight">K-Hub</span>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div class="relative inline-block">
+                <button onclick="window.location.href='notifications.html'" class="p-2 hover:bg-white/5 rounded-full transition group">
+                    <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                    <span id="notif-dot" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#0B0E14]"></span>
+                </button>
+            </div>
+            <button id="view-profile-btn" class="text-sm text-purple-400 hover:underline">Public Profile</button>
+            <button id="logout-btn" class="text-sm text-gray-400 hover:text-red-400 transition">Logout</button>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto p-6">
+        <header class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-3xl font-bold">Welcome back, <span id="user-display-name" class="text-purple-400">...</span>!</h1>
+                </div>
+                <p class="text-gray-400 mt-1">Account Type: <span id="user-role" class="uppercase text-xs font-bold tracking-widest text-blue-400">Loading...</span></p>
+            </div>
+            <button id="main-action-btn" class="neon-gradient px-6 py-3 rounded-xl font-bold shadow-lg hover:scale-105 transition text-sm">
+                + Post New Listing
+            </button>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="glass-card p-6 rounded-2xl stat-card text-center">
+                <p class="text-gray-400 text-sm">Total Listings</p>
+                <h3 id="stat-listings-count" class="text-2xl font-bold mt-2">0</h3>
+            </div>
+            <div class="glass-card p-6 rounded-2xl stat-card text-center">
+                <p class="text-gray-400 text-sm">Live Status</p>
+                <h3 id="stat-active-count" class="text-2xl font-bold mt-2 text-emerald-400">0</h3>
+            </div>
+            <div class="glass-card p-6 rounded-2xl stat-card border-l-4 border-gray-600 text-center" id="status-card">
+                <p class="text-gray-400 text-sm">Badge Status</p>
+                <h3 id="account-status-text" class="text-2xl font-bold mt-2 text-gray-400">Standard</h3>
+            </div>
+        </div>
+
+        <div class="glass-card p-8 rounded-3xl">
+            <h3 class="text-xl font-bold mb-6 text-left">Manage My Listings</h3>
+            <div id="my-listings" class="grid gap-4">
+                <p class="text-gray-500 text-center py-10 italic">Searching for your posts...</p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { auth, db } from './firebase-config.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, query, where, getDocs, doc, getDoc, limit, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // UI HELPERS
+        window.closeEditModal = () => document.getElementById('edit-modal').classList.remove('active');
+
+        // CHECK NOTIFICATIONS
+        async function checkNewNotifications(uid) {
+            const q = query(collection(db, "notifications"), where("recipientId", "==", uid), where("read", "==", false), limit(1));
+            const snap = await getDocs(q);
+            if (!snap.empty) document.getElementById('notif-dot').classList.remove('hidden');
+        }
+
+        // TOGGLE STATUS (SOLD/ACTIVE)
+        window.toggleStatus = async (coll, id, currentStatus) => {
+            const newStatus = currentStatus === 'active' ? 'sold' : 'active';
+            const msg = newStatus === 'sold' ? "Mark this as Sold/Closed? It will be hidden from the shop." : "Make this listing active again?";
+            if (confirm(msg)) {
+                await updateDoc(doc(db, coll, id), { status: newStatus });
+                location.reload();
+            }
+        };
+
+        // DELETE
+        window.deleteItem = async (coll, id) => {
+            if (confirm("Permanently delete this listing?")) {
+                await deleteDoc(doc(db, coll, id));
+                location.reload();
+            }
+        };
+
+        // EDIT (OPEN)
+        window.openEdit = async (coll, id) => {
+            const itemDoc = await getDoc(doc(db, coll, id));
+            if (itemDoc.exists()) {
+                const data = itemDoc.data();
+                document.getElementById('edit-id').value = id;
+                document.getElementById('edit-coll').value = coll;
+                document.getElementById('edit-title').value = data.name || data.title || "";
+                document.getElementById('edit-price').value = data.price || data.salary || data.fare || 0;
+                document.getElementById('edit-desc').value = data.description || "";
+                document.getElementById('edit-modal').classList.add('active');
+            }
+        };
+
+        // SAVE EDITS
+        document.getElementById('save-edit-btn').onclick = async () => {
+            const id = document.getElementById('edit-id').value;
+            const coll = document.getElementById('edit-coll').value;
+            const btn = document.getElementById('save-edit-btn');
+            btn.disabled = true;
+            btn.innerText = "Saving...";
+
+            const updateData = { description: document.getElementById('edit-desc').value };
+
+            if (coll === 'products') {
+                updateData.name = document.getElementById('edit-title').value;
+                updateData.price = document.getElementById('edit-price').value;
+            } else {
+                updateData.title = document.getElementById('edit-title').value;
+                if (coll === 'jobs') updateData.salary = document.getElementById('edit-price').value;
+                else updateData.fare = document.getElementById('edit-price').value;
+            }
+
+            try {
+                await updateDoc(doc(db, coll, id), updateData);
+                location.reload();
+            } catch (e) {
+                alert("Error: " + e.message);
+                btn.disabled = false;
+                btn.innerText = "Save Changes";
+            }
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    document.getElementById('user-display-name').innerText = data.fullName || "User";
+                    document.getElementById('user-role').innerText = data.role || "User";
+                    document.getElementById('view-profile-btn').onclick = () => window.location.href = `profile.html?id=${user.uid}`;
+                    
+                    checkNewNotifications(user.uid);
+                    setupRoleUI(data.role);
+                    loadUserItems(user.uid);
+                }
+            } else {
+                window.location.href = "k-hub-login.html";
+            }
+        });
+
+        function setupRoleUI(role) {
+            const btn = document.getElementById('main-action-btn');
+            const routes = { seller: 'post-product.html', employer: 'post-job.html', landlord: 'post-rental.html', driver: 'post-transport.html' };
+            btn.onclick = () => window.location.href = routes[role] || 'post-product.html';
+        }
+
+        async function loadUserItems(uid) {
+            const collections = ['products', 'jobs', 'rentals', 'transport'];
+            const container = document.getElementById('my-listings');
+            container.innerHTML = "";
+            let total = 0, activeCount = 0;
+
+            for (const coll of collections) {
+                const q = query(collection(db, coll), where("userId", "==", uid));
+                const snap = await getDocs(q);
+
+                snap.forEach(item => {
+                    total++;
+                    const data = item.data();
+                    const status = data.status || 'active';
+                    const isActive = status === 'active';
+                    if(isActive) activeCount++;
+                    
+                    const statusBtnLabel = isActive ? 'Mark Sold' : 'Relist';
+                    const statusClass = isActive ? 'text-emerald-400 border-emerald-400/20 bg-emerald-400/5' : 'text-gray-500 border-white/10 bg-white/5';
+
+                    container.innerHTML += `
+                        <div class="glass-card p-5 rounded-2xl flex justify-between items-center border border-white/5 transition mb-2 ${!isActive ? 'sold-item' : ''}">
+                            <div class="flex items-center gap-4 text-left">
+                                <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center overflow-hidden">
+                                    ${data.imageUrl ? `<img src="${data.imageUrl}" class="w-full h-full object-cover">` : `<span class="text-xl">📦</span>`}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm">${data.name || data.title || 'Untitled'}</h4>
+                                    <span class="text-[9px] uppercase px-2 py-0.5 rounded border ${statusClass}">${status}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button onclick="toggleStatus('${coll}', '${item.id}', '${status}')" class="text-[10px] font-bold px-3 py-2 rounded-lg hover:bg-white/10 transition text-purple-400">
+                                    ${statusBtnLabel}
+                                </button>
+                                <button onclick="openEdit('${coll}', '${item.id}')" class="p-2 text-gray-400 hover:text-white">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </button>
+                                <button onclick="deleteItem('${coll}', '${item.id}')" class="p-2 text-gray-400 hover:text-red-500">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        </div>`;
+                });
+            }
+            document.getElementById('stat-listings-count').innerText = total;
+            document.getElementById('stat-active-count').innerText = activeCount;
+            if (total === 0) container.innerHTML = `<p class="text-center py-10 text-gray-500 italic">You have no listings yet.</p>`;
+        }
+
+        document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => window.location.href = "index.html");
+    </script>
+</body>
+</html>
