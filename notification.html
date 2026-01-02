@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Notifications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0B0E14; color: white; font-family: 'Inter', sans-serif; }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <nav class="p-6 flex justify-between items-center border-b border-white/5">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='index.html'">
+            <div class="w-8 h-8 neon-gradient rounded-lg flex items-center justify-center font-bold">K</div>
+            <span class="font-bold text-xl tracking-tight">K-Hub</span>
+        </div>
+        <button onclick="window.location.href='user-dashboard.html'" class="text-sm text-gray-400">Dashboard</button>
+    </nav>
+
+    <main class="max-w-2xl mx-auto mt-10 px-4">
+        <h1 class="text-2xl font-bold mb-6">Activity Feed</h1>
+        
+        <div id="notification-list" class="space-y-4">
+            <div class="text-center py-20 text-gray-500 italic" id="loader">
+                Loading updates from people you follow...
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { auth, db } from './firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "k-hub-login.html";
+                return;
+            }
+
+            // 1. Get IDs of everyone the user follows
+            const followQuery = query(collection(db, "follows"), where("followerId", "==", user.uid));
+            const followSnap = await getDocs(followQuery);
+            const followingIds = followSnap.docs.map(doc => doc.data().followingId);
+
+            if (followingIds.length === 0) {
+                document.getElementById('notification-list').innerHTML = `
+                    <div class="glass-card p-10 text-center rounded-3xl">
+                        <p class="text-gray-400">You aren't following anyone yet.</p>
+                        <button onclick="window.location.href='shop.html'" class="text-purple-400 text-sm mt-2 font-bold underline">Discover Sellers</button>
+                    </div>`;
+                return;
+            }
+
+            loadFeed(followingIds);
+        });
+
+        async function loadFeed(ids) {
+            const list = document.getElementById('notification-list');
+            const collections = ['products', 'jobs', 'rentals'];
+            let allUpdates = [];
+
+            // 2. Fetch recent posts from those IDs
+            for (const coll of collections) {
+                const q = query(
+                    collection(db, coll), 
+                    where("userId", "in", ids), 
+                    where("status", "==", "active"),
+                    limit(5)
+                );
+                
+                const snap = await getDocs(q);
+                snap.forEach(doc => {
+                    allUpdates.push({ ...doc.data(), type: coll, id: doc.id });
+                });
+            }
+
+            // Sort by timestamp (if you have a createdAt field)
+            // allUpdates.sort((a, b) => b.createdAt - a.createdAt);
+
+            if (allUpdates.length === 0) {
+                list.innerHTML = "<p class='text-center text-gray-500'>No recent posts from people you follow.</p>";
+                return;
+            }
+
+            list.innerHTML = "";
+            allUpdates.forEach(item => {
+                list.innerHTML += `
+                    <div class="glass-card p-4 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition cursor-pointer" onclick="window.location.href='item-details.html?id=${item.id}&type=${item.type}'">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-xl">
+                            ${item.type === 'products' ? '🛍️' : item.type === 'jobs' ? '💼' : '🏠'}
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm">
+                                <span class="font-bold text-purple-400">${item.sellerName || 'A seller you follow'}</span> 
+                                posted a new ${item.type.slice(0, -1)}: 
+                                <span class="font-bold text-white">${item.name || item.title}</span>
+                            </p>
+                            <p class="text-[10px] text-gray-500 uppercase mt-1">Just Now</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
