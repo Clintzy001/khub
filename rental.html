@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Find Your Space</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0B0E14; color: white; font-family: 'Inter', sans-serif; }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .property-image { height: 200px; object-fit: cover; border-radius: 1rem; }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <header class="flex items-center justify-between px-4 py-4 max-w-7xl mx-auto">
+        <div class="flex items-center gap-2">
+            <svg onclick="window.location.href='index.html'" class="cursor-pointer" width="30" height="30" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="20" fill="url(#logoGrad)"/>
+                <path d="M14 12V28M14 20L24 12M14 20L24 28" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/></linearGradient></defs>
+            </svg>
+            <span class="text-lg font-bold tracking-tight">K-Hub <span class="text-purple-400">Rentals</span></span>
+        </div>
+        <a href="user-dashboard.html" class="px-4 py-2 rounded-xl bg-white/10 text-[10px] font-bold">Dashboard</a>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="mb-10 text-center">
+            <h1 class="text-3xl font-bold mb-4">Properties in Kano</h1>
+            <div class="flex items-center bg-white/5 border border-white/10 rounded-2xl px-4 py-3 max-w-xl mx-auto">
+                <input type="text" id="location-filter" placeholder="Filter by LGA (e.g. Tarauni, Nasarawa)..." class="bg-transparent w-full outline-none text-sm text-white">
+                <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+        </div>
+
+        <div id="rentals-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full text-center py-20 text-gray-500">
+                <p>Searching for listings in Kano...</p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { db } from './firebase-config.js';
+        import { collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        async function fetchRentals() {
+            const container = document.getElementById('rentals-container');
+            
+            try {
+                // Fetch all active rentals ordered by newest first
+                const q = query(collection(db, "rentals"), orderBy("postedAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                container.innerHTML = ""; // Clear loader
+
+                if (querySnapshot.empty) {
+                    container.innerHTML = `<p class="col-span-full text-center text-gray-400">No properties listed yet. Check back soon!</p>`;
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const card = `
+                        <div class="glass-card p-4 rounded-3xl flex flex-col gap-4 hover:border-purple-500/50 transition">
+                            <img src="${data.imageUrl || 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=500'}" class="property-image" alt="Property">
+                            <div>
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="font-bold text-lg">${data.title}</h3>
+                                    <span class="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-1 rounded-lg font-bold">₦${data.price} / yr</span>
+                                </div>
+                                <p class="text-xs text-gray-400 mb-4 line-clamp-2">${data.description}</p>
+                                <div class="flex items-center gap-2 text-xs text-gray-500 font-semibold border-t border-white/5 pt-4">
+                                    <span class="flex items-center gap-1">📍 ${data.location}</span>
+                                    <span class="flex items-center gap-1">🛏️ ${data.bedrooms || '1'} Bed</span>
+                                </div>
+                                <button onclick="alert('Contacting Landlord...')" class="w-full mt-4 py-3 bg-white/5 rounded-xl text-xs font-bold hover:bg-white hover:text-black transition">View Details</button>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `<p class="text-red-400 text-center col-span-full">Error loading listings. Please try again.</p>`;
+            }
+        }
+
+        // Run on load
+        fetchRentals();
+    </script>
+</body>
+</html>
