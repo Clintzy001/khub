@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Post a Trip</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0B0E14; color: white; font-family: 'Inter', sans-serif; }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .input-field { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); color: white; transition: 0.3s; }
+        .input-field:focus { border-color: #8B5CF6; outline: none; background: rgba(255, 255, 255, 0.07); }
+    </style>
+</head>
+<body>
+
+    <main class="max-w-2xl mx-auto px-4 py-10">
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-white">Post a Trip</h1>
+                <p class="text-gray-400 text-sm">Find passengers for your next journey.</p>
+            </div>
+            <button onclick="window.location.href='transport.html'" class="text-xs text-gray-500 hover:text-white transition">Cancel</button>
+        </div>
+
+        <form id="trip-form" class="space-y-6">
+            <div class="glass-card p-6 rounded-3xl space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">From (Kano LGA)</label>
+                        <input type="text" id="t-from" placeholder="Gwale" required class="w-full input-field px-4 py-3 rounded-xl text-sm">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Destination City</label>
+                        <input type="text" id="t-to" placeholder="Zaria" required class="w-full input-field px-4 py-3 rounded-xl text-sm">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">Pick-up Location Details</label>
+                    <input type="text" id="t-from-loc" placeholder="Gwale Motor Park, Beside Bank" required class="w-full input-field px-4 py-3 rounded-xl text-sm">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Departure Date & Time</label>
+                        <input type="datetime-local" id="t-time" required class="w-full input-field px-4 py-3 rounded-xl text-sm">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Fare (₦)</label>
+                        <input type="number" id="t-fare" placeholder="2000" required class="w-full input-field px-4 py-3 rounded-xl text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Vehicle Type</label>
+                        <select id="t-vehicle" class="w-full input-field px-4 py-3 rounded-xl text-sm">
+                            <option>Toyota Hiace (Bus)</option>
+                            <option>Golf 3</option>
+                            <option>Sharon</option>
+                            <option>Private Sedan</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Available Seats</label>
+                        <input type="number" id="t-seats" placeholder="4" required class="w-full input-field px-4 py-3 rounded-xl text-sm">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">WhatsApp / Contact Number</label>
+                    <input type="tel" id="t-phone" placeholder="080..." required class="w-full input-field px-4 py-3 rounded-xl text-sm">
+                </div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="w-full py-4 neon-gradient rounded-2xl font-bold shadow-lg active:scale-95 transition">
+                Launch Trip
+            </button>
+        </form>
+    </main>
+
+    <script type="module">
+        import { auth, db, sendNotification, collection, addDoc, serverTimestamp } from './firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        let driverId = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = 'k-hub-login.html';
+            else driverId = user.uid;
+        });
+
+        document.getElementById('trip-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerText = "Processing Trip...";
+
+            const destination = document.getElementById('t-to').value;
+            const departureDate = new Date(document.getElementById('t-time').value);
+
+            try {
+                // 1. Save Trip to Firestore
+                await addDoc(collection(db, "transport"), {
+                    userId: driverId,
+                    from: document.getElementById('t-from').value,
+                    to: destination,
+                    fromLocation: document.getElementById('t-from-loc').value,
+                    toLocation: "Main Terminal", // Simplified for now
+                    departureTime: Timestamp.fromDate(departureDate),
+                    fare: document.getElementById('t-fare').value,
+                    vehicleType: document.getElementById('t-vehicle').value,
+                    availableSeats: document.getElementById('t-seats').value,
+                    phone: document.getElementById('t-phone').value,
+                    status: 'active',
+                    createdAt: serverTimestamp()
+                });
+
+                // 2. Trigger Global Notification
+                await sendNotification(
+                    driverId, 
+                    'transport', 
+                    'Trip Active 🚗', 
+                    `Your journey to ${destination} has been posted. Passengers can now book seats.`
+                );
+
+                alert("Trip published successfully!");
+                window.location.href = 'user-dashboard.html';
+
+            } catch (err) {
+                alert("Error: " + err.message);
+                btn.disabled = false;
+                btn.innerText = "Launch Trip";
+            }
+        });
+    </script>
+</body>
+</html>
