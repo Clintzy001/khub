@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0B0E14; color: white; font-family: 'Inter', sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .product-img { height: 160px; object-fit: cover; border-radius: 12px; }
+    </style>
+</head>
+<body>
+
+    <header class="flex items-center justify-between px-4 py-4 max-w-7xl mx-auto">
+        <h1 onclick="window.location.href='index.html'" class="text-xl font-bold cursor-pointer">K-Hub <span class="text-blue-400">Shop</span></h1>
+        <a href="user-dashboard.html" class="text-xs bg-white/10 px-4 py-2 rounded-lg">Dashboard</a>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <p class="col-span-full text-center py-20 text-gray-500">Loading Kano marketplace...</p>
+        </div>
+    </main>
+
+    <script type="module">
+        import { db } from './firebase-config.js';
+        import { collection, query, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const grid = document.getElementById('products-grid');
+
+        async function loadProducts() {
+            const q = query(collection(db, "products"), orderBy("postedAt", "desc"));
+            const snapshot = await getDocs(q);
+            grid.innerHTML = "";
+
+            if(snapshot.empty) {
+                grid.innerHTML = "<p class='col-span-full text-center'>No items for sale yet.</p>";
+                return;
+            }
+
+            snapshot.forEach(doc => {
+                const p = doc.data();
+                grid.innerHTML += `
+                    <div class="glass-card p-3 rounded-2xl flex flex-col">
+                        <img src="${p.imageUrl || 'https://via.placeholder.com/300'}" class="product-img mb-3">
+                        <h3 class="font-bold text-sm truncate">${p.name}</h3>
+                        <p class="text-blue-400 font-bold text-xs mt-1">₦${p.price}</p>
+                        <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-tighter">📍 ${p.location}</p>
+                        <button class="w-full mt-3 py-2 bg-blue-600 rounded-lg text-[10px] font-bold">Buy Now</button>
+                    </div>
+                `;
+            });
+        }
+        loadProducts();
+    </script>
+</body>
+</html>
