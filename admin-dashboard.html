@@ -1,0 +1,70 @@
+// --- Updated Firebase Logic for clintzyarts@gmail.com ---
+
+<script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { collection, getCountFromServer, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // 1. YOUR ADMIN EMAIL
+    const MY_ADMIN_EMAIL = "clintzyarts@gmail.com"; 
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user && user.email === MY_ADMIN_EMAIL) {
+            // AUTHORIZED
+            document.body.classList.add('authorized');
+            document.getElementById('logged-admin').innerText = user.email;
+            updateStats();
+        } else {
+            // UNAUTHORIZED - Kick them out immediately
+            window.location.href = "index.html";
+        }
+    });
+
+    // 2. APPROVAL FUNCTION (Call this from your buttons)
+    window.approveItem = async (collectionName, docId) => {
+        try {
+            const docRef = doc(db, collectionName, docId);
+            await updateDoc(docRef, { 
+                status: 'active',
+                approvedBy: MY_ADMIN_EMAIL 
+            });
+            alert("Listing Approved and Live!");
+            location.reload(); 
+        } catch (error) {
+            alert("Error approving: " + error.message);
+        }
+    };
+
+    // 3. REJECT/DELETE FUNCTION
+    window.rejectItem = async (collectionName, docId) => {
+        if(confirm("Are you sure you want to delete this listing?")) {
+            try {
+                await deleteDoc(doc(db, collectionName, docId));
+                alert("Listing Removed.");
+                location.reload();
+            } catch (error) {
+                alert("Error: " + error.message);
+            }
+        }
+    };
+
+    // 4. LOAD COUNTS
+    async function updateStats() {
+        try {
+            const userSnapshot = await getCountFromServer(collection(db, "users"));
+            document.getElementById('total-users').innerText = userSnapshot.data().count;
+
+            const jobsSnapshot = await getCountFromServer(collection(db, "jobs"));
+            document.getElementById('active-jobs').innerText = jobsSnapshot.data().count;
+
+            const rentalsSnapshot = await getCountFromServer(collection(db, "rentals"));
+            document.getElementById('active-rentals').innerText = rentalsSnapshot.data().count;
+        } catch (error) {
+            console.error("Stats Error:", error);
+        }
+    }
+
+    document.getElementById('admin-logout').addEventListener('click', () => {
+        signOut(auth).then(() => window.location.href = "index.html");
+    });
+</script>
