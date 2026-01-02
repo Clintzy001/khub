@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Find Jobs in Kano</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0B0E14; color: white; font-family: 'Inter', sans-serif; }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <header class="sticky top-0 z-50 bg-[#0B0E14]/80 backdrop-blur-md border-b border-white/10 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='index.html'">
+                <svg width="30" height="30" viewBox="0 0 40 40" fill="none">
+                    <circle cx="20" cy="20" r="20" fill="url(#logoGrad)"/>
+                    <path d="M14 12V28M14 20L24 12M14 20L24 28" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/></linearGradient></defs>
+                </svg>
+                <span class="text-xl font-bold tracking-tight">K-Hub</span>
+            </div>
+
+            <nav class="hidden md:flex gap-6 text-sm font-medium text-gray-400">
+                <a href="index.html" class="hover:text-white transition">Home</a>
+                <a href="job-search.html" class="text-white border-b-2 border-purple-500 pb-1">Jobs</a>
+                <a href="rentals.html" class="hover:text-purple-400 transition">Rentals</a>
+                <a href="shop.html" class="hover:text-purple-400 transition">Shop</a>
+                <a href="transport.html" class="hover:text-purple-400 transition">Transport</a>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='user-dashboard.html'" class="hidden sm:block text-[10px] bg-white/10 px-4 py-2 rounded-xl font-bold hover:bg-white/20 transition">Dashboard</button>
+                <div onclick="window.location.href='user-dashboard.html'" class="w-9 h-9 rounded-full bg-purple-600 flex items-center justify-center font-bold cursor-pointer">U</div>
+            </div>
+        </div>
+    </header>
+
+    <section class="py-12 px-6 bg-gradient-to-b from-purple-900/10 to-transparent">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-4">Find Jobs in Kano</h1>
+            <p class="text-gray-400 mb-8">Discover your next career move in Kano's commercial center.</p>
+            
+            <div class="glass-card p-4 rounded-2xl flex flex-col md:flex-row gap-4 items-center">
+                <div class="flex items-center bg-black/30 rounded-xl px-4 py-3 w-full border border-white/10">
+                    <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <input type="text" id="job-title-search" placeholder="Job title (e.g. Teacher, Engineer)..." class="bg-transparent w-full outline-none text-white text-sm">
+                </div>
+                <div class="flex items-center bg-black/30 rounded-xl px-4 py-3 w-full border border-white/10">
+                    <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <input type="text" id="location-search" placeholder="LGA (e.g. Dala, Tarauni)..." class="bg-transparent w-full outline-none text-white text-sm">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto px-6 py-10">
+        <p id="job-count" class="text-sm text-gray-400 mb-6">Searching for jobs...</p>
+        
+        <div id="job-container" class="space-y-6">
+            <div class="animate-pulse flex space-x-4 glass-card p-6 rounded-3xl">
+                <div class="rounded-full bg-slate-700 h-10 w-10"></div>
+                <div class="flex-1 space-y-6 py-1">
+                    <div class="h-2 bg-slate-700 rounded"></div>
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="h-2 bg-slate-700 rounded col-span-2"></div>
+                            <div class="h-2 bg-slate-700 rounded col-span-1"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from './firebase-config.js';
+        import { collection, query, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const jobContainer = document.getElementById('job-container');
+        const countDisplay = document.getElementById('job-count');
+        const titleInput = document.getElementById('job-title-search');
+        const locInput = document.getElementById('location-search');
+        
+        let allJobs = [];
+
+        async function fetchJobs() {
+            try {
+                const q = query(collection(db, "jobs"), orderBy("postedAt", "desc"));
+                const snapshot = await getDocs(q);
+                allJobs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderJobs(allJobs);
+            } catch (err) {
+                console.error(err);
+                jobContainer.innerHTML = `<p class="text-red-400">Error loading jobs. Ensure your Firestore rules are set to public read.</p>`;
+            }
+        }
+
+        function renderJobs(jobs) {
+            jobContainer.innerHTML = "";
+            countDisplay.innerText = `Showing ${jobs.length} active jobs`;
+
+            if (jobs.length === 0) {
+                jobContainer.innerHTML = `<p class="text-center py-20 text-gray-500">No matching jobs found in Kano.</p>`;
+                return;
+            }
+
+            jobs.forEach(j => {
+                const phoneFormatted = j.phone ? j.phone.replace(/^0/, '234') : '2348000000000';
+                const whatsappLink = `https://wa.me/${phoneFormatted}?text=Hello, I am applying for the ${j.title} position I saw on K-Hub.`;
+
+                jobContainer.innerHTML += `
+                    <div class="glass-card p-6 rounded-3xl hover:border-purple-500/50 transition group">
+                        <div class="flex flex-col md:flex-row justify-between gap-4">
+                            <div class="flex gap-4">
+                                <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-2xl">💼</div>
+                                <div>
+                                    <h3 class="text-lg font-bold group-hover:text-purple-400 transition">${j.title}</h3>
+                                    <p class="text-sm text-gray-400 mb-2">${j.category || 'General'} • ${j.location}</p>
+                                    <div class="flex gap-2">
+                                        <span class="text-[10px] font-bold px-2 py-1 bg-purple-500/20 text-purple-400 rounded-md uppercase">${j.type || 'Full-time'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-left md:text-right flex flex-col justify-between">
+                                <p class="text-lg font-bold text-emerald-400">₦${Number(j.salary).toLocaleString()} / mo</p>
+                                <button onclick="window.open('${whatsappLink}', '_blank')" 
+                                        class="mt-4 md:mt-0 px-6 py-2 bg-green-600 rounded-xl text-sm font-bold hover:bg-green-500 transition flex items-center justify-center gap-2">
+                                    Apply on WhatsApp
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        const filterItems = () => {
+            const titleTerm = titleInput.value.toLowerCase();
+            const locTerm = locInput.value.toLowerCase();
+            
+            const filtered = allJobs.filter(j => 
+                (j.title.toLowerCase().includes(titleTerm)) && 
+                (j.location.toLowerCase().includes(locTerm))
+            );
+            renderJobs(filtered);
+        };
+
+        titleInput.addEventListener('input', filterItems);
+        locInput.addEventListener('input', filterItems);
+
+        fetchJobs();
+    </script>
+</body>
+</html>
