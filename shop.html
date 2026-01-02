@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0B0E14; color: white; font-family: 'Inter', sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .product-img { height: 160px; object-fit: cover; border-radius: 12px; }
+        .search-input:focus { border-color: #3B82F6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+    </style>
+</head>
+<body>
+
+    <header class="sticky top-0 z-50 bg-[#0B0E14]/80 backdrop-blur-md border-b border-white/10 px-4 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <h1 onclick="window.location.href='index.html'" class="text-xl font-bold cursor-pointer hidden sm:block">K-Hub</h1>
+            
+            <div class="flex-grow max-w-md relative">
+                <input type="text" id="search-bar" placeholder="Search products (e.g. Phone, Laptop)..." 
+                       class="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-4 pl-10 text-sm outline-none search-input transition">
+                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+
+            <a href="user-dashboard.html" class="text-[10px] bg-white/10 px-3 py-2 rounded-lg font-bold">Menu</a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <p class="col-span-full text-center py-20 text-gray-500">Connecting to Kano Marketplace...</p>
+        </div>
+    </main>
+
+    <script type="module">
+        import { db } from './firebase-config.js';
+        import { collection, query, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const grid = document.getElementById('products-grid');
+        const searchBar = document.getElementById('search-bar');
+        let allProducts = []; // Local cache for instant searching
+
+        async function loadProducts() {
+            try {
+                const q = query(collection(db, "products"), orderBy("postedAt", "desc"));
+                const snapshot = await getDocs(q);
+                allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderProducts(allProducts);
+            } catch (err) {
+                grid.innerHTML = `<p class="col-span-full text-center text-red-400 font-bold">Server Error: ${err.message}</p>`;
+            }
+        }
+
+        function renderProducts(products) {
+            grid.innerHTML = "";
+            if(products.length === 0) {
+                grid.innerHTML = "<p class='col-span-full text-center text-gray-500 py-10'>No matching items found.</p>";
+                return;
+            }
+
+            products.forEach(p => {
+                grid.innerHTML += `
+                    <div class="glass-card p-3 rounded-2xl flex flex-col fade-in">
+                        <img src="${p.imageUrl || 'https://via.placeholder.com/300'}" class="product-img mb-3">
+                        <h3 class="font-bold text-sm truncate">${p.name}</h3>
+                        <p class="text-blue-400 font-bold text-xs mt-1">₦${Number(p.price).toLocaleString()}</p>
+                        <p class="text-[10px] text-gray-400 mt-1 uppercase">📍 ${p.location}</p>
+                        <button onclick="window.location.href='mailto:support@khub.com?subject=Inquiry: ${p.name}'" 
+                                class="w-full mt-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-[10px] font-bold transition">
+                            Contact Seller
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        // Live Search Logic
+        searchBar.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allProducts.filter(p => 
+                p.name.toLowerCase().includes(term) || 
+                p.location.toLowerCase().includes(term)
+            );
+            renderProducts(filtered);
+        });
+
+        loadProducts();
+    </script>
+</body>
+</html>
