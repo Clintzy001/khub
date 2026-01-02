@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Notifications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0B0E14; color: white; font-family: 'Inter', sans-serif; }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .unread-indicator { width: 10px; height: 10px; background: #3B82F6; border-radius: 50%; box-shadow: 0 0 12px #3B82F6; }
+        .notif-item { transition: all 0.2s ease; }
+        .notif-item:hover { background: rgba(255, 255, 255, 0.08); transform: translateX(4px); }
+    </style>
+</head>
+<body class="min-h-screen bg-[#0B0E14]">
+
+    <nav class="border-b border-white/10 px-6 py-4 flex justify-between items-center bg-[#0B0E14]/80 sticky top-0 z-50 backdrop-blur-md">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='user-dashboard.html'">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            <span class="font-bold text-xl tracking-tight">Dashboard</span>
+        </div>
+        <button id="mark-all-read" class="text-xs text-purple-400 font-bold hover:text-purple-300 transition">Mark all as read</button>
+    </nav>
+
+    <main class="max-w-2xl mx-auto p-6">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h1 class="text-3xl font-bold">Activity</h1>
+                <p id="notif-count" class="text-gray-500 text-sm mt-1 italic">0 New alerts</p>
+            </div>
+        </div>
+
+        <div id="notifications-list" class="space-y-3">
+            <div class="flex justify-center py-20">
+                <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-purple-500"></div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { auth, db } from './firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, query, where, getDocs, doc, updateDoc, orderBy, limit, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                loadNotifications(user.uid);
+            } else {
+                window.location.href = "k-hub-login.html";
+            }
+        });
+
+        // Global function to delete a specific notification
+        window.removeNotif = async (id) => {
+            await deleteDoc(doc(db, "notifications", id));
+            location.reload();
+        };
+
+        async function loadNotifications(uid) {
+            const container = document.getElementById('notifications-list');
+            const q = query(
+                collection(db, "notifications"), 
+                where("recipientId", "==", uid),
+                orderBy("createdAt", "desc"),
+                limit(30)
+            );
+
+            try {
+                const snap = await getDocs(q);
+                container.innerHTML = "";
+                
+                if (snap.empty) {
+                    container.innerHTML = `
+                        <div class="glass-card p-12 text-center rounded-[32px]">
+                            <span class="text-4xl mb-4 block">☕</span>
+                            <p class="text-gray-400">All caught up! No new notifications.</p>
+                        </div>`;
+                    return;
+                }
+
+                let unreadCount = 0;
+
+                snap.forEach(item => {
+                    const data = item.data();
+                    if (!data.read) unreadCount++;
+
+                    const time = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "Now";
+                    const { icon, color } = getMetadata(data.type);
+                    
+                    container.innerHTML += `
+                        <div class="glass-card p-4 rounded-2xl flex items-center gap-4 notif-item ${!data.read ? 'border-l-4 border-l-blue-500' : 'opacity-80'}">
+                            <div class="w-12 h-12 rounded-xl ${color} flex-shrink-0 flex items-center justify-center text-xl">
+                                ${icon}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="font-bold text-sm truncate">${data.title}</h4>
+                                    <span class="text-[10px] text-gray-500">${time}</span>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-1 line-clamp-2">${data.message}</p>
+                            </div>
+                            <button onclick="removeNotif('${item.id}')" class="text-gray-600 hover:text-red-400 p-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('notif-count').innerText = `${unreadCount} New alerts`;
+
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `<div class="text-red-400 text-center">Enable Firestore Indexes to view notifications.</div>`;
+            }
+        }
+
+        function getMetadata(type) {
+            switch(type) {
+                case 'follow': return { icon: '👤', color: 'bg-blue-500/20 text-blue-400' };
+                case 'post': return { icon: '✨', color: 'bg-purple-500/20 text-purple-400' };
+                case 'transport': return { icon: '🚗', color: 'bg-emerald-500/20 text-emerald-400' };
+                case 'sold': return { icon: '💰', color: 'bg-yellow-500/20 text-yellow-400' };
+                default: return { icon: '🔔', color: 'bg-gray-500/20 text-gray-400' };
+            }
+        }
+
+        document.getElementById('mark-all-read').onclick = async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+            const q = query(collection(db, "notifications"), where("recipientId", "==", user.uid), where("read", "==", false));
+            const snap = await getDocs(q);
+            const promises = snap.docs.map(d => updateDoc(doc(db, "notifications", d.id), { read: true }));
+            await Promise.all(promises);
+            location.reload();
+        };
+    </script>
+</body>
+</html>
