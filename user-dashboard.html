@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | My Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --neon-purple: #8B5CF6; --neon-blue: #3B82F6; }
+        body { background-color: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); margin: 0; min-height: 100vh; }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; }
+        .btn-gradient { background: linear-gradient(90deg, #A855F7 0%, #3B82F6 100%); transition: all 0.3s ease; }
+        .stat-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-5px); border-color: var(--neon-purple); }
+        #mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
+        #mobile-menu.active { transform: translateX(0); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 150; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
+        .modal.active { display: flex; }
+        .sold-item { opacity: 0.4; filter: grayscale(1); }
+    </style>
+</head>
+<body class="p-4 md:p-8 lg:p-12">
+
+    <div id="edit-modal" class="modal">
+        <div class="glass-panel p-8 w-full max-w-lg border-purple-500/30">
+            <h2 class="text-2xl font-black mb-6 italic">Edit <span class="text-purple-500">Listing</span></h2>
+            <input type="hidden" id="edit-id">
+            <input type="hidden" id="edit-coll">
+            <div class="space-y-4">
+                <input type="text" id="edit-title" placeholder="Title" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500">
+                <input type="number" id="edit-price" placeholder="Price" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500">
+                <textarea id="edit-desc" rows="3" placeholder="Description" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500"></textarea>
+                <div class="flex gap-4">
+                    <button onclick="closeEditModal()" class="flex-1 py-3 text-xs font-black uppercase text-gray-400">Cancel</button>
+                    <button id="save-edit-btn" class="flex-1 btn-gradient py-3 rounded-xl text-xs font-black uppercase">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobile-menu" class="fixed inset-0 z-[100] bg-[#06080C]/98 backdrop-blur-2xl p-8 flex flex-col md:hidden">
+        <div class="flex justify-between items-center mb-12">
+            <span class="text-xl font-black text-purple-500 italic">K-HUB MENU</span>
+            <button onclick="toggleMenu()" class="text-white p-2 glass-panel">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+        <nav class="flex flex-col gap-8 text-3xl font-bold">
+            <a href="index.html">Home</a>
+            <a href="#" id="mobile-profile-link">Public Profile</a>
+            <button id="mobile-logout" class="text-red-500 text-left">Sign Out</button>
+        </nav>
+    </div>
+
+    <div class="max-w-6xl mx-auto glass-panel p-6 md:p-10 relative overflow-hidden ring-1 ring-purple-500/20 shadow-2xl">
+        <header class="flex justify-between items-center mb-12">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='index.html'">
+                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center font-black">K</div>
+                <span class="text-2xl font-black tracking-tighter italic">K-HUB</span>
+            </div>
+            <nav class="hidden md:flex gap-8 items-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                <a href="index.html" class="hover:text-white transition">Home</a>
+                <a id="nav-profile-link" href="#" class="hover:text-white transition">My Profile</a>
+                <button id="logout-btn" class="text-red-500/70 hover:text-red-500 transition border border-red-500/20 px-4 py-2 rounded-full">Logout</button>
+            </nav>
+            <button onclick="toggleMenu()" class="md:hidden p-2 glass-panel">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16m-7 6h7" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+        </header>
+
+        <section class="mb-12">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                <div>
+                    <h1 class="text-3xl md:text-5xl font-black tracking-tighter mb-2">Hello, <span id="user-display-name" class="text-purple-500">...</span></h1>
+                    <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.3em]">Account Access: <span id="user-role" class="text-blue-400">Loading</span></p>
+                </div>
+                <button id="main-action-btn" class="btn-gradient px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl">
+                    + Create New Listing
+                </button>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+            <div class="stat-card p-8 rounded-3xl text-center">
+                <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">Total Posts</p>
+                <h2 id="stat-listings-count" class="text-3xl font-black">0</h2>
+            </div>
+            <div class="stat-card p-8 rounded-3xl text-center">
+                <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">Active Now</p>
+                <h2 id="stat-active-count" class="text-3xl font-black text-emerald-400">0</h2>
+            </div>
+            <div class="stat-card p-8 rounded-3xl text-center border-b-4 border-purple-500">
+                <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">Verified Status</p>
+                <h2 class="text-2xl font-black text-purple-400 italic">Standard</h2>
+            </div>
+        </div>
+
+        <section class="mb-12">
+            <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.3em] mb-8">My Listings</h3>
+            <div id="my-listings" class="space-y-4">
+                <div class="text-center py-10 text-gray-600 animate-pulse">Checking your inventory...</div>
+            </div>
+        </section>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeW7PFz9wntXO0OUj9N5V1DdkUxxI2VkQ",
+            authDomain: "k-hub-b4d8f.firebaseapp.com",
+            projectId: "k-hub-b4d8f",
+            storageBucket: "k-hub-b4d8f.firebasestorage.app",
+            messagingSenderId: "117649715938",
+            appId: "1:117649715938:web:7768d7b4d27d66e8ba24bb"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Global functions for buttons
+        window.toggleMenu = () => document.getElementById('mobile-menu').classList.toggle('active');
+        window.closeEditModal = () => document.getElementById('edit-modal').classList.remove('active');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    document.getElementById('user-display-name').innerText = data.fullName || "User";
+                    document.getElementById('user-role').innerText = data.role || "Member";
+                    
+                    const profileLink = `public-profile.html?id=${user.uid}`;
+                    document.getElementById('nav-profile-link').href = profileLink;
+                    
+                    setupActionBtn(data.role);
+                    loadUserItems(user.uid);
+                }
+            } else {
+                window.location.href = "k-hub-login.html";
+            }
+        });
+
+        function setupActionBtn(role) {
+            const btn = document.getElementById('main-action-btn');
+            const map = { seller: 'post-product.html', employer: 'post-job.html', landlord: 'post-rental.html', driver: 'post-transport.html' };
+            btn.onclick = () => window.location.href = map[role] || 'post-product.html';
+        }
+
+        async function loadUserItems(uid) {
+            const collections = ['listings', 'jobs', 'rentals', 'transport'];
+            const container = document.getElementById('my-listings');
+            container.innerHTML = "";
+            let total = 0, active = 0;
+
+            for (const coll of collections) {
+                const q = query(collection(db, coll), where("userId", "==", uid));
+                const snap = await getDocs(q);
+                snap.forEach(itemDoc => {
+                    total++;
+                    const item = itemDoc.data();
+                    if(item.status !== 'sold') active++;
+                    
+                    container.innerHTML += `
+                        <div class="glass-panel p-5 flex flex-col sm:flex-row justify-between items-center gap-4 ${item.status === 'sold' ? 'sold-item' : ''}">
+                            <div class="flex items-center gap-4 w-full">
+                                <div class="w-12 h-12 rounded-xl bg-white/5 overflow-hidden">
+                                    <img src="${item.image || 'https://via.placeholder.com/100'}" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm uppercase">${item.title || item.name}</h4>
+                                    <p class="text-xs text-purple-400 font-bold">₦${Number(item.price || 0).toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="deleteItem('${coll}', '${itemDoc.id}')" class="p-2 text-gray-500 hover:text-red-500">Delete</button>
+                            </div>
+                        </div>`;
+                });
+            }
+            document.getElementById('stat-listings-count').innerText = total;
+            document.getElementById('stat-active-count').innerText = active;
+            if(total === 0) container.innerHTML = "<p class='text-center text-gray-500'>No listings yet.</p>";
+        }
+
+        window.deleteItem = async (coll, id) => {
+            if(confirm("Are you sure?")) {
+                await deleteDoc(doc(db, coll, id));
+                location.reload();
+            }
+        };
+
+        const logout = () => signOut(auth).then(() => window.location.href = "index.html");
+        document.getElementById('logout-btn').onclick = logout;
+        document.getElementById('mobile-logout').onclick = logout;
+    </script>
+</body>
+</html>
