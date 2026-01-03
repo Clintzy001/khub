@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Dashboard | K-Hub Kano</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0B0E14; color: white; font-family: 'Inter', sans-serif; }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Google Translate Styling */
+        #google_translate_element { margin-bottom: 20px; }
+        .goog-te-gadget-simple {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(139, 92, 246, 0.3) !important;
+            padding: 10px !important;
+            border-radius: 12px !important;
+            display: flex;
+            align-items: center;
+        }
+        .goog-te-gadget-simple span { color: #8B5CF6 !important; font-weight: bold !important; }
+        .goog-te-banner-frame.skiptranslate { display: none !important; } 
+        body { top: 0px !important; }
+    </style>
+</head>
+<body class="bg-[#0B0E14]">
+
+    <div class="flex min-h-screen">
+        <aside class="w-64 border-r border-white/10 p-6 hidden md:block">
+            <div class="flex items-center gap-2 mb-10 cursor-pointer" onclick="window.location.href='index.html'">
+                <div class="w-8 h-8 neon-gradient rounded-lg flex items-center justify-center font-bold text-white">K</div>
+                <span class="text-xl font-bold tracking-tight text-white">K-Hub</span>
+            </div>
+            <nav class="space-y-4">
+                <a href="#" class="block p-3 rounded-xl bg-purple-500/10 text-purple-400 font-bold">Driver Profile</a>
+                <a href="index.html" class="block p-3 rounded-xl text-gray-500 hover:bg-white/5">Back to Home</a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-6 md:p-12 overflow-y-auto">
+            <div class="max-w-3xl mx-auto">
+                
+                <div class="flex justify-between items-center mb-8">
+                    <h1 class="text-2xl font-black">DRIVER <span class="text-purple-500">DASHBOARD</span></h1>
+                    <div id="google_translate_element"></div>
+                </div>
+
+                <div id="loading-profile" class="text-center py-10">
+                    <p class="text-gray-500 animate-pulse">Synchronizing driver data...</p>
+                </div>
+
+                <form id="profile-form" class="hidden space-y-8">
+                    <div id="status-banner" class="p-4 rounded-2xl flex items-center justify-between border">
+                        <span id="status-text" class="text-xs font-black uppercase tracking-widest"></span>
+                        <div id="status-dot" class="w-3 h-3 rounded-full"></div>
+                    </div>
+
+                    <div class="glass-card p-8 rounded-[32px] space-y-6">
+                        <h3 class="text-lg font-bold border-b border-white/10 pb-4">Professional Details</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Driving Experience (Years)</label>
+                                <input type="number" id="exp-years" placeholder="e.g. 5" class="w-full bg-black/40 border border-white/10 rounded-xl p-4 outline-none focus:border-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Vehicle Model/Year</label>
+                                <input type="text" id="car-type" placeholder="e.g. Toyota Corolla 2018" class="w-full bg-black/40 border border-white/10 rounded-xl p-4 outline-none focus:border-purple-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Service Area (Neighborhood in Kano)</label>
+                            <input type="text" id="driver-area" placeholder="e.g. Hotoro, Nassarawa, Janbulo" class="w-full bg-black/40 border border-white/10 rounded-xl p-4 outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-8 rounded-[32px] space-y-6">
+                        <h3 class="text-lg font-bold border-b border-white/10 pb-4">Contact Information</h3>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">WhatsApp / Phone Number</label>
+                            <input type="tel" id="driver-phone" class="w-full bg-black/40 border border-white/10 rounded-xl p-4 outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-5 neon-gradient rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-purple-500/20 hover:scale-[1.01] transition-all active:scale-95">
+                        Save Profile Changes
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'ha,ig,yo,en',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script type="module">
+        import { db, doc, getDoc, updateDoc, onSnapshot } from './firebase-config.js';
+        
+        // This assumes you have the logged-in user's ID stored (e.g., in localStorage)
+        const driverId = localStorage.getItem('kHubUserId') || "SAMPLE_ID"; 
+
+        async function loadDriverData() {
+            const docRef = doc(db, "drivers", driverId);
+            const form = document.getElementById('profile-form');
+            const loading = document.getElementById('loading-profile');
+
+            onSnapshot(docRef, (snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    
+                    // Fill Fields
+                    document.getElementById('exp-years').value = data.experience || "";
+                    document.getElementById('car-type').value = data.vehicle || "";
+                    document.getElementById('driver-area').value = data.area || "";
+                    document.getElementById('driver-phone').value = data.phone || "";
+
+                    // Update Status Banner
+                    const banner = document.getElementById('status-banner');
+                    const statusText = document.getElementById('status-text');
+                    const statusDot = document.getElementById('status-dot');
+
+                    if (data.isVerified) {
+                        statusText.innerText = "Verified Driver";
+                        banner.className = "p-4 rounded-2xl flex items-center justify-between border border-emerald-500/30 bg-emerald-500/5 text-emerald-400";
+                        statusDot.className = "w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]";
+                    } else {
+                        statusText.innerText = "Pending Verification";
+                        banner.className = "p-4 rounded-2xl flex items-center justify-between border border-orange-500/30 bg-orange-500/5 text-orange-400";
+                        statusDot.className = "w-3 h-3 rounded-full bg-orange-500 animate-pulse";
+                    }
+
+                    loading.classList.add('hidden');
+                    form.classList.remove('hidden');
+                } else {
+                    loading.innerHTML = `<p class="text-red-400">Profile not found. Please register first.</p>`;
+                }
+            });
+        }
+
+        document.getElementById('profile-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.innerText = "UPDATING...";
+
+            try {
+                const docRef = doc(db, "drivers", driverId);
+                await updateDoc(docRef, {
+                    experience: document.getElementById('exp-years').value,
+                    vehicle: document.getElementById('car-type').value,
+                    area: document.getElementById('driver-area').value,
+                    phone: document.getElementById('driver-phone').value
+                });
+                alert("Profile Updated Successfully!");
+            } catch (err) {
+                console.error(err);
+                alert("Error updating profile.");
+            } finally {
+                btn.innerText = "SAVE PROFILE CHANGES";
+            }
+        };
+
+        loadDriverData();
+    </script>
+</body>
+</html>
