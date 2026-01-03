@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Sell Something</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0B0E14; color: white; font-family: 'Inter', sans-serif; }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Google Translate Styling */
+        #google_translate_element { margin-bottom: 15px; }
+        .goog-te-gadget-simple {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(139, 92, 246, 0.2) !important;
+            padding: 10px 15px !important;
+            border-radius: 15px !important;
+            display: flex;
+            align-items: center;
+        }
+        .goog-te-gadget-simple span { color: #8B5CF6 !important; font-weight: bold !important; font-size: 13px !important; }
+        .goog-te-banner-frame.skiptranslate { display: none !important; } 
+        body { top: 0px !important; }
+
+        #image-preview { background-size: cover; background-position: center; }
+    </style>
+</head>
+<body class="pb-20">
+
+    <header class="p-6 flex justify-between items-center max-w-4xl mx-auto">
+        <button onclick="window.location.href='shop.html'" class="text-gray-400 hover:text-white transition flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            Cancel
+        </button>
+        <div id="google_translate_element"></div>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-6">
+        <div class="mb-10">
+            <h1 class="text-3xl font-black italic">SELL ON <span class="text-purple-500">K-HUB</span></h1>
+            <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mt-1">Marketplace Submission</p>
+        </div>
+
+        <form id="listing-form" class="space-y-8">
+            
+            <div class="glass-card rounded-[40px] p-2 border-dashed border-2 border-white/10 hover:border-purple-500 transition-colors">
+                <label for="image-input" class="cursor-pointer block">
+                    <div id="image-preview" class="w-full aspect-video rounded-[36px] flex flex-col items-center justify-center bg-white/5 overflow-hidden">
+                        <div id="upload-placeholder" class="text-center">
+                            <div class="w-12 h-12 bg-purple-500/20 text-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            </div>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Add Item Photo</p>
+                        </div>
+                    </div>
+                </label>
+                <input type="file" id="image-input" accept="image/*" class="hidden" required>
+            </div>
+
+            <div class="glass-card p-8 rounded-[32px] space-y-6">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">Item Title</label>
+                    <input type="text" id="item-title" placeholder="e.g. iPhone 13 Pro Max - 256GB" required 
+                           class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-purple-500 transition font-bold">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">Category</label>
+                        <select id="item-category" class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none text-sm appearance-none font-bold">
+                            <option value="electronics">Electronics</option>
+                            <option value="fashion">Fashion</option>
+                            <option value="home">Home & Living</option>
+                            <option value="others">Others</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">Condition</label>
+                        <select id="item-condition" class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none text-sm appearance-none font-bold">
+                            <option value="New">Brand New</option>
+                            <option value="Used">Used (Clean)</option>
+                            <option value="Refurbished">Refurbished</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">Price (₦)</label>
+                    <input type="number" id="item-price" placeholder="Enter amount" required 
+                           class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-purple-500 transition font-bold text-emerald-400 text-xl">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">Description</label>
+                    <textarea id="item-desc" rows="4" placeholder="Tell buyers more about the item..." required 
+                              class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-purple-500 transition text-sm"></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-5 neon-gradient rounded-[28px] font-black uppercase tracking-widest shadow-lg shadow-purple-500/30 hover:scale-[1.02] transition active:scale-95">
+                Publish to Marketplace
+            </button>
+        </form>
+    </main>
+
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'ha,ig,yo,en',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script type="module">
+        import { db, collection, addDoc, serverTimestamp } from './firebase-config.js';
+
+        const imageInput = document.getElementById('image-input');
+        const preview = document.getElementById('image-preview');
+        const placeholder = document.getElementById('upload-placeholder');
+        let currentImageUrl = "";
+
+        // Handle Image Preview (Client-side)
+        imageInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    preview.style.backgroundImage = `url(${event.target.result})`;
+                    placeholder.style.display = 'none';
+                    // In a real app, you would upload to Firebase Storage and get a URL.
+                    // For now, we simulate with a Base64 string or placeholder.
+                    currentImageUrl = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // Submit Logic
+        document.getElementById('listing-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.innerText = "POSTING...";
+            btn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "products"), {
+                    name: document.getElementById('item-title').value,
+                    category: document.getElementById('item-category').value,
+                    condition: document.getElementById('item-condition').value,
+                    price: document.getElementById('item-price').value,
+                    description: document.getElementById('item-desc').value,
+                    imageUrl: currentImageUrl,
+                    status: 'pending', // Items go to admin for approval
+                    createdAt: serverTimestamp()
+                });
+
+                alert("Item listed successfully! It will appear after admin approval.");
+                window.location.href = 'shop.html';
+
+            } catch (err) {
+                console.error(err);
+                alert("Error posting item.");
+                btn.innerText = "PUBLISH TO MARKETPLACE";
+                btn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>
