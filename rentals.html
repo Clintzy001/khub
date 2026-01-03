@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Browse Rental Listings in Kano</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --neon-purple: #8B5CF6;
+            --neon-blue: #3B82F6;
+        }
+
+        body { 
+            background-color: #06080C; 
+            color: white; 
+            font-family: 'Inter', sans-serif;
+            background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Effect from UI Design */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(90deg, #A855F7 0%, #3B82F6 100%);
+            transition: all 0.3s ease;
+        }
+
+        /* Hamburger Menu Animation */
+        #mobile-menu {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(100%);
+        }
+        #mobile-menu.active {
+            transform: translateX(0);
+        }
+
+        /* Language Translation Styling within Menu */
+        .menu-translate .goog-te-gadget-simple {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            padding: 12px !important;
+            border-radius: 12px !important;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .menu-translate .goog-te-gadget-simple span { color: #fff !important; font-size: 14px !important; }
+
+        /* Filter Tabs */
+        .filter-tab {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 18px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .filter-tab.active {
+            background: var(--neon-purple);
+            border-color: var(--neon-purple);
+        }
+
+        /* Price Range Slider Styling */
+        input[type='range'] {
+            accent-color: #3B82F6;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 lg:p-12">
+
+    <div id="mobile-menu" class="fixed inset-0 z-[100] bg-[#06080C]/98 backdrop-blur-2xl p-8 flex flex-col md:hidden">
+        <div class="flex justify-between items-center mb-12">
+            <span class="text-xl font-black text-purple-500 italic">K-HUB</span>
+            <button onclick="toggleMenu()" class="text-white p-2 glass-panel">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <nav class="flex flex-col gap-8 text-3xl font-bold">
+            <a href="index.html" class="text-gray-400 hover:text-white transition pl-4">Home</a>
+            <a href="job-search.html" class="text-gray-400 hover:text-white transition pl-4">Jobs</a>
+            <a href="rentals.html" class="text-white border-l-4 border-purple-500 pl-4">Rentals</a>
+            <a href="shop.html" class="text-gray-400 hover:text-white transition pl-4">Shop</a>
+            <a href="transport.html" class="text-gray-400 hover:text-white transition pl-4">Transport</a>
+            <a href="login.html" class="text-purple-400 pl-4">Login</a>
+        </nav>
+        <div class="mt-auto">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-4 font-bold">Platform Language</p>
+            <div id="google_translate_element" class="menu-translate"></div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto glass-panel p-6 md:p-10 relative overflow-hidden ring-1 ring-purple-500/20 shadow-2xl">
+        
+        <header class="flex justify-between items-center mb-12">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='index.html'">
+                <svg class="w-10 h-10" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="10" fill="url(#k-grad)"/>
+                    <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="k-grad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="text-2xl font-black tracking-tighter hidden sm:block italic">K-HUB</span>
+            </div>
+
+            <nav class="hidden md:flex gap-8 text-[11px] font-black text-gray-400 uppercase tracking-widest">
+                <a href="index.html" class="hover:text-white transition">Home</a>
+                <a href="job-search.html" class="hover:text-white transition">Jobs</a>
+                <a href="rentals.html" class="text-white border-b-2 border-purple-500 pb-1">Rent</a>
+                <a href="transport.html" class="hover:text-white transition">Transport</a>
+                <a href="#" class="hover:text-white transition">Contact</a>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='login.html'" class="btn-gradient px-6 py-2.5 rounded-full text-[10px] font-black uppercase hidden sm:block">Login/Register</button>
+                <button onclick="toggleMenu()" class="md:hidden p-2 glass-panel border-white/10">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <section class="mb-10">
+            <div class="max-w-md mb-8">
+                <div class="glass-panel px-6 py-4 flex items-center bg-white/5 border-white/10">
+                    <input type="text" id="location-search" placeholder="Search by location.." class="bg-transparent w-full outline-none text-sm font-medium">
+                    <svg class="w-5 h-5 text-gray-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+            </div>
+            
+            <h1 class="text-3xl md:text-5xl font-black mb-10 tracking-tighter">Browse Rental Listings in Kano</h1>
+
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                <div class="flex flex-wrap gap-2">
+                    <div class="filter-tab active" data-cat="Location">Location</div>
+                    <div class="filter-tab" data-cat="Type">Type</div>
+                    <div class="filter-tab" data-cat="Duration">Duration</div>
+                    <div class="filter-tab" data-cat="Price">Price</div>
+                </div>
+
+                <div class="flex items-center gap-4 w-full lg:w-auto">
+                    <span class="text-[10px] font-bold uppercase text-gray-500">Max Budget</span>
+                    <input type="range" min="0" max="2000000" step="10000" class="w-32 lg:w-48" id="priceRange">
+                    <span class="text-[10px] font-bold text-white" id="priceVal">2,000,000</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h3 class="text-xs font-black mb-6 text-gray-500 uppercase tracking-[0.3em]">Featured Properties</h3>
+            <div id="rentals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-panel h-64 animate-pulse bg-white/5"></div>
+                <div class="glass-panel h-64 animate-pulse bg-white/5"></div>
+                <div class="glass-panel h-64 animate-pulse bg-white/5"></div>
+                <div class="glass-panel h-64 animate-pulse bg-white/5"></div>
+            </div>
+        </section>
+
+        <div class="flex justify-center mb-16">
+            <button class="bg-purple-600/20 text-purple-400 border border-purple-500/30 px-10 py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-purple-600 hover:text-white transition">
+                Load More
+            </button>
+        </div>
+
+        <footer class="mt-16 flex flex-col md:flex-row justify-between items-center text-[11px] text-gray-500 border-t border-white/5 pt-8 gap-8">
+            <div class="flex gap-8 font-bold uppercase tracking-widest">
+                <a href="#" class="hover:text-purple-400 transition">About</a>
+                <a href="#" class="hover:text-purple-400 transition">Help</a>
+                <a href="#" class="hover:text-purple-400 transition">Terms</a>
+                <a href="#" class="hover:text-purple-400 transition">Privacy</a>
+            </div>
+            <div class="text-center font-bold">
+                MADE FOR KANO RESIDENTS | <span class="text-white">© 2026</span>
+            </div>
+            <div class="flex gap-4">
+                <div class="w-6 h-6 rounded-full glass-panel flex items-center justify-center hover:bg-purple-500 hover:text-white transition cursor-pointer">𝕏</div>
+                <div class="w-6 h-6 rounded-full glass-panel flex items-center justify-center hover:bg-purple-500 hover:text-white transition cursor-pointer">IG</div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('active');
+            document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : 'auto';
+        }
+
+        // UI Slider update
+        const range = document.getElementById('priceRange');
+        const priceVal = document.getElementById('priceVal');
+        range.addEventListener('input', (e) => {
+            priceVal.innerText = Number(e.target.value).toLocaleString();
+        });
+    </script>
+
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'ha,ig,yo,en',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script type="module">
+        import { db, collection, query, getDocs, orderBy } from './firebase-config.js';
+
+        async function fetchRentals() {
+            const grid = document.getElementById('rentals-grid');
+            try {
+                const q = query(collection(db, "rentals"), orderBy("createdAt", "desc"));
+                const snap = await getDocs(q);
+                
+                grid.innerHTML = ''; 
+                
+                if (snap.empty) {
+                    grid.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">No properties found.</p>';
+                    return;
+                }
+
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    grid.innerHTML += `
+                        <div class="glass-panel overflow-hidden group hover:border-purple-500/50 transition duration-500">
+                            <div class="h-40 bg-gray-900 overflow-hidden relative">
+                                <img src="${data.imageUrl || 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400'}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                                <div class="absolute bottom-3 left-3">
+                                    <h4 class="text-sm font-bold text-white truncate">${data.title || 'Apartment'}</h4>
+                                    <p class="text-[10px] text-gray-300">₦${Number(data.price || 0).toLocaleString()}/month</p>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-white/5 flex flex-col justify-between">
+                                <p class="text-[9px] text-gray-400 font-bold uppercase mb-4 truncate">${data.location || 'Kano, Nigeria'}</p>
+                                <button onclick="window.location.href='listing-details.html?id=${doc.id}&type=rentals'" 
+                                        class="w-full py-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition shadow-lg shadow-purple-500/20">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>`;
+                });
+            } catch (err) {
+                console.error(err);
+                grid.innerHTML = '<p class="text-red-500 text-center col-span-full">Error loading listings.</p>';
+            }
+        }
+
+        fetchRentals();
+    </script>
+</body>
+</html>
