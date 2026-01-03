@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | My Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --neon-purple: #8B5CF6; --neon-blue: #3B82F6; }
+        body { background-color: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); margin: 0; min-height: 100vh; }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; }
+        .btn-gradient { background: linear-gradient(90deg, #A855F7 0%, #3B82F6 100%); transition: all 0.3s ease; }
+        .stat-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-5px); border-color: var(--neon-purple); }
+        #mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
+        #mobile-menu.active { transform: translateX(0); }
+    </style>
+</head>
+<body class="p-4 md:p-8 lg:p-12">
+
+    <div id="mobile-menu" class="fixed inset-0 z-[100] bg-[#06080C]/98 backdrop-blur-2xl p-8 flex flex-col md:hidden">
+        <div class="flex justify-between items-center mb-12">
+            <span class="text-xl font-black text-purple-500 italic">K-HUB MENU</span>
+            <button onclick="toggleMenu()" class="text-white p-2 glass-panel">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
+        <nav class="flex flex-col gap-8 text-3xl font-bold">
+            <a href="index.html">Home</a>
+            <a href="shop.html">Shop</a>
+            <a href="#" id="mobile-profile-link" class="text-purple-400">Public Profile</a>
+            <button id="mobile-logout" class="text-red-500 text-left">Sign Out</button>
+        </nav>
+    </div>
+
+    <div class="max-w-6xl mx-auto glass-panel p-6 md:p-10 relative overflow-hidden ring-1 ring-purple-500/20 shadow-2xl">
+        <header class="flex justify-between items-center mb-12">
+            <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='index.html'">
+                <svg class="w-12 h-12 mb-1" viewBox="0 0 40 40" fill="none">
+                    <rect width="40" height="40" rx="10" fill="url(#k-grad-shop)"/>
+                    <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="k-grad-shop" x1="0" y1="0" x2="40" y2="40">
+                            <stop stop-color="#8B5CF6"/>
+                            <stop offset="1" stop-color="#3B82F6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h1 class="text-[10px] font-black italic tracking-tighter leading-none">K-HUB</h1>
+            </div>
+
+            <nav class="hidden md:flex gap-8 items-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                <a href="index.html" class="hover:text-white transition">Home</a>
+                <a href="shop.html" class="hover:text-white transition">Marketplace</a>
+                <a id="nav-profile-link" href="#" class="text-purple-400 border-b border-purple-500 pb-1">My Public Profile</a>
+                <button id="logout-btn" class="text-red-500/70 hover:text-red-500 transition border border-red-500/20 px-4 py-2 rounded-full">Logout</button>
+            </nav>
+            <button onclick="toggleMenu()" class="md:hidden p-2 glass-panel">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16m-7 6h7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </header>
+
+        <section class="mb-12">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                <div>
+                    <h1 class="text-3xl md:text-5xl font-black tracking-tighter mb-2">Hello, <span id="user-display-name" class="text-purple-500">...</span></h1>
+                    <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-4">Account Access: <span id="user-role" class="text-blue-400">Loading</span></p>
+                    
+                    <button onclick="window.location.href='edit-profile.html'" class="text-[10px] font-black uppercase tracking-widest text-purple-400 border border-purple-400/30 px-4 py-2 rounded-xl hover:bg-purple-500 hover:text-white transition">
+                        Edit My Profile
+                    </button>
+                </div>
+                <button id="main-action-btn" class="btn-gradient px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl">
+                    + Create New Listing
+                </button>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+            <div class="stat-card p-8 rounded-3xl text-center">
+                <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">Total Posts</p>
+                <h2 id="stat-listings-count" class="text-3xl font-black">0</h2>
+            </div>
+            <div class="stat-card p-8 rounded-3xl text-center">
+                <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">Active Now</p>
+                <h2 id="stat-active-count" class="text-3xl font-black text-emerald-400">0</h2>
+            </div>
+            <div class="stat-card p-8 rounded-3xl text-center border-b-4 border-purple-500">
+                <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">Verified Status</p>
+                <h2 class="text-2xl font-black text-purple-400 italic">Standard</h2>
+            </div>
+        </div>
+
+        <section class="mb-12">
+            <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.3em] mb-8">My Listings</h3>
+            <div id="my-listings" class="space-y-4">
+                <div class="text-center py-10 text-gray-600 animate-pulse uppercase text-[10px] font-bold">Syncing Marketplace Data...</div>
+            </div>
+        </section>
+    </div>
+
+    <script type="module">
+        import { auth, db, doc, getDoc, collection, query, where, getDocs, deleteDoc, signOut } from './firebase-config.js';
+
+        window.toggleMenu = () => document.getElementById('mobile-menu').classList.toggle('active');
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const profileLink = `public-profile.html?id=${user.uid}`;
+                if(document.getElementById('nav-profile-link')) document.getElementById('nav-profile-link').href = profileLink;
+                if(document.getElementById('mobile-profile-link')) document.getElementById('mobile-profile-link').href = profileLink;
+
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    document.getElementById('user-display-name').innerText = data.fullName || "Member";
+                    document.getElementById('user-role').innerText = data.role || "Member";
+                    
+                    setupActionBtn(data.role);
+                    loadUserItems(user.uid);
+                }
+            } else {
+                window.location.href = "k-hub-login.html";
+            }
+        });
+
+        function setupActionBtn(role) {
+            const btn = document.getElementById('main-action-btn');
+            const map = { seller: 'shop.html', employer: 'job-search.html', landlord: 'rentals.html', driver: 'transport.html' };
+            btn.onclick = () => window.location.href = map[role] || 'shop.html';
+        }
+
+        async function loadUserItems(uid) {
+            const collections = ['listings', 'jobs', 'rentals', 'transport'];
+            const container = document.getElementById('my-listings');
+            container.innerHTML = "";
+            let total = 0;
+
+            for (const coll of collections) {
+                const q = query(collection(db, coll), where("userId", "==", uid));
+                const snap = await getDocs(q);
+                snap.forEach(itemDoc => {
+                    total++;
+                    const item = itemDoc.data();
+                    container.innerHTML += `
+                        <div class="glass-panel p-5 flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div class="flex items-center gap-4 w-full">
+                                <div class="w-12 h-12 rounded-xl bg-white/5 overflow-hidden">
+                                    <img src="${item.image || 'https://via.placeholder.com/100'}" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm uppercase">${item.title || item.name}</h4>
+                                    <p class="text-xs text-purple-400 font-bold">₦${Number(item.price || 0).toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <button onclick="deleteItem('${coll}', '${itemDoc.id}')" class="text-[10px] font-black text-red-500 uppercase tracking-widest">Delete Listing</button>
+                        </div>`;
+                });
+            }
+            document.getElementById('stat-listings-count').innerText = total;
+            document.getElementById('stat-active-count').innerText = total;
+            if(total === 0) container.innerHTML = "<p class='text-center text-gray-500 py-10 uppercase text-[10px] font-bold italic tracking-widest'>No listings found on your account.</p>";
+        }
+
+        window.deleteItem = async (coll, id) => {
+            if(confirm("Permanently remove this listing from K-Hub?")) {
+                await deleteDoc(doc(db, coll, id));
+                location.reload();
+            }
+        };
+
+        const handleLogout = () => signOut(auth).then(() => window.location.href = "index.html");
+        document.getElementById('logout-btn').onclick = handleLogout;
+        document.getElementById('mobile-logout').onclick = handleLogout;
+    </script>
+</body>
+</html>
