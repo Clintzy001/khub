@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile | K-Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-purple: #8B5CF6;
+            --neon-blue: #3B82F6;
+        }
+        body { 
+            background-color: #06080C; 
+            color: white; 
+            font-family: 'Inter', sans-serif;
+            background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%);
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 32px;
+        }
+        .profile-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #mobile-menu {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(100%);
+        }
+        #mobile-menu.active { transform: translateX(0); }
+        .menu-translate .goog-te-gadget-simple {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            padding: 12px !important;
+            border-radius: 12px !important;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .menu-translate .goog-te-gadget-simple span { color: #fff !important; font-size: 14px !important; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="mobile-menu" class="fixed inset-0 z-[100] bg-[#06080C]/98 backdrop-blur-2xl p-8 flex flex-col md:hidden">
+        <div class="flex justify-between items-center mb-12">
+            <span class="text-xl font-black text-purple-500 italic">K-HUB</span>
+            <button onclick="toggleMenu()" class="text-white p-2 glass-panel">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <nav class="flex flex-col gap-8 text-3xl font-bold">
+            <a href="index.html" class="text-gray-400">Home</a>
+            <a href="job-search.html" class="text-gray-400">Jobs</a>
+            <a href="rentals.html" class="text-gray-400">Rentals</a>
+            <a href="transport.html" class="text-gray-400">Transport</a>
+            <a href="login.html" class="text-purple-400">Login</a>
+        </nav>
+        <div class="mt-auto">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-4 font-bold">Language Selection</p>
+            <div id="google_translate_element" class="menu-translate"></div>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto glass-panel p-6 md:p-10 relative overflow-hidden ring-1 ring-purple-500/20 shadow-2xl">
+        
+        <header class="flex justify-between items-center mb-12">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='index.html'">
+                <svg class="w-10 h-10" viewBox="0 0 40 40" fill="none">
+                    <rect width="40" height="40" rx="10" fill="url(#k-grad)"/>
+                    <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs><linearGradient id="k-grad" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/></linearGradient></defs>
+                </svg>
+                <span class="text-2xl font-black italic tracking-tighter">K-HUB</span>
+            </div>
+            <button onclick="toggleMenu()" class="md:hidden p-2 glass-panel border-white/10">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <nav class="hidden md:flex gap-8 text-[11px] font-black text-gray-400 uppercase tracking-widest">
+                <a href="index.html" class="hover:text-white transition">Home</a>
+                <a href="job-search.html" class="hover:text-white transition">Jobs</a>
+                <a href="rentals.html" class="hover:text-white transition">Rentals</a>
+                <button onclick="history.back()" class="text-purple-400 font-black">← GO BACK</button>
+            </nav>
+        </header>
+
+        <main>
+            <div class="profile-card p-10 rounded-[40px] text-center mb-16 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-blue-500"></div>
+                <div class="w-32 h-32 mx-auto rounded-full p-1 bg-gradient-to-tr from-purple-500 to-blue-500 mb-6 shadow-2xl shadow-purple-500/20">
+                    <img id="user-avatar" src="https://via.placeholder.com/150" class="w-full h-full rounded-full object-cover border-4 border-[#0B0E14]">
+                </div>
+                <h1 id="user-name" class="text-4xl font-black mb-2 tracking-tighter">Loading Profile...</h1>
+                <p id="user-bio" class="text-gray-400 text-sm max-w-md mx-auto mb-8">K-Hub verified community member based in Kano.</p>
+                
+                <div class="flex justify-center gap-12">
+                    <div class="text-center">
+                        <span id="post-count" class="block text-2xl font-black text-white">0</span>
+                        <span class="text-[9px] uppercase text-gray-500 font-bold tracking-[0.2em]">Total Listings</span>
+                    </div>
+                    <div class="w-[1px] h-10 bg-white/10"></div>
+                    <div class="text-center">
+                        <span id="join-date" class="block text-2xl font-black text-white">...</span>
+                        <span class="text-[9px] uppercase text-gray-500 font-bold tracking-[0.2em]">Member Since</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.3em] mb-2">Portfolio</h3>
+                    <h2 class="text-2xl font-black tracking-tight">Activity Feed</h2>
+                </div>
+                <div id="google_translate_element" class="hidden md:block scale-75 origin-right"></div>
+            </div>
+
+            <div id="user-feed" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-panel h-24 animate-pulse bg-white/5"></div>
+                <div class="glass-panel h-24 animate-pulse bg-white/5"></div>
+            </div>
+        </main>
+
+        <footer class="mt-20 pt-8 border-t border-white/5 text-center">
+            <p class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">K-Hub Public Directory • Kano State 2026</p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('active');
+            document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : 'auto';
+        }
+
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'ha,ig,yo,en',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script type="module">
+        import { db } from './firebase-config.js';
+        import { collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id');
+
+        if (!userId) { window.location.href = 'index.html'; }
+
+        async function loadProfile() {
+            try {
+                const userSnap = await getDoc(doc(db, "users", userId));
+                if (userSnap.exists()) {
+                    const data = userSnap.data();
+                    document.getElementById('user-name').innerText = data.displayName || "K-Hub Merchant";
+                    document.getElementById('user-bio').innerText = data.bio || "Active K-Hub community member providing services in Kano.";
+                    document.getElementById('user-avatar').src = data.photoURL || 'https://via.placeholder.com/150';
+                    document.getElementById('join-date').innerText = data.createdAt ? new Date(data.createdAt.seconds * 1000).getFullYear() : '2026';
+                }
+
+                const categories = ['jobs', 'products', 'transports', 'rentals'];
+                let posts = [];
+                for (const cat of categories) {
+                    const snap = await getDocs(query(collection(db, cat), where("userId", "==", userId)));
+                    snap.forEach(doc => posts.push({ id: doc.id, ...doc.data(), type: cat }));
+                }
+
+                document.getElementById('post-count').innerText = posts.length;
+                renderFeed(posts);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderFeed(items) {
+            const feed = document.getElementById('user-feed');
+            if (items.length === 0) {
+                feed.innerHTML = `<p class="text-gray-500 text-sm py-10">This user hasn't posted any listings yet.</p>`;
+                return;
+            }
+            feed.innerHTML = items.map(item => `
+                <div class="glass-panel p-4 flex gap-5 items-center hover:border-purple-500/40 transition group cursor-pointer" onclick="window.location.href='listing-details.html?id=${item.id}&type=${item.type}'">
+                    <img src="${item.imageUrl || 'https://via.placeholder.com/150'}" class="w-16 h-16 rounded-2xl object-cover ring-1 ring-white/10 group-hover:ring-purple-500/50 transition">
+                    <div class="flex-1 min-w-0">
+                        <span class="text-[8px] uppercase font-black text-purple-400 tracking-widest">${item.type}</span>
+                        <h4 class="font-bold text-white truncate">${item.title || item.name}</h4>
+                        <p class="text-emerald-400 font-black text-[11px]">₦${Number(item.price || item.salary || 0).toLocaleString()}</p>
+                    </div>
+                    <div class="p-2 glass-panel border-white/10 group-hover:bg-purple-500 transition">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-width="3"></path></svg>
+                    </div>
+                </div>
+            `).join('');
+        }
+        loadProfile();
+    </script>
+</body>
+</html>
