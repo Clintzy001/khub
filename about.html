@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | K-HUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap" rel="stylesheet">
+    <style>
+        body { background: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; }
+        .btn-gradient { background: linear-gradient(90deg, #A855F7 0%, #3B82F6 100%); }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+    <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16">
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4">OUR <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">MISSION</span></h1>
+            <p class="text-gray-400 uppercase tracking-widest text-xs font-bold">Bridging Kano's Commerce & Community</p>
+        </header>
+
+        <section class="space-y-8 text-gray-300 leading-relaxed">
+            <p>K-HUB is a digital ecosystem born in the heart of the Ancient City. We realized that while Kano is a powerhouse of commerce, the digital bridge between local sellers, job seekers, and the community needed a modern upgrade.</p>
+            
+            <div class="grid md:grid-cols-2 gap-6 py-8">
+                <div class="p-6 border border-white/10 rounded-2xl bg-white/5">
+                    <h3 class="text-white font-black mb-2 uppercase text-sm">The Vision</h3>
+                    <p class="text-sm">To become the primary digital heartbeat for every transaction and connection in Kano State.</p>
+                </div>
+                <div class="p-6 border border-white/10 rounded-2xl bg-white/5">
+                    <h3 class="text-white font-black mb-2 uppercase text-sm">The Local Touch</h3>
+                    <p class="text-sm">Built by locals, for locals. We understand the language, the culture, and the hustle of the city.</p>
+                </div>
+            </div>
+
+            <p>Whether you are looking for a job in Bompai, a rental in Nassarawa, or the best prices in Kurmi Market, K-HUB brings the city to your fingertips.</p>
+        </section>
+
+        <footer class="mt-12 pt-8 border-t border-white/5 text-center">
+            <button onclick="window.location.href='index.html'" class="btn-gradient px-8 py-3 rounded-full text-xs font-black uppercase">Back to Home</button>
+        </footer>
+    </div>
+</body>
+</html>
