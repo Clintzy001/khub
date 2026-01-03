@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Listing Details</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body { background-color: #0B0E14; color: white; font-family: 'Inter', sans-serif; }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Map Styling */
+        #map { height: 250px; width: 100%; border-radius: 24px; z-index: 10; border: 1px solid rgba(139, 92, 246, 0.3); }
+        
+        /* Google Translate Styling */
+        #google_translate_element { margin-bottom: 15px; }
+        .goog-te-gadget-simple {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            padding: 8px !important;
+            border-radius: 12px !important;
+        }
+        .goog-te-gadget-simple span { color: #8B5CF6 !important; font-weight: bold !important; font-size: 12px !important; }
+        .goog-te-banner-frame.skiptranslate { display: none !important; } 
+        body { top: 0px !important; }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <header class="sticky top-0 z-50 bg-[#0B0E14]/80 backdrop-blur-md border-b border-white/10 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='index.html'">
+                <div class="w-8 h-8 neon-gradient rounded-lg flex items-center justify-center font-bold text-white">K</div>
+                <span class="text-xl font-bold tracking-tight">K-Hub</span>
+            </div>
+            <div id="google_translate_element"></div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 md:px-6 py-8">
+        <div id="loading-state" class="text-center py-20">
+            <div class="animate-spin w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p class="text-gray-400">Fetching K-Hub Listing...</p>
+        </div>
+
+        <div id="listing-content" class="hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-8">
+                    <div class="glass-card rounded-[40px] overflow-hidden bg-white/5 relative aspect-video md:aspect-auto md:h-[500px]">
+                        <img id="main-image" src="" alt="Listing Image" class="w-full h-full object-cover">
+                        <div class="absolute top-6 left-6">
+                            <span id="category-badge" class="px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest text-white shadow-xl"></span>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-8 rounded-[32px]">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                            <div>
+                                <h1 id="listing-title" class="text-3xl md:text-4xl font-extrabold tracking-tight"></h1>
+                                <p id="listing-location" class="text-gray-400 flex items-center gap-2 mt-2 font-bold text-sm uppercase">
+                                    <svg class="w-4 h-4 text-purple-500" fill="currentColor" viewBox="0 0 20 20"><path d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"></path></svg>
+                                    <span id="location-text">Kano, Nigeria</span>
+                                </p>
+                            </div>
+                            <div class="text-left md:text-right">
+                                <p class="text-gray-500 text-xs uppercase font-bold tracking-widest mb-1">Price / Value</p>
+                                <span id="listing-price" class="text-3xl font-black text-emerald-400"></span>
+                            </div>
+                        </div>
+                        <div id="specs-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-white/10"></div>
+                    </div>
+
+                    <div class="glass-card p-8 rounded-[32px]">
+                        <h3 class="text-xl font-bold mb-4">Description</h3>
+                        <p id="listing-desc" class="text-gray-400 leading-relaxed whitespace-pre-line"></p>
+                    </div>
+                </div>
+
+                <aside class="space-y-6">
+                    <div class="glass-card p-8 rounded-3xl contact-card">
+                        <div id="profile-link" class="flex items-center gap-4 mb-6 cursor-pointer group">
+                            <div id="owner-avatar-container" class="relative">
+                                <div id="owner-initial" class="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center font-bold text-white group-hover:scale-110 transition">?</div>
+                                <img id="owner-img" src="" class="absolute inset-0 w-12 h-12 rounded-full object-cover hidden border-2 border-purple-500">
+                            </div>
+                            <div>
+                                <p id="owner-name" class="font-bold group-hover:text-purple-400 transition">Loading...</p>
+                                <p class="text-xs text-gray-500">View Public Profile →</p>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <a id="call-btn" href="#" class="block w-full py-4 neon-gradient text-center rounded-xl font-bold shadow-lg shadow-purple-500/20 active:scale-95 transition">Call Owner</a>
+                            <a id="wa-btn" href="#" target="_blank" class="block w-full py-4 bg-white/5 border border-white/10 text-center rounded-xl font-bold hover:bg-white/10 transition">WhatsApp Message</a>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-5 rounded-3xl overflow-hidden">
+                        <div class="flex items-center justify-between mb-4 px-1">
+                            <h3 class="text-xs font-black uppercase tracking-widest text-gray-400">Lister Location</h3>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        </div>
+                        <div id="map"></div>
+                    </div>
+
+                    <button id="report-btn" class="w-full py-3 text-xs font-bold text-gray-500 hover:text-red-400 transition flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        Report Listing
+                    </button>
+                </aside>
+            </div>
+
+            <section class="mt-20 border-t border-white/10 pt-12">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-2xl font-bold">More for you</h3>
+                    <span id="related-category-text" class="text-purple-400 text-xs font-bold uppercase tracking-widest">Similar Items</span>
+                </div>
+                <div id="related-feed" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+            </section>
+        </div>
+    </main>
+
+    <div id="report-modal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center px-4">
+        <div class="glass-card p-8 rounded-[32px] max-w-sm w-full">
+            <h3 class="text-xl font-bold mb-6">Report Listing</h3>
+            <select id="report-reason" class="w-full bg-black border border-white/20 rounded-xl p-3 mb-6 text-sm text-white">
+                <option value="fraud">Fraud / Scam</option>
+                <option value="offensive">Offensive Content</option>
+                <option value="sold">Already Sold</option>
+            </select>
+            <div class="flex gap-3">
+                <button onclick="document.getElementById('report-modal').classList.add('hidden')" class="flex-1 py-3 rounded-xl bg-white/5 font-bold">Cancel</button>
+                <button id="submit-report" class="flex-1 py-3 rounded-xl bg-red-600 font-bold">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'ha,ig,yo,en',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script type="module">
+        import { db, doc, getDoc, collection, query, where, limit, getDocs, addDoc, serverTimestamp } from './firebase-config.js';
+
+        let map;
+
+        async function initListing() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const itemId = urlParams.get('id');
+            const type = urlParams.get('type');
+
+            if (!itemId || !type) { window.location.href = 'index.html'; return; }
+
+            try {
+                const snap = await getDoc(doc(db, type, itemId));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    
+                    // Render Basic Data
+                    document.getElementById('listing-title').innerText = data.name || data.title;
+                    document.getElementById('listing-desc').innerText = data.description;
+                    document.getElementById('main-image').src = data.imageUrl || 'https://via.placeholder.com/800';
+                    document.getElementById('listing-price').innerText = `₦${Number(data.price || data.salary || 0).toLocaleString()}`;
+                    document.getElementById('location-text').innerText = data.location || "Kano, Nigeria";
+
+                    // Badge Styling
+                    const badge = document.getElementById('category-badge');
+                    badge.innerText = type.replace('s', '');
+                    const colors = { jobs: 'bg-blue-600', rentals: 'bg-emerald-600', products: 'bg-purple-600' };
+                    badge.className += ` ${colors[type] || 'bg-gray-600'}`;
+
+                    // Initialize Map with Listing Coordinates
+                    loadMap(data.lat, data.lng, data.name || data.title);
+
+                    // Owner Data
+                    if (data.userId) {
+                        const uSnap = await getDoc(doc(db, "users", data.userId));
+                        if (uSnap.exists()) {
+                            const u = uSnap.data();
+                            document.getElementById('owner-name').innerText = u.fullName || "K-Hub User";
+                            document.getElementById('owner-initial').innerText = (u.fullName || "K").charAt(0);
+                            if (u.phone) {
+                                document.getElementById('call-btn').href = `tel:${u.phone}`;
+                                document.getElementById('wa-btn').href = `https://wa.me/${u.phone.replace(/\D/g, '')}?text=Interested: ${data.name || data.title}`;
+                            }
+                        }
+                    }
+
+                    loadRelatedListings(type, itemId);
+                    document.getElementById('loading-state').classList.add('hidden');
+                    document.getElementById('listing-content').classList.remove('hidden');
+                    setupReportLogic(itemId, data.name || data.title);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function loadMap(lat, lng, title) {
+            const defaultLat = lat || 12.0022; // Default to Kano Central
+            const defaultLng = lng || 8.5920;
+            
+            if (map) map.remove();
+            map = L.map('map').setView([defaultLat, defaultLng], 14);
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+            const dot = L.divIcon({
+                className: 'custom-icon',
+                html: `<div style="background:#8B5CF6; width:14px; height:14px; border-radius:50%; border:2px solid white; box-shadow:0 0 10px #8B5CF6;"></div>`
+            });
+
+            L.marker([defaultLat, defaultLng], {icon: dot}).addTo(map)
+                .bindPopup(`<span style="color:black; font-weight:bold;">${title}</span>`).openPopup();
+        }
+
+        async function loadRelatedListings(category, currentId) {
+            const feed = document.getElementById('related-feed');
+            const q = query(collection(db, category), limit(3));
+            const snap = await getDocs(q);
+            feed.innerHTML = snap.docs.filter(d => d.id !== currentId).map(doc => {
+                const item = doc.data();
+                return `
+                    <div onclick="window.location.href='listing-details.html?id=${doc.id}&type=${category}'" class="glass-card p-4 rounded-3xl cursor-pointer hover:scale-[1.02] transition">
+                        <img src="${item.imageUrl || 'https://via.placeholder.com/400'}" class="w-full h-40 object-cover rounded-2xl mb-3">
+                        <h4 class="font-bold truncate">${item.title || item.name}</h4>
+                        <p class="text-emerald-400 font-bold text-sm">₦${Number(item.price || 0).toLocaleString()}</p>
+                    </div>`;
+            }).join('');
+        }
+
+        function setupReportLogic(id, title) {
+            const modal = document.getElementById('report-modal');
+            document.getElementById('report-btn').onclick = () => modal.classList.remove('hidden');
+            document.getElementById('submit-report').onclick = async () => {
+                const reason = document.getElementById('report-reason').value;
+                await addDoc(collection(db, "reports"), { listingId: id, title: title, reason: reason, timestamp: serverTimestamp() });
+                alert("Reported successfully.");
+                modal.classList.add('hidden');
+            };
+        }
+
+        initListing();
+    </script>
+</body>
+</html>
