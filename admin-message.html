@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub Admin | Messages</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon-purple: #8B5CF6; --neon-blue: #3B82F6; }
+        body { background-color: #06080C; color: white; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
+        .glass-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
+        .msg-bubble-admin { background: linear-gradient(90deg, #8B5CF6, #3B82F6); border-radius: 20px 20px 4px 20px; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2); }
+        .msg-bubble-user { background: rgba(255, 255, 255, 0.08); border-radius: 20px 20px 20px 4px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        
+        #mobile-sidebar { transition: transform 0.3s ease-in-out; }
+        @media (max-width: 1024px) {
+            #mobile-sidebar { transform: translateX(-100%); position: absolute; z-index: 50; height: 100%; width: 80%; }
+            #mobile-sidebar.active { transform: translateX(0); }
+        }
+
+        .lang-dropdown { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; outline: none; }
+    </style>
+</head>
+<body class="flex">
+
+    <aside id="mobile-sidebar" class="w-80 border-r border-white/5 flex flex-col bg-[#06080C] lg:translate-x-0">
+        <div class="p-6 border-b border-white/5">
+            <div class="flex flex-col items-start cursor-pointer mb-6" onclick="window.location.href='admin-dashboard.html'">
+                <svg class="w-8 h-8 mb-1" viewBox="0 0 40 40" fill="none">
+                    <rect width="40" height="40" rx="10" fill="url(#k-grad-admin)"/>
+                    <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs><linearGradient id="k-grad-admin" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/></linearGradient></defs>
+                </svg>
+                <h1 class="text-[8px] font-black italic tracking-tighter leading-none">K-HUB ADMIN</h1>
+            </div>
+            
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="font-black italic uppercase text-sm tracking-tighter lang-messages">Messages</h2>
+                <select id="lang-select" class="lang-dropdown">
+                    <option value="en">English</option>
+                    <option value="ha">Hausa</option>
+                    <option value="ig">Igbo</option>
+                    <option value="yo">Yoruba</option>
+                </select>
+            </div>
+            <input type="text" placeholder="Search chats..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-[10px] font-bold outline-none focus:border-purple-500 transition">
+        </div>
+
+        <div class="flex-grow overflow-y-auto custom-scrollbar">
+            <div class="p-4 border-b border-white/5 bg-purple-500/10 border-l-4 border-purple-500 cursor-pointer">
+                <div class="flex justify-between mb-1">
+                    <span class="font-black italic text-xs uppercase">Aliyu Dahiru</span>
+                    <span class="text-[8px] font-bold text-purple-400">2m ago</span>
+                </div>
+                <p class="text-[10px] text-gray-400 truncate font-medium">I haven't received my booking confirmation...</p>
+            </div>
+            <div class="p-4 border-b border-white/5 hover:bg-white/5 cursor-pointer transition">
+                <div class="flex justify-between mb-1">
+                    <span class="font-black italic text-xs uppercase text-gray-400">Zainab Sani</span>
+                    <span class="text-[8px] font-bold text-gray-600">1h ago</span>
+                </div>
+                <p class="text-[10px] text-gray-500 truncate font-medium">Is the office space in Gwale still available?</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-grow flex flex-col relative bg-[#0B0E14]">
+        
+        <header class="p-4 border-b border-white/5 flex justify-between items-center bg-[#06080C]/50 backdrop-blur-md">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 glass-card rounded-lg mr-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <div class="w-10 h-10 rounded-full neon-gradient flex items-center justify-center font-black italic shadow-lg shadow-purple-500/20">AD</div>
+                <div>
+                    <p class="font-black italic uppercase text-sm tracking-tighter">Aliyu Dahiru</p>
+                    <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Online • Transport User</p>
+                </div>
+            </div>
+            <button class="text-[9px] font-black uppercase text-red-500 border border-red-500/30 px-4 py-2 rounded-full hover:bg-red-500 hover:text-white transition tracking-widest lang-close-ticket">Close Ticket</button>
+        </header>
+
+        <div class="flex-grow p-6 overflow-y-auto space-y-6 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+            <div class="flex justify-start">
+                <div class="msg-bubble-user p-4 max-w-md text-xs font-bold leading-relaxed">
+                    Salam, I paid for a seat to Zaria but my ticket isn't showing in the app. Help!
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <div class="msg-bubble-admin p-4 max-w-md text-xs font-black italic leading-relaxed">
+                    Walaikum Assalam Aliyu. I am checking the transaction status now. Please hold on.
+                </div>
+            </div>
+        </div>
+
+        <footer class="p-6 bg-[#06080C] border-t border-white/5">
+            <div class="glass-card rounded-2xl p-2 flex items-center gap-2 border-white/10">
+                <input type="text" id="admin-input" placeholder="Type your response..." class="flex-grow bg-transparent border-none outline-none px-4 text-xs font-bold text-white placeholder:text-gray-600">
+                <button class="bg-purple-600 p-3 rounded-xl hover:bg-purple-500 transition shadow-lg shadow-purple-500/20">
+                    <svg class="w-4 h-4" fill="white" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        window.toggleSidebar = () => {
+            document.getElementById('mobile-sidebar').classList.toggle('active');
+        };
+
+        const translations = {
+            en: { messages: "Messages", close: "Close Ticket", placeholder: "Type your response...", search: "Search chats..." },
+            ha: { messages: "Saƙonni", close: "Rufe Magana", placeholder: "Rubuta amsa...", search: "Nemi hira..." },
+            ig: { messages: "Ozi", close: "Mechie Tiketi", placeholder: "Dee nzaghachi gị...", search: "Chọọ nkata..." },
+            yo: { messages: "Àwọn Iṣẹ́", close: "Pa Tiketi Dé", placeholder: "Tẹ ìdáhùn rẹ...", search: "Wá ìjíròrò..." }
+        };
+
+        function applyLanguage(lang) {
+            const l = translations[lang];
+            document.querySelector('.lang-messages').innerText = l.messages;
+            document.querySelector('.lang-close-ticket').innerText = l.close;
+            document.getElementById('admin-input').placeholder = l.placeholder;
+            localStorage.setItem('kHubLang', lang);
+        }
+
+        document.getElementById('lang-select').addEventListener('change', (e) => applyLanguage(e.target.value));
+        
+        // Initialize
+        applyLanguage(localStorage.getItem('kHubLang') || 'en');
+        document.getElementById('lang-select').value = localStorage.getItem('kHubLang') || 'en';
+    </script>
+</body>
+</html>
