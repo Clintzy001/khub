@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Kano's Digital Marketplace</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --neon-purple: #8B5CF6; --neon-blue: #3B82F6; }
+        body { background-color: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); margin: 0; overflow-x: hidden; }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; }
+        .btn-gradient { background: linear-gradient(90deg, #A855F7 0%, #3B82F6 100%); transition: all 0.3s ease; }
+        .btn-gradient:hover { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); transform: translateY(-2px); }
+        
+        #mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
+        #mobile-menu.active { transform: translateX(0); }
+        
+        /* Language Selector Styling */
+        .lang-dropdown { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; outline: none; cursor: pointer; }
+        .lang-dropdown option { background: #06080C; color: white; }
+
+        /* Restored Ad Space Animation */
+        .ad-space { 
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 50%, rgba(139, 92, 246, 0.1) 100%); 
+            background-size: 200% 100%; 
+            animation: ad-shimmer 4s infinite linear; 
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+        @keyframes ad-shimmer { to { background-position: 200% 0; } }
+    </style>
+</head>
+<body class="p-4 md:p-8 lg:p-12">
+
+    <div id="mobile-menu" class="fixed inset-0 z-[100] bg-[#06080C]/98 backdrop-blur-2xl p-8 flex flex-col md:hidden">
+        <div class="flex justify-between items-center mb-12">
+            <span class="text-xl font-black text-purple-500 tracking-tighter uppercase italic">K-HUB MENU</span>
+            <button onclick="toggleMenu()" class="text-white p-2 glass-panel">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <nav id="mobile-nav-links" class="flex flex-col gap-6 text-2xl font-bold uppercase italic tracking-tighter">
+            <a href="index.html" class="text-white border-l-4 border-purple-500 pl-4 lang-home">Home</a>
+            <a href="job-search.html" class="text-gray-400 pl-4 hover:text-white lang-jobs">Jobs</a>
+            <a href="rentals.html" class="text-gray-400 pl-4 hover:text-white lang-rentals">Rentals</a>
+            <a href="shop.html" class="text-gray-400 pl-4 hover:text-white lang-shop">Shop</a>
+            <a href="transport.html" class="text-gray-400 pl-4 hover:text-white lang-transport">Transport</a>
+            <hr class="border-white/10 my-2">
+            <div id="mobile-auth-section"></div>
+        </nav>
+    </div>
+
+    <div class="max-w-6xl mx-auto glass-panel p-6 md:p-10 relative overflow-hidden ring-1 ring-purple-500/20 shadow-2xl">
+        <header class="flex justify-between items-center mb-12">
+            <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='index.html'">
+                <svg class="w-12 h-12 mb-1" viewBox="0 0 40 40" fill="none">
+                    <rect width="40" height="40" rx="10" fill="url(#k-grad-shop)"/>
+                    <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="k-grad-shop" x1="0" y1="0" x2="40" y2="40">
+                            <stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h1 class="text-[10px] font-black italic tracking-tighter leading-none">K-HUB</h1>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-8 text-sm font-bold text-gray-400 uppercase tracking-widest">
+                <a href="index.html" class="text-white border-b-2 border-purple-500 pb-1 lang-home">Home</a>
+                <a href="job-search.html" class="hover:text-white transition lang-jobs">Jobs</a>
+                <a href="shop.html" class="hover:text-white transition lang-shop">Shop</a>
+                <a href="transport.html" class="hover:text-white transition lang-transport">Transport</a>
+                <select id="lang-select-desktop" class="lang-dropdown">
+                    <option value="en">English</option>
+                    <option value="ha">Hausa</option>
+                    <option value="ig">Igbo</option>
+                    <option value="yo">Yoruba</option>
+                </select>
+            </nav>
+
+            <div class="flex items-center gap-3 md:hidden">
+                <select id="lang-select-mobile" class="lang-dropdown">
+                    <option value="en">English</option>
+                    <option value="ha">Hausa</option>
+                    <option value="ig">Igbo</option>
+                    <option value="yo">Yoruba</option>
+                </select>
+                <div id="desktop-auth-section" class="flex items-center"></div>
+            </div>
+        </header>
+
+        <section class="text-center mb-12">
+            <h1 id="hero-title" class="text-4xl md:text-6xl font-black mb-6 tracking-tighter uppercase italic">Everything Kano, <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400 lang-hero-sub">In One Place.</span></h1>
+            <div class="max-w-2xl mx-auto relative group">
+                <input type="text" id="main-search" placeholder="Search products, jobs, or rentals..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-8 text-sm outline-none focus:ring-2 ring-purple-500/50 transition backdrop-blur-sm">
+                <button class="absolute right-6 top-1/2 -translate-y-1/2 text-purple-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </button>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div onclick="window.location.href='job-search.html'" class="glass-panel p-6 text-center hover:bg-white/5 transition cursor-pointer border-b-2 border-purple-500/50 group">
+                    <p class="text-[10px] font-black uppercase group-hover:text-purple-400 lang-jobs">Careers</p>
+                </div>
+                <div onclick="window.location.href='rentals.html'" class="glass-panel p-6 text-center hover:bg-white/5 transition cursor-pointer border-b-2 border-blue-500/50 group">
+                    <p class="text-[10px] font-black uppercase group-hover:text-blue-400 lang-rentals">Housing</p>
+                </div>
+                <div onclick="window.location.href='shop.html'" class="glass-panel p-6 text-center hover:bg-white/5 transition cursor-pointer border-b-2 border-emerald-500/50 group">
+                    <p class="text-[10px] font-black uppercase group-hover:text-emerald-400 lang-shop">Market</p>
+                </div>
+                <div onclick="window.location.href='transport.html'" class="glass-panel p-6 text-center hover:bg-white/5 transition cursor-pointer border-b-2 border-orange-500/50 group">
+                    <p class="text-[10px] font-black uppercase group-hover:text-orange-400 lang-transport">Transport</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <div onclick="window.location.href='ads.html'" class="ad-space w-full h-24 md:h-32 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-purple-500/40 transition-all">
+                <p class="text-[9px] font-bold text-gray-500 tracking-[0.4em] uppercase mb-1">Sponsored Space</p>
+                <h2 class="text-sm md:text-xl font-black italic tracking-tighter uppercase lang-advertise">Promote your Business on K-Hub</h2>
+            </div>
+        </section>
+
+        <section class="mb-20 text-left">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h3 class="text-2xl font-black tracking-tighter uppercase italic lang-trending">Trending in Kano</h3>
+                    <p class="text-xs text-gray-500 font-bold uppercase tracking-widest lang-live">Live Listings</p>
+                </div>
+                <a href="shop.html" class="text-[10px] font-black text-purple-400 hover:text-white transition uppercase tracking-widest lang-explore">Explore All →</a>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="items-container">
+                <div class="col-span-full text-center py-10 text-gray-600 animate-pulse uppercase font-black text-xs tracking-widest lang-fetching">Fetching Marketplace...</div>
+            </div>
+        </section>
+
+        <footer class="mt-16 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-500 border-t border-white/5 pt-8 gap-8">
+            <div class="flex gap-8 font-black uppercase tracking-widest">
+                <a href="about.html" class="hover:text-purple-400 transition lang-about">About</a>
+                <a href="terms.html" class="hover:text-purple-400 transition lang-terms">Terms</a>
+                <a href="ads.html" class="hover:text-purple-400 transition lang-advertise-footer">Advertise</a>
+                <a href="contact.html" class="hover:text-purple-400 transition lang-contact">Contact</a>
+            </div>
+            <div class="font-bold uppercase tracking-widest lang-copyright">© 2026 K-HUB | MADE IN KANO</div>
+        </footer>
+    </div>
+
+    <script type="module">
+        import { initAdminLogic } from './admin-guard.js';
+        initAdminLogic('listings');
+
+        import { auth, db, collection, getDocs, limit, query, signOut } from './firebase-config.js';
+
+        window.toggleMenu = () => {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('active');
+        };
+
+        const translations = {
+            en: { home: "Home", jobs: "Jobs", rentals: "Rentals", shop: "Shop", transport: "Transport", heroSub: "In One Place.", trending: "Trending in Kano", explore: "Explore All →", fetching: "Fetching Marketplace...", about: "About", terms: "Terms", advertise: "Promote your Business on K-Hub", advertiseFooter: "Advertise", contact: "Contact", copyright: "© 2026 K-HUB | MADE IN KANO", live: "Live Listings" },
+            ha: { home: "Gida", jobs: "Ayyuka", rentals: "Gidajen Haya", shop: "Shago", transport: "Sufuri", heroSub: "A Wuri Guda.", trending: "Abubuwan Yayi a Kano", explore: "Duba Duka →", fetching: "Ana Neman Kasuwa...", about: "Game da Mu", terms: "Dokoki", advertise: "Tallata Kasuwancin ku a K-Hub", advertiseFooter: "Tallata Mu", contact: "Tuntuba", copyright: "© 2026 K-HUB | AN YI SHI A KANO", live: "Tallace-tallacen Yanzu" },
+            ig: { home: "Ụlọ", jobs: "Ọrụ", rentals: "Ụlọ Mbiri", shop: "Ụlọ Ahịa", transport: "Ụgbọ", heroSub: "N'otu Ebe.", trending: "Ihe Na-ewu na Kano", explore: "Hụchaa ya →", fetching: "Na-achọ Ahịa...", about: "Gbasara Anyị", terms: "Iwu", advertise: "Kwalite Ahịa gị na K-Hub", advertiseFooter: "Kwalite Ahịa", contact: "Kpọtụrụ Anyị", copyright: "© 2026 K-HUB | EMERE YA NA KANO", live: "Ngwa Ahịa Dị Ugbu A" },
+            yo: { home: "Ilé", jobs: "Iṣẹ́", rentals: "Ilé Yáya", shop: "Ilé Ìtajà", transport: "Ọkọ̀", heroSub: "Ní Ojú Kan.", trending: "Nǹkan Tó Ń Jágidi ní Kano", explore: "Ṣàwárí Gbogbo ẹ̀ →", fetching: "À ń wá Ọjà...", about: "Nípa Anyí", terms: "Òfin", advertise: "Polówó Iṣẹ́ rẹ lórí K-Hub", advertiseFooter: "Polówó Ọjà", contact: "Kàn sí wa", copyright: "© 2026 K-HUB | LATI KANO WA", live: "Àwọn Ọjà Tuntun" }
+        };
+
+        function applyLanguage(lang) {
+            const l = translations[lang];
+            document.querySelectorAll('.lang-home').forEach(el => el.innerText = l.home);
+            document.querySelectorAll('.lang-jobs').forEach(el => el.innerText = l.jobs);
+            document.querySelectorAll('.lang-rentals').forEach(el => el.innerText = l.rentals);
+            document.querySelectorAll('.lang-shop').forEach(el => el.innerText = l.shop);
+            document.querySelectorAll('.lang-transport').forEach(el => el.innerText = l.transport);
+            document.querySelectorAll('.lang-hero-sub').forEach(el => el.innerText = l.heroSub);
+            document.querySelector('.lang-trending').innerText = l.trending;
+            document.querySelector('.lang-live').innerText = l.live;
+            document.querySelector('.lang-explore').innerText = l.explore;
+            document.querySelector('.lang-fetching').innerText = l.fetching;
+            document.querySelector('.lang-about').innerText = l.about;
+            document.querySelector('.lang-terms').innerText = l.terms;
+            document.querySelector('.lang-advertise').innerText = l.advertise;
+            document.querySelector('.lang-advertise-footer').innerText = l.advertiseFooter;
+            document.querySelector('.lang-contact').innerText = l.contact;
+            document.querySelector('.lang-copyright').innerText = l.copyright;
+            document.getElementById('lang-select-desktop').value = lang;
+            document.getElementById('lang-select-mobile').value = lang;
+        }
+
+        document.getElementById('lang-select-desktop').addEventListener('change', (e) => applyLanguage(e.target.value));
+        document.getElementById('lang-select-mobile').addEventListener('change', (e) => applyLanguage(e.target.value));
+
+        auth.onAuthStateChanged(user => {
+            const desktopSection = document.getElementById('desktop-auth-section');
+            const mobileSection = document.getElementById('mobile-auth-section');
+
+            if (user) {
+                desktopSection.innerHTML = `
+                    <button onclick="window.location.href='user-dashboard.html'" class="text-[10px] font-black uppercase text-purple-400 border border-purple-400/30 px-5 py-2 rounded-full hover:bg-purple-500 hover:text-white transition mr-3">Dashboard</button>
+                    <button onclick="toggleMenu()" class="p-3 glass-panel border-white/10"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg></button>
+                `;
+                mobileSection.innerHTML = `<a href="user-dashboard.html" class="text-purple-400 pl-4 uppercase text-lg tracking-widest font-black">My Dashboard</a><button id="mobile-logout-btn" class="text-red-500 pl-4 uppercase text-lg tracking-widest font-black text-left mt-4">Sign Out</button>`;
+            } else {
+                desktopSection.innerHTML = `
+                    <button onclick="window.location.href='k-hub-login.html'" class="btn-gradient px-6 py-2 rounded-full text-[10px] font-black uppercase mr-3">Login</button>
+                    <button onclick="toggleMenu()" class="p-3 glass-panel border-white/10"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg></button>
+                `;
+                mobileSection.innerHTML = `<a href="k-hub-login.html" class="text-purple-400 pl-4 uppercase text-lg tracking-widest font-black">Login / Register</a>`;
+            }
+            document.getElementById('mobile-logout-btn')?.addEventListener('click', () => signOut(auth).then(() => window.location.reload()));
+        });
+
+        async function loadTrendingItems() {
+            const container = document.getElementById('items-container');
+            try {
+                const q = query(collection(db, "listings"), limit(3));
+                const querySnapshot = await getDocs(q);
+                if (querySnapshot.empty) { container.innerHTML = `<p class="col-span-3 text-center text-gray-500 py-10 uppercase font-black text-[10px]">No listings found.</p>`; return; }
+                container.innerHTML = ""; 
+                querySnapshot.forEach((doc) => {
+                    const item = doc.data();
+                    container.innerHTML += `
+                        <div class="glass-panel overflow-hidden group cursor-pointer" onclick="window.location.href='listing-details.html?id=${doc.id}'">
+                            <div class="h-48 bg-gray-900 overflow-hidden"><img src="${item.image || 'https://via.placeholder.com/400x300'}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700"></div>
+                            <div class="p-5">
+                                <h4 class="font-black text-[11px] mb-1 uppercase tracking-tight truncate italic">${item.title}</h4>
+                                <p class="text-purple-400 font-black text-xl italic">₦${Number(item.price).toLocaleString()}</p>
+                                <p class="text-[9px] text-gray-600 font-black uppercase mt-2">📍 ${item.location || 'Kano'}</p>
+                            </div>
+                        </div>`;
+                });
+            } catch (e) { container.innerHTML = `<p class="text-red-500 col-span-3 text-center">Connection Error</p>`; }
+        }
+        loadTrendingItems();
+    </script>
+</body>
+</html>
