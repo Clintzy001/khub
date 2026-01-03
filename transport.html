@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Register Transport Service</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0B0E14; color: white; font-family: 'Inter', sans-serif; }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Google Translate Styling */
+        #google_translate_element { margin-bottom: 10px; }
+        .goog-te-gadget-simple {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(139, 92, 246, 0.5) !important;
+            padding: 8px 15px !important;
+            border-radius: 15px !important;
+            display: flex;
+            align-items: center;
+        }
+        .goog-te-gadget-simple span { color: #8B5CF6 !important; font-weight: bold !important; font-size: 13px !important; }
+        .goog-te-banner-frame.skiptranslate { display: none !important; } 
+        body { top: 0px !important; }
+
+        /* Navigation active states */
+        .nav-item-active { color: #8B5CF6; }
+    </style>
+</head>
+<body class="pb-24"> <header class="p-6 flex justify-between items-center max-w-4xl mx-auto">
+        <button onclick="window.location.href='transport.html'" class="text-gray-400 hover:text-white transition flex items-center gap-2 text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            Back to Transport
+        </button>
+        <div id="google_translate_element"></div>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-6">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-black tracking-tight">Post Your <span class="text-purple-500">Transport Service</span></h1>
+            <p class="text-gray-500 text-sm mt-2 font-medium">Join Kano's largest verified driver network.</p>
+        </div>
+
+        <form id="transport-form" class="space-y-6">
+            <div class="glass-card p-8 rounded-[32px] space-y-5">
+                <h2 class="text-sm font-black uppercase tracking-widest text-purple-400 border-b border-white/5 pb-3">Service Details</h2>
+                
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">Full Name / Business Name</label>
+                    <input type="text" id="driver-name" placeholder="e.g. Sani Transport Services" required class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-purple-500 transition text-white">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">Vehicle Type</label>
+                        <select id="vehicle-type" class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none text-sm appearance-none text-white">
+                            <option value="keke">Keke Napep</option>
+                            <option value="car">Small Car (Kabo/Bolt)</option>
+                            <option value="bike">Motorcycle (Okada)</option>
+                            <option value="truck">Delivery Truck</option>
+                            <option value="bus">Mini Bus (Danfo)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">Base Fare (Starting from)</label>
+                        <input type="number" id="base-fare" placeholder="₦" required class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-purple-500 transition text-white">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">Primary Route / Area</label>
+                    <input type="text" id="route" placeholder="e.g. Airport Road to Sabon Gari" class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-purple-500 transition text-white">
+                </div>
+            </div>
+
+            <div class="glass-card p-8 rounded-[32px] space-y-5 border border-purple-500/20">
+                <h2 class="text-sm font-black uppercase tracking-widest text-emerald-400 border-b border-white/5 pb-3">Live Location & Security</h2>
+                <p class="text-[11px] text-gray-400">Click below to pin your current location on the K-Hub map.</p>
+                <button type="button" id="locate-btn" class="w-full py-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-2xl font-bold text-xs uppercase flex items-center justify-center gap-3 hover:bg-emerald-500/20 transition">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                    <span>Click to Capture My GPS Location</span>
+                </button>
+                <p id="location-status" class="text-center text-[10px] text-gray-500 font-bold italic"></p>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-2">WhatsApp Number (For bookings)</label>
+                    <input type="tel" id="phone" placeholder="080XXXXXXXX" required class="w-full bg-black/40 border border-white/10 rounded-2xl p-4 outline-none focus:border-purple-500 transition text-white">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-5 neon-gradient rounded-[24px] font-black uppercase tracking-widest shadow-lg shadow-purple-500/30 hover:scale-[1.02] transition active:scale-95 text-white">
+                Submit Listing
+            </button>
+        </form>
+    </main>
+
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-[#0B0E14]/90 backdrop-blur-lg border-t border-white/10 px-6 py-3 z-[100] flex justify-between items-center">
+        <a href="index.html" class="flex flex-col items-center gap-1 text-gray-500">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+            <span class="text-[10px] font-bold uppercase">Home</span>
+        </a>
+        <a href="job-search.html" class="flex flex-col items-center gap-1 text-gray-500">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            <span class="text-[10px] font-bold uppercase">Jobs</span>
+        </a>
+        <a href="shop.html" class="flex flex-col items-center gap-1 text-gray-500">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            <span class="text-[10px] font-bold uppercase">Shop</span>
+        </a>
+        <a href="transport.html" class="flex flex-col items-center gap-1 text-purple-500"> <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            <span class="text-[10px] font-bold uppercase">Taxi</span>
+        </a>
+    </div>
+
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'ha,ig,yo,en',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script type="module">
+        import { db, collection, addDoc, serverTimestamp } from './firebase-config.js';
+
+        let driverCoords = { lat: 12.0022, lng: 8.5920 };
+
+        document.getElementById('locate-btn').onclick = () => {
+            const statusText = document.getElementById('location-status');
+            statusText.innerText = "Locating you...";
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    driverCoords.lat = pos.coords.latitude;
+                    driverCoords.lng = pos.coords.longitude;
+                    statusText.innerText = "✅ Location Locked: " + driverCoords.lat.toFixed(4) + ", " + driverCoords.lng.toFixed(4);
+                    statusText.className = "text-center text-[10px] text-emerald-400 font-bold italic";
+                }, (err) => {
+                    statusText.innerText = "❌ Location access denied. Using default.";
+                });
+            }
+        };
+
+        document.getElementById('transport-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerText = "UPLOADING...";
+            btn.disabled = true;
+
+            try {
+                const driverData = {
+                    name: document.getElementById('driver-name').value,
+                    vehicle: document.getElementById('vehicle-type').value,
+                    price: document.getElementById('base-fare').value,
+                    area: document.getElementById('route').value,
+                    phone: document.getElementById('phone').value,
+                    lat: driverCoords.lat,
+                    lng: driverCoords.lng,
+                    isVerified: false,
+                    status: 'active', // Set to active so it shows up immediately for now
+                    createdAt: serverTimestamp()
+                };
+
+                await addDoc(collection(db, "drivers"), driverData);
+                
+                await addDoc(collection(db, "transports"), {
+                    title: `${driverData.name} - ${driverData.vehicle}`,
+                    price: driverData.price,
+                    description: `Transport route: ${driverData.area}`,
+                    status: 'active',
+                    lat: driverData.lat,
+                    lng: driverData.lng,
+                    type: 'transports',
+                    createdAt: serverTimestamp()
+                });
+
+                alert("Listing Successful!");
+                window.location.href = 'transport.html';
+
+            } catch (err) {
+                console.error(err);
+                alert("Error posting listing.");
+                btn.innerText = "SUBMIT LISTING";
+                btn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>
