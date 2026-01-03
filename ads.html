@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advertise | K-HUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body { background: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); margin: 0; }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; }
+        .btn-gradient { background: linear-gradient(90deg, #A855F7 0%, #3B82F6 100%); transition: all 0.3s ease; }
+        .btn-gradient:hover { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); transform: translateY(-2px); }
+        
+        #ad-modal { transition: opacity 0.3s ease; }
+        .modal-active { display: flex !important; }
+
+        .adsense-placeholder {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4b5563;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+
+    <div id="ad-modal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="glass-panel max-w-sm w-full p-8 border-purple-500/30 shadow-2xl relative text-center">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            
+            <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-green-400" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.43 5.623 1.43h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            </div>
+            
+            <h3 id="modal-title" class="text-xl font-black uppercase italic mb-2 tracking-tighter">Plan Name</h3>
+            <p id="modal-desc" class="text-gray-400 text-sm mb-8 leading-relaxed">Sannu! Let's discuss your banner design and payment details on WhatsApp.</p>
+            
+            <button id="whatsapp-confirm-btn" class="btn-gradient w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-xs">
+                Start Chat Now
+            </button>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto text-center">
+        <div class="flex flex-col items-center cursor-pointer mb-12" onclick="window.location.href='index.html'">
+            <svg class="w-16 h-16 mb-2" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="10" fill="url(#k-grad-ads)"/>
+                <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs>
+                    <linearGradient id="k-grad-ads" x1="0" y1="0" x2="40" y2="40">
+                        <stop stop-color="#8B5CF6"/>
+                        <stop offset="1" stop-color="#3B82F6"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <h1 class="text-[10px] font-black italic tracking-[0.4em] leading-none text-white/40 uppercase">K-HUB Partners</h1>
+        </div>
+
+        <div class="mb-8 adsense-placeholder">
+            <span>Google AdSense Header Unit</span>
+        </div>
+
+        <h1 class="text-5xl font-black mb-4 tracking-tighter">BOOST YOUR <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400">BUSINESS</span></h1>
+        <p class="text-gray-400 mb-12 max-w-2xl mx-auto text-sm italic font-medium">Advertising that reaches the heart of Kano city.</p>
+
+        <div class="grid md:grid-cols-3 gap-8 mb-20">
+            <div class="glass-panel p-8 border-b-4 border-purple-500 hover:bg-white/5 transition flex flex-col h-full">
+                <h3 class="font-black mb-4 uppercase text-sm tracking-widest">Sidebar Banner</h3>
+                <p class="text-3xl font-black mb-6 text-white tracking-tighter">₦15,000<span class="text-[10px] text-gray-500 font-normal">/WEEK</span></p>
+                <ul class="text-left text-xs text-gray-400 space-y-4 mb-8 flex-grow">
+                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-purple-500" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg> Shop & Jobs Sidebar</li>
+                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-purple-500" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg> Weekly Performance Report</li>
+                </ul>
+                <button onclick="openModal('Sidebar Banner', '₦15,000 per week')" class="w-full py-4 rounded-xl border border-white/10 hover:border-purple-500/50 font-black uppercase text-[10px] tracking-widest transition">Select Plan</button>
+            </div>
+
+            <div class="glass-panel p-8 border-b-4 border-blue-500 transform md:scale-110 bg-white/5 relative flex flex-col h-full z-10 shadow-2xl">
+                <div class="bg-blue-500 text-[8px] font-black px-3 py-1.5 rounded-full absolute -top-3 left-1/2 -translate-x-1/2 uppercase text-white shadow-lg">Kano's Favorite</div>
+                <h3 class="font-black mb-4 uppercase text-sm tracking-widest">Homepage Hero</h3>
+                <p class="text-3xl font-black mb-6 text-white tracking-tighter">₦50,000<span class="text-[10px] text-gray-500 font-normal">/MONTH</span></p>
+                <ul class="text-left text-xs text-gray-300 space-y-4 mb-8 flex-grow">
+                    <li class="flex items-center gap-2 font-bold"><svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg> Top-of-Page Exposure</li>
+                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg> Premium Brand Badge</li>
+                </ul>
+                <button onclick="openModal('Homepage Hero', '₦50,000 per month')" class="btn-gradient w-full py-4 rounded-xl font-black uppercase text-[10px] tracking-widest">Select Plan</button>
+            </div>
+
+            <div class="glass-panel p-8 border-b-4 border-emerald-500 hover:bg-white/5 transition flex flex-col h-full">
+                <h3 class="font-black mb-4 uppercase text-sm tracking-widest">Featured Post</h3>
+                <p class="text-3xl font-black mb-6 text-white tracking-tighter">₦5,000<span class="text-[10px] text-gray-500 font-normal">/ITEM</span></p>
+                <ul class="text-left text-xs text-gray-400 space-y-4 mb-8 flex-grow">
+                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg> 7 Days Top Placement</li>
+                    <li class="flex items-center gap-2"><svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg> Highlighted Green Border</li>
+                </ul>
+                <button onclick="openModal('Featured Listing', '₦5,000 per item')" class="w-full py-4 rounded-xl border border-white/10 hover:border-emerald-500/50 font-black uppercase text-[10px] tracking-widest transition">Select Plan</button>
+            </div>
+        </div>
+
+        <div class="adsense-placeholder mb-12">
+            <span>Responsive AdSense Feed Unit</span>
+        </div>
+
+        <div class="mt-8 border-t border-white/5 pt-8 mb-12">
+            <button onclick="window.location.href='index.html'" class="text-[9px] font-black uppercase text-gray-500 hover:text-white transition tracking-[0.5em]">← RETURN TO DASHBOARD</button>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('ad-modal');
+        const confirmBtn = document.getElementById('whatsapp-confirm-btn');
+        const modalTitle = document.getElementById('modal-title');
+        
+        // --- YOUR UPDATED WHATSAPP NUMBER ---
+        const WHATSAPP_NUMBER = "2347051337399";
+
+        function openModal(planName, price) {
+            modal.classList.add('modal-active');
+            modalTitle.innerText = planName;
+            
+            confirmBtn.onclick = function() {
+                const message = `Sannu K-HUB! I'm interested in the *${planName}* (${price}). I'd like to talk about the banner design for my business.`;
+                const encodedMsg = encodeURIComponent(message);
+                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMsg}`, '_blank');
+            };
+        }
+
+        function closeModal() {
+            modal.classList.remove('modal-active');
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) closeModal();
+        }
+    </script>
+</body>
+</html>
