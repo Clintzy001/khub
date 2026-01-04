@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub Shop | Product Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon-purple: #8B5CF6; --neon-blue: #3B82F6; }
+        body { background-color: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .thumb-active { border: 2px solid #8B5CF6; opacity: 1; }
+        .lang-dropdown { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; outline: none; cursor: pointer; }
+    </style>
+</head>
+<body class="overflow-x-hidden min-h-screen">
+
+    <header class="flex items-center justify-between px-6 py-6 max-w-7xl mx-auto">
+        <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='index.html'">
+            <svg class="w-10 h-10 mb-1" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="10" fill="url(#k-grad-shop)"/>
+                <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs><linearGradient id="k-grad-shop" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/></linearGradient></defs>
+            </svg>
+            <h1 class="text-[8px] font-black italic tracking-tighter leading-none">K-HUB</h1>
+        </div>
+
+        <nav class="hidden md:flex gap-8 text-[10px] font-black uppercase tracking-widest">
+            <a href="index.html" class="text-gray-400 hover:text-white transition" data-lang-key="home">Home</a>
+            <a href="shop.html" class="text-white border-b-2 border-purple-500 pb-1" data-lang-key="shop">Shop</a>
+            <a href="user-dashboard.html" class="text-gray-400 hover:text-white transition" data-lang-key="dash">Dashboard</a>
+        </nav>
+
+        <div class="flex items-center gap-4">
+            <select id="lang-select-desktop" class="lang-select-dropdown lang-dropdown" onchange="applyLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="ha">Hausa</option>
+                <option value="ig">Igbo</option>
+                <option value="yo">Yoruba</option>
+            </select>
+            <button onclick="window.location.href='user-dashboard.html'" class="px-4 py-2 bg-white/5 rounded-xl text-[9px] font-black uppercase border border-white/10 tracking-widest hover:bg-white/10 transition">Account</button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            
+            <div class="space-y-4">
+                <div class="aspect-square glass-card rounded-[40px] overflow-hidden bg-gray-800 shadow-2xl shadow-purple-500/10">
+                    <img id="mainImage" src="https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=800" class="w-full h-full object-cover" alt="Product Image">
+                </div>
+                <div class="flex gap-4 overflow-x-auto pb-2">
+                    <img src="https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=200" class="w-20 h-20 rounded-2xl cursor-pointer thumb-active object-cover transition">
+                    <img src="https://images.unsplash.com/photo-1554156044-839556858276?auto=format&fit=crop&w=200" class="w-20 h-20 rounded-2xl cursor-pointer opacity-50 hover:opacity-100 object-cover transition">
+                </div>
+            </div>
+
+            <div class="flex flex-col">
+                <div class="mb-6">
+                    <span class="text-[10px] font-black text-purple-400 uppercase tracking-widest">Handmade Art • Fagge, Kano</span>
+                    <h1 class="text-3xl md:text-5xl font-black italic uppercase tracking-tighter mt-2 mb-4">Handmade Leather Wallet</h1>
+                    <p class="text-3xl font-black text-emerald-400 italic">₦7,500</p>
+                    <div class="flex items-center gap-2 mt-4">
+                        <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-[9px] font-black uppercase italic tracking-widest" data-lang-key="in_stock">In Stock</span>
+                        <span class="text-gray-500 text-[10px] font-bold">| 24 items left</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-[32px] mb-8 border-white/5">
+                    <h3 class="font-black italic uppercase text-xs mb-3 tracking-widest" data-lang-key="desc_head">Product Description</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed font-medium">
+                        Authentic Kano leather, handcrafted by master artisans. This wallet features 6 card slots, a bill compartment, and a unique embossed traditional motif. Durable, stylish, and made locally.
+                    </p>
+                </div>
+
+                <div class="space-y-6 mb-8">
+                    <div class="flex items-center gap-4">
+                        <span class="text-[10px] font-black uppercase text-gray-500 tracking-widest" data-lang-key="qty">Quantity</span>
+                        <div class="flex items-center bg-white/5 border border-white/10 rounded-xl">
+                            <button class="px-4 py-2 hover:text-purple-400 transition font-black">-</button>
+                            <span class="px-4 py-2 text-xs font-black border-x border-white/10">1</span>
+                            <button class="px-4 py-2 hover:text-purple-400 transition font-black">+</button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <button class="flex-grow neon-gradient py-5 rounded-2xl font-black italic uppercase text-sm tracking-widest shadow-lg shadow-purple-500/20 hover:scale-[1.02] active:scale-95 transition" data-lang-key="add_cart">Add to Cart</button>
+                        <button class="px-8 py-5 bg-white/5 border border-white/10 rounded-2xl font-black italic uppercase text-xs tracking-widest hover:bg-white/10 transition" data-lang-key="msg_seller">Message Seller</button>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 rounded-[24px] flex items-center justify-between border-purple-500/10">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center font-black italic shadow-lg">KM</div>
+                        <div>
+                            <p class="text-xs font-black italic uppercase tracking-tighter">Kano Leather Works</p>
+                            <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest" data-lang-key="verified_seller">Verified Seller • 4.9 ⭐</p>
+                        </div>
+                    </div>
+                    <button class="text-[9px] font-black uppercase text-purple-400 hover:underline tracking-widest" data-lang-key="view_shop">View Shop</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const translations = {
+            en: { 
+                home: "Home", shop: "Shop", dash: "Dashboard", in_stock: "In Stock", 
+                desc_head: "Product Description", qty: "Quantity", add_cart: "Add to Cart",
+                msg_seller: "Message Seller", verified_seller: "Verified Seller ✅", view_shop: "View Shop"
+            },
+            ha: { 
+                home: "Gida", shop: "Shago", dash: "Sashin Kulawa", in_stock: "Akwai Akwai", 
+                desc_head: "Bayanin Samfuri", qty: "Yawa", add_cart: "Saka a Kwando",
+                msg_seller: "Yi Magana da Mai Shago", verified_seller: "Mai Shago Inganntacce ✅", view_shop: "Duba Shago"
+            },
+            ig: { 
+                home: "Ụlọ", shop: "Ụlọ Ahịa", dash: "Dashboard", in_stock: "Ọ dị na ngwaahịa", 
+                desc_head: "Nkọwa ngwaahịa", qty: "Ọnụọgụ", add_cart: "Tinye na ụgbọala",
+                msg_seller: "Gwa Onye Na-ere Ahịa", verified_seller: "Onye na-ere ahịa ✅", view_shop: "Lelee Ụlọ Ahịa"
+            },
+            yo: { 
+                home: "Ilé", shop: "Ìtajà", dash: "Dashboard", in_stock: "Wà ní títà", 
+                desc_head: "Ìpèjúwe Ọjà", qty: "Iye", add_cart: "Fi sínú kẹ̀kẹ́",
+                msg_seller: "Bá Olùtajà Sọ̀rọ̀", verified_seller: "Olùtajà tí a fọwọ́sí ✅", view_shop: "Wo Ìtaja"
+            }
+        };
+
+        function applyLanguage(lang) {
+            localStorage.setItem('kHubLang', lang);
+            const elements = document.querySelectorAll('[data-lang-key]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                if (translations[lang][key]) el.innerText = translations[lang][key];
+            });
+            document.querySelectorAll('.lang-select-dropdown').forEach(d => d.value = lang);
+        }
+
+        // Initialize on Load
+        window.addEventListener('load', () => {
+            const savedLang = localStorage.getItem('kHubLang') || 'en';
+            applyLanguage(savedLang);
+        });
+    </script>
+</body>
+</html>
