@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOBHUB | Market</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --brand: #4A148C; --off-white: #F9F9F9; }
+        body { background-color: var(--off-white); font-family: sans-serif; transition: background-color 0.3s, color 0.3s; }
+        
+        /* Theme Classes */
+        .dark { background-color: #121212; color: white; }
+        .dark .bg-white { background-color: #1E1E1E; }
+        .dark .text-gray-400 { color: #888; }
+        .dark .icon-label { color: #ccc; }
+        .dark .icon-box { background-color: #222; }
+
+        .text-brand { color: var(--brand); }
+        .bg-brand { background-color: var(--brand); }
+        
+        /* Price Highlight - High Readability */
+        .price-text { 
+            color: #2E7D32; 
+            font-size: 1.2rem; 
+            font-weight: 900; 
+            letter-spacing: -0.5px;
+        }
+        .dark .price-text { color: #4ADE80; }
+
+        .category-icon-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 20px;
+        }
+        .icon-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .icon-box {
+            width: 60px;
+            height: 60px;
+            background-color: #f0f0f0; 
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.2s;
+        }
+        .icon-box:active { transform: scale(0.9); }
+        .icon-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-align: center;
+            color: #444;
+        }
+        
+        /* Hide scrollbar for clean UI */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="pb-24">
+
+    <header class="bg-brand p-5 space-y-4 shadow-lg sticky top-0 z-50">
+        <div class="flex justify-between items-center text-white">
+            <h1 class="font-black italic text-2xl tracking-tighter">JOBHUB</h1>
+            <div class="flex gap-4 items-center">
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <h2 class="text-white text-center font-bold text-lg">Marketplace</h2>
+
+        <select id="stateSelect" class="bg-white/10 text-white text-sm p-4 rounded-xl w-full border border-white/20 outline-none font-bold">
+            <option value="" class="text-black">Showing All Nigeria</option>
+            <option value="Lagos" class="text-black">Lagos</option>
+            <option value="Abuja" class="text-black">Abuja</option>
+            <option value="Rivers" class="text-black">Rivers</option>
+            <option value="Kano" class="text-black">Kano</option>
+            <option value="Enugu" class="text-black">Enugu</option>
+            <option value="Oyo" class="text-black">Oyo</option>
+        </select>
+    </header>
+
+    <div class="category-icon-grid">
+        <div class="icon-card" onclick="filterCategory('Phones')">
+            <div class="icon-box"><i class="fas fa-mobile-alt text-purple-600"></i></div>
+            <span class="icon-label">Phones</span>
+        </div>
+        <div class="icon-card" onclick="filterCategory('Fashion')">
+            <div class="icon-box"><i class="fas fa-tshirt text-red-500"></i></div>
+            <span class="icon-label">Fashion</span>
+        </div>
+        <div class="icon-card" onclick="filterCategory('Electronics')">
+            <div class="icon-box"><i class="fas fa-plug text-yellow-600"></i></div>
+            <span class="icon-label">Electronics</span>
+        </div>
+        <div class="icon-card" onclick="filterCategory('All')">
+            <div class="icon-box"><i class="fas fa-border-all text-gray-700"></i></div>
+            <span class="icon-label">All Items</span>
+        </div>
+    </div>
+
+    <main class="px-4">
+        <div id="shopGrid" class="grid grid-cols-2 gap-4">
+            </div>
+    </main>
+
+    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around items-center py-4 z-50 dark:bg-[#1E1E1E] dark:border-zinc-800">
+        <a href="index.html" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-home text-xl"></i><span class="text-[10px] font-bold">Home</span>
+        </a>
+        <div class="flex flex-col items-center text-brand">
+            <i class="fas fa-store text-xl"></i><span class="text-[10px] font-bold">Market</span>
+        </div>
+        <div onclick="window.open('https://wa.me/2347051337399')" class="flex flex-col items-center text-gray-400 cursor-pointer">
+            <i class="fab fa-whatsapp text-xl"></i><span class="text-[10px] font-bold">Chat</span>
+        </div>
+    </nav>
+
+    <script>
+        const myWhatsApp = "2347051337399";
+        let isDarkMode = false;
+
+        function renderShop() {
+            const grid = document.getElementById('shopGrid');
+            grid.innerHTML = '';
+            
+            // Loop for 50 items using prod1.jpg to prod50.jpg
+            for (let i = 1; i <= 50; i++) {
+                const price = (i * 1200) + 4000;
+                grid.innerHTML += `
+                <div class="bg-white p-3 rounded-3xl shadow-md border border-gray-100 dark:border-zinc-800 dark:bg-zinc-900 cursor-pointer transition-all active:scale-95" onclick="buyProduct('Item ${i}', '${price}')">
+                    <img src="prod${i}.jpg" class="w-full h-40 object-cover rounded-2xl mb-3 shadow-inner" onerror="this.src='https://via.placeholder.com/300x300?text=Product+${i}'">
+                    <h3 class="text-[12px] font-bold truncate dark:text-white mb-1">Premium Product #${i}</h3>
+                    <div class="price-text mb-3">₦${price.toLocaleString()}</div>
+                    <button class="w-full py-2 bg-[#25D366] text-white text-[10px] font-black rounded-xl uppercase tracking-wider">
+                        <i class="fab fa-whatsapp"></i> Buy Now
+                    </button>
+                </div>`;
+            }
+        }
+
+        function buyProduct(name, price) {
+            const state = document.getElementById('stateSelect').value || "Nigeria";
+            const msg = `Hello JOBHUB, I am in ${state}. I'm interested in buying ${name} for ₦${price}. Is it available?`;
+            window.open(`https://wa.me/${myWhatsApp}?text=${encodeURIComponent(msg)}`);
+        }
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark');
+            const icon = document.getElementById('themeIcon');
+            icon.className = isDarkMode ? 'fas fa-sun text-yellow-400' : 'fas fa-moon text-white';
+        }
+
+        // Run on load
+        renderShop();
+    </script>
+</body>
+</html>
