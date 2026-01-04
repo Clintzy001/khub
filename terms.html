@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms | K-HUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body { background: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 32px; }
+        .lang-dropdown { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 6px 12px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; outline: none; cursor: pointer; }
+    </style>
+</head>
+<body class="p-4 md:p-12 min-h-screen">
+
+    <div class="max-w-4xl mx-auto flex justify-between items-center mb-8 px-4">
+        <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='index.html'">
+            <svg class="w-10 h-10 mb-1" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="10" fill="url(#k-grad-terms)"/>
+                <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs><linearGradient id="k-grad-terms" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/></linearGradient></defs>
+            </svg>
+            <h1 class="text-[8px] font-black italic tracking-tighter">K-HUB</h1>
+        </div>
+
+        <select id="lang-select-sync" class="lang-dropdown" onchange="applyLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="ha">Hausa</option>
+            <option value="ig">Igbo</option>
+            <option value="yo">Yoruba</option>
+        </select>
+    </div>
+
+    <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16 border-purple-500/10">
+        <h1 class="text-4xl font-black mb-10 italic uppercase tracking-tighter lang-terms-head">TERMS & PRIVACY</h1>
+        
+        <div class="space-y-12 text-sm text-gray-400 leading-relaxed font-medium">
+            <section>
+                <h2 class="text-white font-black mb-3 uppercase tracking-widest text-xs lang-h1">1. Acceptance of Terms</h2>
+                <p class="lang-p1">By accessing K-HUB, you agree to comply with our community guidelines and local laws within the Federal Republic of Nigeria.</p>
+            </section>
+
+            <section>
+                <h2 class="text-white font-black mb-3 uppercase tracking-widest text-xs lang-h2">2. Marketplace Safety</h2>
+                <p class="lang-p2">K-HUB provides a platform for connection. We do not handle payments directly. Users are advised to meet in public places within Kano for physical transactions.</p>
+            </section>
+
+            <section>
+                <h2 class="text-white font-black mb-3 uppercase tracking-widest text-xs lang-h3">3. Privacy & Cookies</h2>
+                <p class="lang-p3">We use cookies to improve your experience. We do not sell your personal data to third parties. For AdSense purposes, third-party vendors may use cookies to serve ads based on your visits to this site.</p>
+            </section>
+
+            <section>
+                <h2 class="text-white font-black mb-3 uppercase tracking-widest text-xs lang-h4">4. Prohibited Content</h2>
+                <p class="lang-p4">Listings involving illegal substances, weapons, or fraudulent job offers will be deleted immediately and the user banned.</p>
+            </section>
+        </div>
+
+        <div class="mt-16 pt-8 border-t border-white/5">
+            <a href="index.html" class="text-purple-400 font-black uppercase italic tracking-widest text-xs hover:text-white transition lang-return">← Return to Homepage</a>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                head: "TERMS & PRIVACY",
+                h1: "1. Acceptance of Terms", p1: "By accessing K-HUB, you agree to comply with our community guidelines and local laws within the Federal Republic of Nigeria.",
+                h2: "2. Marketplace Safety", p2: "K-HUB provides a platform for connection. We do not handle payments directly. Users are advised to meet in public places within Kano for physical transactions.",
+                h3: "3. Privacy & Cookies", p3: "We use cookies to improve your experience. We do not sell your personal data to third parties. For AdSense purposes, third-party vendors may use cookies to serve ads based on your visits to this site.",
+                h4: "4. Prohibited Content", p4: "Listings involving illegal substances, weapons, or fraudulent job offers will be deleted immediately and the user banned.",
+                return: "← Return to Homepage"
+            },
+            ha: {
+                head: "SHARUƊA DA SIRRI",
+                h1: "1. Amincewa da Sharuɗa", p1: "Ta hanyar amfani da K-HUB, kun amince ku bi jagororin al'ummarmu da dokokin gida a cikin Jamhuriyar Tarayyar Najeriya.",
+                h2: "2. Tsaron Kasuwa", p2: "K-HUB dandamali ne na haɗin gwiwa. Ba mu karɓar kuɗi kai tsaye. Ana shawartar masu amfani su haɗu a wuraren jama'a a cikin Kano don ciniki.",
+                h3: "3. Sirri da Cookies", p3: "Muna amfani da cookies don inganta ƙwarewarku. Ba mu sayar da bayanan ku ga wasu mutane. Masu tallata kaya na iya amfani da cookies don nuna muku tallace-tallace.",
+                h4: "4. Abubuwan Da Aka Haramta", p4: "Tallace-tallacen da suka shafi miyagun ƙwayoyi, makamai, ko ayyukan zamba za a goge su nan take kuma a dakatar da mai amfani.",
+                return: "← Koma Shafin Gida"
+            },
+            ig: {
+                head: "USORO & NZUKO",
+                h1: "1. Nnabata nke Usoro", p1: "Site n'ịbanye na K-HUB, ị kwetara irube isi n'usoro nduzi obodo anyị na iwu obodo Nigeria.",
+                h2: "2. Nchekwa Ahịa", p2: "K-HUB na-enye ohere maka njikọ. Anyị anaghị ejikwa ụgwọ ozugbo. Ndị ọrụ kwesịrị izute n'ebe ọha na eze na Kano maka azụmahịa.",
+                h3: "3. Nzuzo & Cookies", p3: "Anyị na-eji cookies eme ka ahụmahụ gị dị mma. Anyị anaghị ere data gị. Ndị na-ere ahịa nwere ike iji cookies nye gị mgbasa ozi.",
+                h4: "4. Ihe Ndị Amachibidoro", p4: "Ihe ọ bụla metụtara ọgwụ ike, ngwá agha, ma ọ bụ aghụghọ ọrụ ka a ga-ehichapụ ozugbo.",
+                return: "← Laghachi n'ụlọ"
+            },
+            yo: {
+                head: "ÀWỌN ÒFIN ÀTI ÌPAMỌ́",
+                h1: "1. Ìtẹ́wọ́gbà Àwọn Òfin", p1: "Nípa lílo K-HUB, o gbà láti tẹ̀lé àwọn ìlànà wa àti àwọn òfin orílẹ̀-èdè Nàìjíríà.",
+                h2: "2. Ààbò Ọjà", p2: "K-HUB jẹ́ ibi ìsopọ̀. A kì í gba owó tààrà. A gba àwọn ènìyàn nímọ̀ràn láti pàdé ní ibi gbangba ní Kano fún òwò wọn.",
+                h3: "3. Ìpamọ́ & Cookies", p3: "A n lo cookies lati jẹ ki iṣẹ wa rọrun. A kii ta data rẹ fun ẹnikẹni.",
+                h4: "4. Àwọn Ohun Tí A Kò Gbà Láàyè", p4: "Àwọn ọjà tí ó lódì sí òfin, ohun ìjà, tàbí iṣẹ́ ìrẹ́jẹ ni a ó pa rẹ́ lẹ́sẹ̀kẹsẹ̀.",
+                return: "← Padà sí Ojú-ewé Àkọ́kọ́"
+            }
+        };
+
+        function applyLanguage(lang) {
+            localStorage.setItem('kHubLang', lang);
+            const l = translations[lang];
+            
+            document.querySelector('.lang-terms-head').innerText = l.head;
+            document.querySelector('.lang-h1').innerText = l.h1;
+            document.querySelector('.lang-p1').innerText = l.p1;
+            document.querySelector('.lang-h2').innerText = l.h2;
+            document.querySelector('.lang-p2').innerText = l.p2;
+            document.querySelector('.lang-h3').innerText = l.h3;
+            document.querySelector('.lang-p3').innerText = l.p3;
+            document.querySelector('.lang-h4').innerText = l.h4;
+            document.querySelector('.lang-p4').innerText = l.p4;
+            document.querySelector('.lang-return').innerText = l.return;
+
+            document.getElementById('lang-select-sync').value = lang;
+        }
+
+        // Auto-Sync Logic on Load
+        window.addEventListener('load', () => {
+            const savedLang = localStorage.getItem('kHubLang') || 'en';
+            applyLanguage(savedLang);
+        });
+    </script>
+</body>
+</html>
