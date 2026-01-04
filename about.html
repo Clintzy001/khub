@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | K-HUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap" rel="stylesheet">
+    <style>
+        body { background: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; }
+        .btn-gradient { background: linear-gradient(90deg, #A855F7 0%, #3B82F6 100%); }
+        .lang-dropdown { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 6px 12px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; outline: none; cursor: pointer; }
+    </style>
+</head>
+<body class="p-4 md:p-12 min-h-screen">
+
+    <div class="max-w-4xl mx-auto flex justify-between items-center mb-8 px-4">
+        <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='index.html'">
+            <svg class="w-10 h-10 mb-1" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="10" fill="url(#k-grad-about)"/>
+                <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs><linearGradient id="k-grad-about" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/></linearGradient></defs>
+            </svg>
+            <h1 class="text-[8px] font-black italic tracking-tighter leading-none">K-HUB</h1>
+        </div>
+
+        <select id="lang-select" class="lang-dropdown lang-select-dropdown" onchange="applyLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="ha">Hausa</option>
+            <option value="ig">Igbo</option>
+            <option value="yo">Yoruba</option>
+        </select>
+    </div>
+
+    <div class="max-w-4xl mx-auto glass-panel p-8 md:p-16">
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4 italic uppercase">
+                <span data-lang-key="our">OUR</span> 
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400" data-lang-key="mission">MISSION</span>
+            </h1>
+            <p class="text-gray-400 uppercase tracking-widest text-xs font-bold" data-lang-key="mission_sub">Bridging Kano's Commerce & Community</p>
+        </header>
+
+        <section class="space-y-8 text-gray-300 leading-relaxed font-medium">
+            <p data-lang-key="about_p1">K-HUB is a digital ecosystem born in the heart of the Ancient City. We realized that while Kano is a powerhouse of commerce, the digital bridge between local sellers, job seekers, and the community needed a modern upgrade.</p>
+            
+            <div class="grid md:grid-cols-2 gap-6 py-8">
+                <div class="p-6 border border-white/10 rounded-2xl bg-white/5">
+                    <h3 class="text-white font-black mb-2 uppercase text-sm italic" data-lang-key="vision_title">The Vision</h3>
+                    <p class="text-sm text-gray-400" data-lang-key="vision_text">To become the primary digital heartbeat for every transaction and connection in Kano State.</p>
+                </div>
+                <div class="p-6 border border-white/10 rounded-2xl bg-white/5">
+                    <h3 class="text-white font-black mb-2 uppercase text-sm italic" data-lang-key="local_title">The Local Touch</h3>
+                    <p class="text-sm text-gray-400" data-lang-key="local_text">Built by locals, for locals. We understand the language, the culture, and the hustle of the city.</p>
+                </div>
+            </div>
+
+            <p data-lang-key="about_p2">Whether you are looking for a job in Bompai, a rental in Nassarawa, or the best prices in Kurmi Market, K-HUB brings the city to your fingertips.</p>
+        </section>
+
+        <footer class="mt-12 pt-8 border-t border-white/5 text-center">
+            <button onclick="window.location.href='index.html'" class="btn-gradient px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-purple-500/20 transition hover:scale-105 active:scale-95" data-lang-key="back_home">
+                Back to Home
+            </button>
+        </footer>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                our: "OUR", mission: "MISSION", mission_sub: "Bridging Kano's Commerce & Community",
+                about_p1: "K-HUB is a digital ecosystem born in the heart of the Ancient City. We realized that while Kano is a powerhouse of commerce, the digital bridge between local sellers, job seekers, and the community needed a modern upgrade.",
+                vision_title: "The Vision", vision_text: "To become the primary digital heartbeat for every transaction and connection in Kano State.",
+                local_title: "The Local Touch", local_text: "Built by locals, for locals. We understand the language, the culture, and the hustle of the city.",
+                about_p2: "Whether you are looking for a job in Bompai, a rental in Nassarawa, or the best prices in Kurmi Market, K-HUB brings the city to your fingertips.",
+                back_home: "Back to Home"
+            },
+            ha: {
+                our: "MANUFAR", mission: "MU", mission_sub: "Haɗa Kasuwancin Kano da Al'umma",
+                about_p1: "K-HUB wani tsari ne na dijital da aka haifa a tsakiyar tsohon birnin Kano. Mun gano cewa kodayake Kano cibiyar kasuwanci ce, gadar dijital tsakanin masu siyarwa, masu neman aiki, da al'umma tana buƙatar sabuntawa.",
+                vision_title: "Burinmu", vision_text: "Mu zama babban bugun zuciya na dijital ga kowace mu'amala da haɗi a Jihar Kano.",
+                local_title: "Gida Ne", local_text: "Yan gida ne suka gina shi don yan gida. Mun san yarenmu, al'adunmu, da kuma yadda ake neman na abinci a garin nan.",
+                about_p2: "Ko kana neman aiki a Bompai, hayar gida a Nassarawa, ko mafi kyawun farashi a kasuwar Kurmi, K-HUB yana kawo muku birnin tafin hannunku.",
+                back_home: "Koma Gida"
+            },
+            ig: {
+                our: "ANYI", mission: "EBUMLUANỤ", mission_sub: "Ijikọ azụmahịa Kano na obodo",
+                about_p1: "K-HUB bụ usoro dijitalụ amụrụ n'ime obi obodo ochie Kano. Anyị ghọtara na ọ bụ ezie na Kano bụ ebe azụmahịa siri ike, akwa dijitalụ dị n'etiti ndị na-ere ahịa na obodo chọrọ nkwalite.",
+                vision_title: "Ọhụụ Ahụ", vision_text: "Ịghọ obi dijitalụ maka azụmahịa na njikọ ọ bụla na steeti Kano.",
+                local_title: "Metụ Obodo", local_text: "Ndị obodo rụrụ ya maka ndị obodo. Anyị ghọtara asụsụ, omenala, na ndụ obodo a.",
+                about_p2: "Ma ị na-achọ ọrụ na Bompai, ma ọ bụ ụlọ na Nassarawa, K-HUB na-ewetara gị obodo ahụ n'aka gị.",
+                back_home: "Laghachi n'ụlọ"
+            },
+            yo: {
+                our: "ERONGBA", mission: "WA", mission_sub: "Sísopọ̀ Ìṣòwò Kano àti Àwùjọ",
+                about_p1: "K-HUB jẹ́ ètò ìgbékalẹ̀ orí íńtánẹ́ẹ̀tì tí a bí ní àárín ìlú Kano. A rí i pé bí ó tilẹ̀ jẹ́ pé Kano jẹ́ ibùdó ìṣòwò, afárá dijitalụ láàárín àwọn olùtajà àti àwùjọ nílò àtúnṣe.",
+                vision_title: "Ìran Wa", vision_text: "Láti di ọkàn-àyà dijitalụ fún gbogbo ìṣòwò àti ìsopọ̀ ní Ìpínlẹ̀ Kano.",
+                local_title: "Ìfọwọ́sowọ́pọ̀ Agbègbè", local_text: "Àwọn ọmọ bíbí ìlú ni wọ́n kọ́ ọ fún àwọn ará ìlú. A mọ èdè, àṣà, àti ìtara ìlú yìí.",
+                about_p2: "Bí o bá ń wá iṣẹ́ ní Bompai, tàbí ilé ní Nassarawa, K-HUB ń mú ìlú náà wá sí ìka rẹ.",
+                back_home: "Padà sí Ilé"
+            }
+        };
+
+        function applyLanguage(lang) {
+            localStorage.setItem('kHubLang', lang);
+            const elements = document.querySelectorAll('[data-lang-key]');
+            
+            elements.forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerText = translations[lang][key];
+                }
+            });
+
+            // Update dropdown
+            document.getElementById('lang-select').value = lang;
+        }
+
+        // Auto-run on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('kHubLang') || 'en';
+            applyLanguage(savedLang);
+        });
+    </script>
+</body>
+</html>
