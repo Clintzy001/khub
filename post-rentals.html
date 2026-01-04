@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | List Your Property</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon-purple: #8B5CF6; --neon-blue: #3B82F6; }
+        body { background-color: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .input-field { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; color: white; }
+        .input-field:focus { border-color: #8B5CF6; outline: none; background: rgba(255, 255, 255, 0.07); box-shadow: 0 0 10px rgba(139, 92, 246, 0.2); }
+        .lang-dropdown { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; outline: none; cursor: pointer; }
+    </style>
+</head>
+<body class="overflow-x-hidden min-h-screen">
+
+    <header class="flex items-center justify-between px-6 py-6 max-w-7xl mx-auto">
+        <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='index.html'">
+            <svg class="w-10 h-10 mb-1" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="10" fill="url(#k-grad-rent)"/>
+                <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs><linearGradient id="k-grad-rent" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/></linearGradient></defs>
+            </svg>
+            <h1 class="text-[8px] font-black italic tracking-tighter leading-none">K-HUB</h1>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <select id="lang-select" class="lang-dropdown lang-select-dropdown" onchange="applyLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="ha">Hausa</option>
+                <option value="ig">Igbo</option>
+                <option value="yo">Yoruba</option>
+            </select>
+            <button onclick="window.location.href='user-dashboard.html'" class="px-4 py-2 rounded-xl bg-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition border border-white/10 data-lang-dash">Back to Dashboard</button>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 py-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-black italic uppercase tracking-tighter text-white data-lang-title">List a Property</h1>
+            <p class="text-gray-400 text-sm mt-1 font-medium data-lang-subtitle">Provide details about your house, apartment, or shop in Kano.</p>
+        </div>
+
+        <form id="rental-form" class="space-y-6">
+            <section class="glass-card p-6 md:p-8 rounded-[32px] space-y-5 border-purple-500/10">
+                <h2 class="text-xs font-black text-purple-400 uppercase tracking-widest italic data-lang-sec-info">Property Information</h2>
+                
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest data-lang-label-title">Property Title</label>
+                    <input type="text" id="title" required placeholder="e.g. Modern 2-Bedroom Flat" class="w-full input-field px-4 py-4 rounded-2xl text-sm font-bold">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest data-lang-label-cat">Category</label>
+                        <select id="category" class="w-full input-field px-4 py-4 rounded-2xl text-sm font-bold bg-[#06080C]">
+                            <option value="Apartment">Apartment/House</option>
+                            <option value="Shop">Shop/Commercial</option>
+                            <option value="Office">Office Space</option>
+                            <option value="Land">Land</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest data-lang-label-price">Price (₦ / year)</label>
+                        <input type="number" id="price" required placeholder="500000" class="w-full input-field px-4 py-4 rounded-2xl text-sm font-bold">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest data-lang-label-loc">Location (LGA)</label>
+                        <input type="text" id="location" required placeholder="Nasarawa" class="w-full input-field px-4 py-4 rounded-2xl text-sm font-bold">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest data-lang-label-bed">Bedrooms</label>
+                        <input type="number" id="bedrooms" placeholder="2" class="w-full input-field px-4 py-4 rounded-2xl text-sm font-bold">
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest data-lang-label-desc">Description</label>
+                    <textarea id="description" required rows="4" placeholder="Mention amenities, water supply, security, etc." class="w-full input-field px-4 py-4 rounded-2xl text-sm font-bold"></textarea>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest data-lang-label-img">Image URL</label>
+                    <input type="url" id="image-url" placeholder="https://image-link.com/house.jpg" class="w-full input-field px-4 py-4 rounded-2xl text-sm font-bold">
+                </div>
+            </section>
+
+            <button type="submit" id="submit-btn" class="w-full py-5 neon-gradient rounded-[24px] font-black uppercase italic tracking-widest shadow-lg shadow-purple-500/20 active:scale-95 transition text-white data-lang-btn">
+                Publish Listing
+            </button>
+        </form>
+    </main>
+
+    <script type="module">
+        import { auth, db, sendNotification, collection, addDoc, serverTimestamp } from './firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- TRANSLATION LOGIC ---
+        const translations = {
+            en: { dash: "Back to Dashboard", title: "List a Property", subtitle: "Provide details about your property in Kano.", info: "Property Information", lTitle: "Property Title", lCat: "Category", lPrice: "Price (₦ / year)", lLoc: "Location (LGA)", lBed: "Bedrooms", lDesc: "Description", lImg: "Image URL", btn: "Publish Listing", success: "Property Listed Successfully!" },
+            ha: { dash: "Koma Dashboard", title: "Saka Gida Ko Fili", subtitle: "Bayar da cikakken bayani game da gidan ku a Kano.", info: "Bayanin Gida", lTitle: "Sunan Gida", lCat: "Rukunin Gida", lPrice: "Kuɗi (₦ / shekara)", lLoc: "Wuri (LGA)", lBed: "Dakuna", lDesc: "Bayanin Gida", lImg: "Hoto (URL)", btn: "Wallafa Tallan", success: "An yi nasarar wallafa gidan ku!" },
+            ig: { dash: "Laghachi na Dashboard", title: "Depụta Akụ Gị", subtitle: "Nye nkọwa gbasara ụlọ gị ma ọ bụ ala gị na Kano.", info: "Ozi Gbasara Ụlọ", lTitle: "Aha Ụlọ", lCat: "Ụdị Ụlọ", lPrice: "Ọnụ ego (₦ / afọ)", lLoc: "Ebe ọ dị", lBed: "Ime ụlọ", lDesc: "Nkọwa", lImg: "URL onyonyo", btn: "Bipụta Ihe Ndị A", success: "Ebipụtara ụlọ gị nke ọma!" },
+            yo: { dash: "Padà sí Dashboard", title: "Fi Ohun-ìní Rẹ Sínú Àtòjọ", subtitle: "Pèsè àwọn kúlẹ̀kúlẹ̀ nípa ilé tàbí ilẹ̀ rẹ ní Kano.", info: "Ìsọfúnni Ohun-ìní", lTitle: "Àkọlé Ohun-ìní", lCat: "Isọri", lPrice: "Iye Owó (₦ / ọdún)", lLoc: "Ibi tí ó wà", lBed: "Yàrá", lDesc: "Ìpèjúwe", lImg: "URL àwòrán", btn: "Fi Ìfilọ̀ Rẹ Lélẹ̀", success: "A ti fi ohun-ìní rẹ sínú àtòjọ ni àṣeyọrí!" }
+        };
+
+        window.applyLanguage = (lang) => {
+            const l = translations[lang];
+            document.querySelector('.data-lang-dash').innerText = l.dash;
+            document.querySelector('.data-lang-title').innerText = l.title;
+            document.querySelector('.data-lang-subtitle').innerText = l.subtitle;
+            document.querySelector('.data-lang-sec-info').innerText = l.info;
+            document.querySelector('.data-lang-label-title').innerText = l.lTitle;
+            document.querySelector('.data-lang-label-cat').innerText = l.lCat;
+            document.querySelector('.data-lang-label-price').innerText = l.lPrice;
+            document.querySelector('.data-lang-label-loc').innerText = l.lLoc;
+            document.querySelector('.data-lang-label-bed').innerText = l.lBed;
+            document.querySelector('.data-lang-label-desc').innerText = l.lDesc;
+            document.querySelector('.data-lang-label-img').innerText = l.lImg;
+            document.querySelector('.data-lang-btn').innerText = l.btn;
+            
+            localStorage.setItem('kHubLang', lang);
+        };
+
+        // Initialize Language from Storage
+        const savedLang = localStorage.getItem('kHubLang') || 'en';
+        document.getElementById('lang-select').value = savedLang;
+        applyLanguage(savedLang);
+
+        // --- FIREBASE LOGIC ---
+        let landlordId = null;
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = 'k-hub-login.html';
+            else landlordId = user.uid;
+        });
+
+        async function notifyFollowers(authorId, itemName) {
+            try {
+                const q = query(collection(db, "follows"), where("followingId", "==", authorId));
+                const snap = await getDocs(q);
+                const userName = auth.currentUser.displayName || "A landlord you follow";
+                const promises = snap.docs.map(followerDoc => {
+                    return sendNotification(followerDoc.data().followerId, 'post', 'New Listing from ' + userName + ' ✨', `A new property was listed: "${itemName}". Check it out now!`);
+                });
+                await Promise.all(promises);
+            } catch (err) { console.error(err); }
+        }
+
+        document.getElementById('rental-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const title = document.getElementById('title').value;
+            const lang = localStorage.getItem('kHubLang') || 'en';
+            
+            btn.disabled = true;
+            btn.innerText = "...";
+
+            try {
+                await addDoc(collection(db, "rentals"), {
+                    userId: landlordId,
+                    title: title,
+                    category: document.getElementById('category').value,
+                    price: document.getElementById('price').value,
+                    location: document.getElementById('location').value,
+                    bedrooms: document.getElementById('bedrooms').value || "N/A",
+                    description: document.getElementById('description').value,
+                    imageUrl: document.getElementById('image-url').value || "",
+                    postedAt: serverTimestamp(),
+                    status: 'active'
+                });
+                
+                await notifyFollowers(landlordId, title);
+                alert(translations[lang].success);
+                window.location.href = 'user-dashboard.html';
+            } catch (error) {
+                alert("Error: " + error.message);
+                btn.disabled = false;
+                btn.innerText = translations[lang].btn;
+            }
+        });
+    </script>
+</body>
+</html>
