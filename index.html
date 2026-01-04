@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOBHUB | Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --brand: #4A148C; }
+        
+        /* Smooth transitions for theme switching */
+        body, header, nav, div, main, button { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+
+        .brand-purple { background-color: var(--brand); }
+        .text-brand-purple { color: var(--brand); }
+        .modal-animate { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .banner { width: 100%; height: 120px; border-radius: 20px; margin-bottom: 20px; display: flex; align-items: center; padding: 0 25px; color: white; position: relative; overflow: hidden; }
+        .job-banner { background: linear-gradient(135deg, #4A148C 0%, #7B1FA2 100%); }
+        .ad-banner { background: linear-gradient(135deg, #1A237E 0%, #3F51B5 100%); }
+        
+        /* Pricing & Theme Specifics */
+        .price-tag { background-color: #f3e5f5; color: var(--brand); padding: 4px 12px; border-radius: 8px; font-weight: 900; font-size: 1.1rem; }
+        .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .pricing-card { background: white; padding: 10px; border-radius: 12px; border: 1px solid #ddd; text-align: center; }
+
+        /* Dark Mode Classes */
+        .dark body { background-color: #121212; color: #ffffff; }
+        .dark header, .dark nav, .dark #postModal { background-color: #1e1e1e; border-color: #333; }
+        .dark .bg-white { background-color: #1e1e1e !important; }
+        .dark .text-gray-900, .dark .text-gray-800 { color: #ffffff !important; }
+        .dark .pricing-card { background: #2d2d2d; border-color: #444; }
+        .dark .bg-gray-50, .dark .bg-gray-100, .dark .bg-gray-200 { background-color: #2d2d2d !important; color: #bbb; }
+    </style>
+</head>
+<body class="pb-24 font-sans bg-[#F9F9F9]">
+
+    <header class="bg-white px-6 py-4 flex justify-between items-center shadow-sm sticky top-0 z-40 border-b">
+        <h1 class="text-2xl font-black tracking-tighter text-brand-purple italic">JOBHUB</h1>
+        <div class="flex gap-3 items-center">
+            <button onclick="toggleTheme()" id="themeBtn" class="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-600 dark:text-yellow-400">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex justify-center gap-2 py-6 px-4">
+        <button id="jobTab" onclick="switchTab('jobs')" class="brand-purple text-white px-8 py-2 rounded-xl font-bold shadow-md text-sm">Jobs</button>
+        <button id="adTab" onclick="switchTab('ads')" class="bg-gray-200 text-gray-600 px-8 py-2 rounded-xl font-bold text-sm">Ads</button>
+        <a href="shop.html" class="bg-gray-200 text-gray-600 px-8 py-2 rounded-xl font-bold text-sm">Shop</a>
+    </div>
+
+    <main class="px-5" id="listingContainer"></main>
+
+    <div id="postModal" class="fixed inset-0 bg-white z-[70] p-6 hidden flex-col modal-animate">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-black text-gray-900 uppercase">Post New Listing</h2>
+            <button onclick="toggleModal()" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-xl"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="space-y-4 flex-1 overflow-y-auto no-scrollbar">
+            <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                <p class="text-[10px] font-black text-brand-purple uppercase mb-2 tracking-widest text-center">Service Pricing List</p>
+                <div class="pricing-grid">
+                    <div class="pricing-card"><p class="text-[9px] font-bold text-gray-500 uppercase">Job (24 Hrs)</p><p class="text-brand-purple font-black">₦3,500</p></div>
+                    <div class="pricing-card"><p class="text-[9px] font-bold text-gray-500 uppercase">Job (1 Mo)</p><p class="text-brand-purple font-black">₦30,000</p></div>
+                    <div class="pricing-card"><p class="text-[9px] font-bold text-gray-500 uppercase">Ad (24 Hrs)</p><p class="text-blue-600 font-black">₦5,500</p></div>
+                    <div class="pricing-card"><p class="text-[9px] font-bold text-gray-500 uppercase">Ad (1 Mo)</p><p class="text-blue-600 font-black">₦50,000</p></div>
+                </div>
+            </div>
+
+            <div class="p-6 rounded-3xl border-2 border-brand-purple bg-purple-50 text-center shadow-sm">
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mb-2">Transfer Fee to Pay</p>
+                <h3 class="text-brand-purple text-2xl font-black italic">OPay: 6119361548</h3>
+                <p class="text-gray-800 font-bold text-sm uppercase">Clinton Chukwuebuka Oleka</p>
+            </div>
+            
+            <input type="text" id="listingTitle" placeholder="What are you posting?" class="w-full p-4 border-2 rounded-2xl bg-gray-50 outline-none focus:border-purple-800 font-bold dark:text-black">
+            <select id="durationSelect" class="w-full p-4 border-2 rounded-2xl bg-gray-50 outline-none font-bold text-gray-700">
+                <option value="1 Week">Listing Duration: 1 Week</option>
+                <option value="1 Month">Listing Duration: 1 Month</option>
+            </select>
+        </div>
+
+        <button onclick="sendWhatsAppReceipt()" class="w-full py-5 bg-[#25D366] text-white rounded-2xl font-black text-lg uppercase shadow-xl flex items-center justify-center gap-3 mt-4">
+            <i class="fab fa-whatsapp text-2xl"></i> Verify & Post
+        </button>
+    </div>
+
+    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around items-center py-4 z-50">
+        <div onclick="switchTab('jobs')" class="flex flex-col items-center cursor-pointer text-brand-purple"><i class="fas fa-home text-xl"></i><span class="text-[10px] font-bold">Home</span></div>
+        <div onclick="window.open('https://wa.me/2347051337399')" class="flex flex-col items-center text-gray-400"><i class="fab fa-whatsapp text-xl"></i><span class="text-[10px] font-bold">Chat</span></div>
+        <div class="relative -top-8 text-center">
+            <button onclick="toggleModal()" class="brand-purple w-16 h-16 rounded-full shadow-2xl text-white border-4 border-white active:scale-90 transition-transform"><i class="fas fa-plus text-2xl"></i></button>
+            <p class="text-[10px] font-black text-brand-purple mt-1 uppercase">Sell</p>
+        </div>
+        <a href="shop.html" class="flex flex-col items-center text-gray-400"><i class="fas fa-shopping-bag text-xl"></i><span class="text-[10px] font-bold">Shop</span></a>
+        <div onclick="window.open('https://wa.me/2347051337399')" class="flex flex-col items-center text-gray-400"><i class="fas fa-comment-dots text-xl"></i><span class="text-[10px] font-bold">Inbox</span></div>
+    </nav>
+
+    <script>
+        const myWhatsApp = "2347051337399";
+
+        function toggleTheme() {
+            const html = document.getElementById('htmlTag');
+            const icon = document.getElementById('themeIcon');
+            html.classList.toggle('dark');
+            if (html.classList.contains('dark')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+        }
+
+        function toggleModal() { 
+            const m = document.getElementById('postModal');
+            m.classList.toggle('hidden'); 
+            m.classList.toggle('flex'); 
+        }
+        
+        function sendWhatsAppReceipt() {
+            const title = document.getElementById('listingTitle').value || "New Post";
+            const duration = document.getElementById('durationSelect').value;
+            window.open(`https://wa.me/${myWhatsApp}?text=Hello JOBHUB, I just paid for a new listing.%0A%0AItem: ${title}%0ADuration: ${duration}%0A%0APlease verify my proof.`);
+        }
+
+        function switchTab(type) {
+            const container = document.getElementById('listingContainer');
+            document.getElementById('jobTab').className = type === 'jobs' ? "brand-purple text-white px-8 py-2 rounded-xl font-bold shadow-md text-sm" : "bg-gray-200 text-gray-600 px-8 py-2 rounded-xl font-bold text-sm";
+            document.getElementById('adTab').className = type === 'ads' ? "brand-purple text-white px-8 py-2 rounded-xl font-bold shadow-md text-sm" : "bg-gray-200 text-gray-600 px-8 py-2 rounded-xl font-bold text-sm";
+            
+            if(type === 'jobs') {
+                container.innerHTML = `<div class="banner job-banner"><div><h2 class="text-xl font-black">Jobs for You</h2><p class="text-xs">Browse new openings</p></div><i class="fas fa-briefcase opacity-10 absolute right-[-10px] bottom-[-10px] text-8xl"></i></div>`;
+                for(let i=1; i<=3; i++) container.innerHTML += `<div class="bg-white p-4 rounded-2xl border-2 border-purple-800 mb-4 flex justify-between items-center shadow-sm"><div><h4 class="font-black text-lg">Job Position ${i}</h4><p class="text-xs text-gray-400">Verified Company • Lagos</p></div><div class="price-tag">₦150k</div></div>`;
+            } else {
+                container.innerHTML = `<div class="banner ad-banner"><div><h2 class="text-xl font-black">Hot Ads</h2><p class="text-xs">Verified listings</p></div><i class="fas fa-bullhorn opacity-10 absolute right-[-10px] bottom-[-10px] text-8xl"></i></div>`;
+                for(let i=1; i<=3; i++) container.innerHTML += `<div class="bg-white p-4 rounded-2xl border-2 border-blue-800 mb-4 flex justify-between items-center shadow-sm"><div><h4 class="font-black text-lg">Product Ad ${i}</h4><p class="text-xs text-gray-400">Trusted Seller • Abuja</p></div><div class="price-tag" style="color:#1A237E; background:#e8eaf6;">₦25,000</div></div>`;
+            }
+        }
+        window.onload = () => switchTab('jobs');
+    </script>
+</body>
+</html>
