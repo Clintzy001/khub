@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Apply for Job</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon-purple: #8B5CF6; --neon-blue: #3B82F6; }
+        body { background-color: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); min-h-screen; }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .lang-dropdown { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; outline: none; cursor: pointer; }
+    </style>
+</head>
+<body class="pb-20">
+
+    <nav class="p-6 flex justify-between items-center max-w-6xl mx-auto">
+        <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='index.html'">
+            <svg class="w-10 h-10 mb-1" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="10" fill="url(#k-grad-job)"/>
+                <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs><linearGradient id="k-grad-job" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/></linearGradient></defs>
+            </svg>
+            <h1 class="text-[8px] font-black italic tracking-tighter leading-none">K-HUB</h1>
+        </div>
+        <select id="lang-select" class="lang-dropdown lang-select-dropdown" onchange="applyLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="ha">Hausa</option>
+            <option value="ig">Igbo</option>
+            <option value="yo">Yoruba</option>
+        </select>
+    </nav>
+
+    <div class="max-w-2xl mx-auto px-6 mt-10">
+        <h2 class="text-3xl font-black italic uppercase tracking-tighter mb-2 lang-apply-head">Apply for Position</h2>
+        <p id="job-title" class="text-purple-400 font-bold mb-8 uppercase text-xs tracking-widest">Loading job details...</p>
+
+        <form id="application-form" class="glass-card p-8 rounded-[32px] space-y-6 border-purple-500/20">
+            <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase text-gray-500 tracking-widest lang-label-cv">Upload CV / Resume</label>
+                <div class="border-2 border-dashed border-white/10 rounded-2xl p-8 text-center hover:border-purple-500 transition cursor-pointer bg-white/5 relative">
+                    <input type="file" id="cv-upload" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.doc,.docx">
+                    <div id="file-status">
+                        <p class="text-xs font-bold text-gray-400 lang-upload-text">Click to upload PDF or Drag & Drop</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase text-gray-500 tracking-widest lang-label-cover">Cover Letter / Why should we hire you?</label>
+                <textarea id="cover-letter" class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-4 text-sm font-medium outline-none focus:border-purple-500 transition" rows="5"></textarea>
+            </div>
+
+            <button type="submit" id="submit-btn" class="w-full py-4 neon-gradient rounded-2xl font-black italic uppercase tracking-tighter shadow-lg shadow-purple-500/20 lang-submit-btn">
+                Submit Application
+            </button>
+        </form>
+    </div>
+
+    <script type="module">
+        const translations = {
+            en: { applyHead: "Apply for Position", labelCv: "Upload CV / Resume", uploadText: "Click to upload PDF or Drag & Drop", labelCover: "Cover Letter / Why should we hire you?", submitBtn: "Submit Application", success: "Application Sent!", error: "Please fill all fields." },
+            ha: { applyHead: "Neman Aiki", labelCv: "Saka Takardar Shaidar Aiki (CV)", uploadText: "Danna nan don saka PDF", labelCover: "Bayani kan dalilin da yasa ya kamata a dauke ka?", submitBtn: "Tura Neman Aiki", success: "An tura nasara!", error: "Da fatan za a cika dukkan wuraren." },
+            ig: { applyHead: "Tinye maka Ọrụ", labelCv: "Bulite CV / Resume", uploadText: "Pịa ebe a iji bulite PDF", labelCover: "Akwụkwọ mkpuchi / Gịnị kpatara anyị ga-eji were gị n'ọrụ?", submitBtn: "Nyefee Ngwa", success: "E zigara akwụkwọ gị!", error: "Biko dejupụta oghere niile." },
+            yo: { applyHead: "Wá Iṣẹ́", labelCv: "Gbé CV / Resume rẹ wá", uploadText: "Tẹ̀ ẹ́ láti gbé PDF wá", labelCover: "Lẹta ìfihàn / Kí nìdí tí ó fi yẹ kí a gbà ọ́ síṣẹ́?", submitBtn: "Fi Ohun Èlò Ránṣẹ́", success: "A ti fi ránṣẹ́!", error: "Jọ̀wọ́ kọ gbogbo rẹ tán." }
+        };
+
+        window.applyLanguage = (lang) => {
+            localStorage.setItem('kHubLang', lang);
+            const l = translations[lang];
+            document.querySelector('.lang-apply-head').innerText = l.applyHead;
+            document.querySelector('.lang-label-cv').innerText = l.labelCv;
+            document.querySelector('.lang-upload-text').innerText = l.uploadText;
+            document.querySelector('.lang-label-cover').innerText = l.labelCover;
+            document.querySelector('.lang-submit-btn').innerText = l.submitBtn;
+            document.getElementById('lang-select').value = lang;
+        };
+
+        // File Selection Feedback
+        document.getElementById('cv-upload').onchange = (e) => {
+            const fileName = e.target.files[0]?.name;
+            if (fileName) document.getElementById('file-status').innerHTML = `<p class="text-xs font-black text-emerald-400 uppercase tracking-widest">✅ ${fileName}</p>`;
+        };
+
+        // Sync Language on Load
+        window.addEventListener('load', () => {
+            applyLanguage(localStorage.getItem('kHubLang') || 'en');
+        });
+
+        // Add your Firebase submission logic here...
+    </script>
+</body>
+</html>
