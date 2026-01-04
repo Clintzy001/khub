@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOBHUB | Market</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --brand: #4A148C; --brand-light: #7B1FA2; --off-white: #F9F9F9; }
+        body { background-color: var(--off-white); font-family: sans-serif; transition: background-color 0.3s, color 0.3s; }
+        
+        .dark { background-color: #121212; color: white; }
+        .dark .bg-white { background-color: #1E1E1E; }
+        .dark .text-gray-400 { color: #888; }
+        .dark .icon-label { color: #ccc; }
+        .dark .icon-box { background-color: #222; }
+        .dark .terms-box { background-color: #1a1a1a; border-color: #333; }
+
+        .text-brand { color: var(--brand); }
+        .bg-brand { background-color: var(--brand); }
+        
+        /* Moving Color Animation for Slogan */
+        .slogan-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .slogan-text, .slogan-cart {
+            font-family: 'Arial Black', sans-serif;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: -1px;
+            /* Create the moving color gradient */
+            background: linear-gradient(
+                to right, 
+                #FFFFFF 20%, 
+                #E1BEE7 40%, 
+                #BA68C8 50%, 
+                #E1BEE7 60%, 
+                #FFFFFF 80%
+            );
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        .price-text { 
+            color: #2E7D32; 
+            font-size: 1.4rem; /* Slightly larger for better readability */
+            font-weight: 900; 
+            letter-spacing: -0.5px;
+        }
+        .dark .price-text { color: #4ADE80; }
+
+        .category-icon-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 20px;
+        }
+        .icon-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .icon-box {
+            width: 60px; height: 60px;
+            background-color: #f0f0f0; 
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; transition: all 0.2s;
+        }
+        .icon-box:active { transform: scale(0.9); }
+        .icon-label { font-size: 10px; font-weight: 700; color: #444; }
+        
+        .terms-box {
+            margin: 40px 20px 20px 20px;
+            padding: 24px;
+            border-radius: 20px;
+            background-color: #fff;
+            border: 1px solid #e5e7eb;
+            font-size: 11px;
+            line-height: 1.6;
+            color: #666;
+        }
+    </style>
+</head>
+<body class="pb-32">
+
+    <header class="bg-brand p-5 space-y-6 shadow-lg sticky top-0 z-50 rounded-b-[35px]">
+        <div class="flex justify-between items-center text-white">
+            <h1 class="font-black italic text-2xl tracking-tighter">JOBHUB</h1>
+            <div class="flex gap-4 items-center">
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="text-center py-2">
+            <div class="slogan-wrapper">
+                <i class="fas fa-shopping-cart slogan-cart text-xl"></i>
+                <h2 class="slogan-text text-xl uppercase">Shopping Made Easy</h2>
+            </div>
+            <div class="h-1 w-14 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto mt-2 rounded-full"></div>
+        </div>
+    </header>
+
+    <div class="category-icon-grid">
+        <div class="icon-card" onclick="renderShop('Phones')">
+            <div class="icon-box"><i class="fas fa-mobile-alt text-purple-600"></i></div>
+            <span class="icon-label">Phones</span>
+        </div>
+        <div class="icon-card" onclick="renderShop('Fashion')">
+            <div class="icon-box"><i class="fas fa-tshirt text-red-500"></i></div>
+            <span class="icon-label">Fashion</span>
+        </div>
+        <div class="icon-card" onclick="renderShop('Electronics')">
+            <div class="icon-box"><i class="fas fa-plug text-yellow-600"></i></div>
+            <span class="icon-label">Electronics</span>
+        </div>
+        <div class="icon-card" onclick="renderShop('All')">
+            <div class="icon-box"><i class="fas fa-border-all text-gray-700"></i></div>
+            <span class="icon-label">All</span>
+        </div>
+    </div>
+
+    <main class="px-4">
+        <div id="shopGrid" class="grid grid-cols-2 gap-4"></div>
+        
+        <div class="terms-box shadow-sm">
+            <h4 class="font-black text-brand mb-3 uppercase tracking-widest text-[12px] border-b pb-1">Terms & Conditions</h4>
+            <div class="space-y-2">
+                <p><span class="font-bold dark:text-gray-300">1. Verification Required:</span> All sellers must be verified. JobHub is not responsible for transactions made outside of verified payment channels.</p>
+                <p><span class="font-bold dark:text-gray-300">2. Transaction Policy:</span> Buyers are advised to inspect products before making final payments. Users are responsible for final trade safety.</p>
+                <p><span class="font-bold dark:text-gray-300">3. Conduct:</span> Illegal substances and fraudulent listings lead to immediate bans.</p>
+            </div>
+            <p class="mt-6 text-center opacity-40 font-bold text-[10px]">© 2026 JOBHUB NIGERIA</p>
+        </div>
+    </main>
+
+    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around items-center py-4 z-50 dark:bg-[#1E1E1E] dark:border-zinc-800">
+        <a href="index.html" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-home text-xl"></i><span class="text-[10px] font-bold">Home</span>
+        </a>
+        <div class="flex flex-col items-center text-brand">
+            <i class="fas fa-store text-xl"></i><span class="text-[10px] font-bold">Market</span>
+        </div>
+        <div onclick="window.open('https://wa.me/2347051337399')" class="flex flex-col items-center text-gray-400 cursor-pointer">
+            <i class="fab fa-whatsapp text-xl"></i><span class="text-[10px] font-bold">Chat</span>
+        </div>
+    </nav>
+
+    <script>
+        const myWhatsApp = "2347051337399";
+        let isDarkMode = false;
+
+        function renderShop(filter = 'All') {
+            const grid = document.getElementById('shopGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= 50; i++) {
+                const price = (i * 1500) + 5000;
+                grid.innerHTML += `
+                <div class="bg-white p-3 rounded-3xl shadow-md border border-gray-100 dark:border-zinc-800 dark:bg-zinc-900 cursor-pointer transition-all active:scale-95">
+                    <div class="relative overflow-hidden rounded-2xl mb-3 shadow-inner">
+                        <img src="prod${i}.jpg" class="w-full h-40 object-cover" onerror="this.src='https://via.placeholder.com/300x300?text=Product+${i}'">
+                    </div>
+                    <h3 class="text-[12px] font-bold truncate dark:text-white mb-1">Market Item #${i}</h3>
+                    <div class="price-text mb-3">₦${price.toLocaleString()}</div>
+                    <button onclick="buyProduct('Item ${i}', '${price}')" class="w-full py-2.5 bg-[#25D366] text-white text-[10px] font-black rounded-xl uppercase tracking-wider shadow-sm active:bg-green-600 transition-colors">
+                        <i class="fab fa-whatsapp"></i> Buy via WhatsApp
+                    </button>
+                </div>`;
+            }
+        }
+
+        function buyProduct(name, price) {
+            const msg = `Hello JOBHUB, I am interested in buying Item: ${name} (₦${price}). Please confirm availability.`;
+            window.open(`https://wa.me/${myWhatsApp}?text=${encodeURIComponent(msg)}`);
+        }
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark');
+            const icon = document.getElementById('themeIcon');
+            icon.className = isDarkMode ? 'fas fa-sun text-yellow-400' : 'fas fa-moon text-white';
+        }
+
+        renderShop();
+    </script>
+</body>
+</html>
