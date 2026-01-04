@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Sell an Item</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon-purple: #8B5CF6; --neon-blue: #3B82F6; }
+        body { background-color: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); padding-bottom: 40px; }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .input-field { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); color: white; transition: 0.3s; font-weight: 700; }
+        .input-field:focus { border-color: #8B5CF6; outline: none; background: rgba(255, 255, 255, 0.07); }
+        
+        .lang-dropdown { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; outline: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <nav class="p-6 flex justify-between items-center border-b border-white/5 max-w-6xl mx-auto">
+        <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='index.html'">
+            <svg class="w-10 h-10 mb-1" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="10" fill="url(#k-grad-post)"/>
+                <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs>
+                    <linearGradient id="k-grad-post" x1="0" y1="0" x2="40" y2="40">
+                        <stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <h1 class="text-[8px] font-black italic tracking-tighter leading-none">K-HUB</h1>
+        </div>
+
+        <select id="lang-select-desktop" class="lang-dropdown">
+            <option value="en">English</option>
+            <option value="ha">Hausa</option>
+            <option value="ig">Igbo</option>
+            <option value="yo">Yoruba</option>
+        </select>
+    </nav>
+
+    <main class="max-w-2xl mx-auto px-4 py-10">
+        <div class="mb-8">
+            <h1 class="text-4xl font-black italic uppercase tracking-tighter text-white lang-sell-head">Sell Something</h1>
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-2 lang-sell-sub">List your product in the Kano marketplace.</p>
+        </div>
+
+        <form id="product-form" class="space-y-6">
+            <div class="glass-card p-8 rounded-[40px] space-y-5 border-purple-500/10">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase text-gray-400 tracking-widest lang-label-img">Product Image</label>
+                    <input type="file" id="product-image" accept="image/*" required class="w-full text-xs text-gray-400 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-purple-600 file:text-white hover:file:bg-purple-700 transition">
+                    <div id="upload-status" class="text-[10px] font-bold text-purple-400 italic"></div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase text-gray-400 tracking-widest lang-label-name">Product Name</label>
+                    <input type="text" id="p-name" placeholder="iPhone 15 Pro" required class="w-full input-field px-5 py-4 rounded-2xl text-sm italic">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase text-gray-400 tracking-widest lang-label-price">Price (₦)</label>
+                        <input type="number" id="p-price" placeholder="450,000" required class="w-full input-field px-5 py-4 rounded-2xl text-sm">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase text-gray-400 tracking-widest lang-label-loc">Location (LGA)</label>
+                        <input type="text" id="p-location" placeholder="Tarauni" required class="w-full input-field px-5 py-4 rounded-2xl text-sm">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase text-gray-400 tracking-widest lang-label-phone">WhatsApp Number</label>
+                    <input type="tel" id="p-phone" placeholder="08012345678" required class="w-full input-field px-5 py-4 rounded-2xl text-sm">
+                </div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="w-full py-5 neon-gradient rounded-[24px] font-black italic uppercase text-sm shadow-lg shadow-purple-500/20 active:scale-95 transition text-white tracking-widest lang-post-btn">
+                Post to Marketplace
+            </button>
+        </form>
+    </main>
+
+    <script type="module">
+        import { auth, db, storage, sendNotification } from './firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, addDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        let currentUserId = null;
+
+        // Translation Data
+        const translations = {
+            en: { head: "Sell Something", sub: "List your product in the Kano marketplace.", img: "Product Image", name: "Product Name", price: "Price (₦)", loc: "Location (LGA)", phone: "WhatsApp Number", post: "Post to Marketplace", uploading: "Uploading to K-Hub storage...", success: "Listing Published! ✨" },
+            ha: { head: "Sayar da Kaya", sub: "Sanya kayan ka a kasuwar K-Hub.", img: "Hoton Kaya", name: "Sunan Kaya", price: "Farashi (₦)", loc: "Wuri (LGA)", phone: "Lambar WhatsApp", post: "Wallafa a Kasuwa", uploading: "Ana lodawa a rumbun K-Hub...", success: "An wallafa tallan ka! ✨" },
+            ig: { head: "Ree Ihe", sub: "Tinye ngwaahịa gị n'ahịa K-Hub.", img: "Foto Ngwaahịa", name: "Aha Ngwaahịa", price: "Ọnụego (₦)", loc: "Ebe (LGA)", phone: "Nọmba WhatsApp", post: "Bipụta n'Ahịa", uploading: "Na-ebugo na nchekwa K-Hub...", success: "Ebipụtara ihe gị! ✨" },
+            yo: { head: "Ta Nnkan", sub: "Fi ọjà rẹ sí ọjà K-Hub.", img: "Àwòrán Ọjà", name: "Orúkọ Ọjà", price: "Iye Owó (₦)", loc: "Agbègbè (LGA)", phone: "Nọmba WhatsApp", post: "Fi Sínú Ọjà", uploading: "À ń gbé e lọ sí K-Hub...", success: "Ọjà rẹ ti wà lórí afẹ́fẹ́! ✨" }
+        };
+
+        function applyLanguage(lang) {
+            const l = translations[lang] || translations.en;
+            document.querySelector('.lang-sell-head').innerText = l.head;
+            document.querySelector('.lang-sell-sub').innerText = l.sub;
+            document.querySelector('.lang-label-img').innerText = l.img;
+            document.querySelector('.lang-label-name').innerText = l.name;
+            document.querySelector('.lang-label-price').innerText = l.price;
+            document.querySelector('.lang-label-loc').innerText = l.loc;
+            document.querySelector('.lang-label-phone').innerText = l.phone;
+            document.querySelector('.lang-post-btn').innerText = l.post;
+            localStorage.setItem('kHubLang', lang);
+        }
+
+        document.getElementById('lang-select-desktop').addEventListener('change', (e) => applyLanguage(e.target.value));
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = 'k-hub-login.html';
+            else currentUserId = user.uid;
+            
+            const savedLang = localStorage.getItem('kHubLang') || 'en';
+            applyLanguage(savedLang);
+            document.getElementById('lang-select-desktop').value = savedLang;
+        });
+
+        async function notifyFollowers(authorId, itemName) {
+            try {
+                const q = query(collection(db, "follows"), where("followingId", "==", authorId));
+                const snap = await getDocs(q);
+                const userName = auth.currentUser.displayName || "A seller you follow";
+                
+                snap.forEach((followerDoc) => {
+                    const followerData = followerDoc.data();
+                    sendNotification(
+                        followerData.followerId,
+                        'post',
+                        'New Post from ' + userName + ' ✨',
+                        `They just listed a new item: ${itemName}. Check it out!`
+                    );
+                });
+            } catch (err) { console.error("Notify error:", err); }
+        }
+
+        document.getElementById('product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const lang = localStorage.getItem('kHubLang') || 'en';
+            const btn = document.getElementById('submit-btn');
+            const statusLabel = document.getElementById('upload-status');
+            const file = document.getElementById('product-image').files[0];
+            const productName = document.getElementById('p-name').value;
+
+            btn.disabled = true;
+            btn.innerText = "...";
+            statusLabel.innerText = translations[lang].uploading;
+
+            try {
+                const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
+                const uploadTask = await uploadBytes(storageRef, file);
+                const photoURL = await getDownloadURL(uploadTask.ref);
+
+                await addDoc(collection(db, "products"), {
+                    userId: currentUserId,
+                    name: productName,
+                    price: document.getElementById('p-price').value,
+                    location: document.getElementById('p-location').value,
+                    phone: document.getElementById('p-phone').value,
+                    imageUrl: photoURL,
+                    postedAt: serverTimestamp(),
+                    status: 'active'
+                });
+
+                await sendNotification(currentUserId, 'post', translations[lang].success, `"${productName}" is live.`);
+                await notifyFollowers(currentUserId, productName);
+
+                alert(translations[lang].success);
+                window.location.href = 'user-dashboard.html';
+            } catch (err) {
+                alert("Error: " + err.message);
+                btn.disabled = false;
+                btn.innerText = translations[lang].post;
+            }
+        });
+    </script>
+</body>
+</html>
