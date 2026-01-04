@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Post a New Job</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon-purple: #8B5CF6; --neon-blue: #3B82F6; }
+        body { background-color: #06080C; color: white; font-family: 'Inter', sans-serif; padding-bottom: 80px; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .input-field { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; color: white; font-weight: 600; }
+        .input-field:focus { border-color: #8B5CF6; outline: none; background: rgba(255, 255, 255, 0.07); box-shadow: 0 0 15px rgba(139, 92, 246, 0.3); }
+        
+        .lang-dropdown { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; outline: none; cursor: pointer; }
+    </style>
+</head>
+<body class="overflow-x-hidden min-h-screen">
+
+    <header class="sticky top-0 z-50 bg-[#06080C]/80 backdrop-blur-md border-b border-white/5 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='index.html'">
+                <svg class="w-8 h-8 mb-0.5" viewBox="0 0 40 40" fill="none">
+                    <rect width="40" height="40" rx="10" fill="url(#k-grad-job)"/>
+                    <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs><linearGradient id="k-grad-job" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/></linearGradient></defs>
+                </svg>
+                <h1 class="text-[7px] font-black italic tracking-tighter leading-none">K-HUB</h1>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <select id="lang-select-desktop" class="lang-dropdown hidden md:block" onchange="applyLanguage(this.value)">
+                    <option value="en">English</option>
+                    <option value="ha">Hausa</option>
+                    <option value="ig">Igbo</option>
+                    <option value="yo">Yoruba</option>
+                </select>
+                <div onclick="window.location.href='user-dashboard.html'" class="w-9 h-9 rounded-full neon-gradient flex items-center justify-center font-black italic cursor-pointer shadow-lg shadow-purple-500/20">U</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-12">
+        <div class="mb-10 text-center md:text-left">
+            <h1 class="text-3xl md:text-4xl font-black italic uppercase tracking-tighter lang-post-job-head">Post a Job</h1>
+            <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mt-2 lang-post-job-sub">Find your next talent in the heart of Kano.</p>
+        </div>
+
+        <form id="job-form" class="space-y-8">
+            <section class="glass-card p-6 md:p-10 rounded-[40px] space-y-6 border-purple-500/10">
+                <h2 class="text-[10px] font-black text-purple-400 uppercase tracking-[0.2em] italic lang-sec-1">1. Basic Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest lang-label-title">Job Title</label>
+                        <input type="text" id="title" required placeholder="e.g. Graphic Designer" class="w-full input-field px-5 py-4 rounded-2xl text-sm">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest lang-label-cat">Category</label>
+                        <select id="category" class="w-full input-field px-5 py-4 rounded-2xl text-sm appearance-none">
+                            <option value="Technology">Technology</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Education">Education</option>
+                            <option value="Construction">Construction</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest lang-label-type">Type</label>
+                        <select id="type" class="w-full input-field px-5 py-4 rounded-2xl text-sm appearance-none">
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Contract">Contract</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest lang-label-loc">Location (LGA)</label>
+                        <input type="text" id="location" required placeholder="Kano Municipal" class="w-full input-field px-5 py-4 rounded-2xl text-sm">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest lang-label-sal">Salary (₦)</label>
+                        <input type="number" id="salary" required placeholder="50000" class="w-full input-field px-5 py-4 rounded-2xl text-sm">
+                    </div>
+                </div>
+            </section>
+
+            <section class="glass-card p-6 md:p-10 rounded-[40px] space-y-6 border-purple-500/10">
+                <h2 class="text-[10px] font-black text-purple-400 uppercase tracking-[0.2em] italic lang-sec-2">2. Requirements</h2>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest lang-label-desc">Job Description</label>
+                    <textarea id="description" required rows="4" placeholder="Describe the role..." class="w-full input-field px-5 py-4 rounded-2xl text-sm"></textarea>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest lang-label-qual">Qualifications</label>
+                    <textarea id="qualifications" required rows="3" placeholder="Skills, Experience..." class="w-full input-field px-5 py-4 rounded-2xl text-sm"></textarea>
+                </div>
+            </section>
+
+            <div class="flex flex-col gap-4">
+                <button type="submit" id="submit-btn" class="w-full py-5 neon-gradient rounded-[24px] font-black uppercase italic tracking-widest text-sm shadow-xl shadow-purple-500/20 active:scale-95 transition lang-publish-btn">
+                    Publish Job Listing
+                </button>
+                <button type="button" onclick="window.location.href='user-dashboard.html'" class="w-full py-4 bg-white/5 border border-white/10 rounded-[24px] font-black uppercase text-[10px] tracking-widest text-gray-400 hover:text-white transition lang-cancel">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <script type="module">
+        import { auth, db, sendNotification } from './firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, addDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        let currentUserId = null;
+
+        // --- LANGUAGE LOGIC ---
+        const translations = {
+            en: { head: "Post a Job", sub: "Find your next talent in the heart of Kano.", sec1: "1. Basic Details", sec2: "2. Requirements", title: "Job Title", cat: "Category", type: "Type", loc: "Location (LGA)", sal: "Salary (₦)", desc: "Job Description", qual: "Qualifications", btn: "Publish Job Listing", cancel: "Cancel", success: "Job Posted Successfully!" },
+            ha: { head: "Sanya Aiki", sub: "Nemi ƙwararrun ma'aikata a cikin jihar Kano.", sec1: "1. Bayanan Aiki", sec2: "2. Bukatun Ma'aikata", title: "Sunan Aiki", cat: "Nau'in Aiki", type: "Yanayin Aiki", loc: "Wuri (LGA)", sal: "Albashi (₦)", desc: "Bayani game da aikin", qual: "Kwarewa/Ilimi", btn: "Wallafa Aikin", cancel: "Soke", success: "An Sanya Aikin cikin Nasara!" },
+            ig: { head: "Tinye Ọrụ", sub: "Chọta ndị ọrụ nwere nkà na Kano.", sec1: "1. Nkọwa Ọrụ", sec2: "2. Ihe achọrọ", title: "Aha Ọrụ", cat: "Ụdị Ọrụ", type: "Oge Ọrụ", loc: "Ebe (LGA)", sal: "Ụgwọ Ọrụ (₦)", desc: "Nkọwa nke ọrụ ahụ", qual: "Ikike/Ahụmahụ", btn: "Bipụta Ọrụ", cancel: "Kagbuo", success: "Ebipụtara Ọrụ nke ọma!" },
+            yo: { head: "Fi Iṣẹ́ Sọ́lẹ̀", sub: "Wá àwọn òṣìṣẹ́ tó mọṣẹ́ ní ìlú Kano.", sec1: "1. Àwọn Àlàyé Pàtàkì", sec2: "2. Àwọn Ohun tí A Ń Fẹ́", title: "Orukọ Iṣẹ́", cat: "Irúfẹ́ Iṣẹ́", type: "Àkókò Iṣẹ́", loc: "Ibùdó (LGA)", sal: "Owó Òṣù (₦)", desc: "Àlàyé nípa iṣẹ́ náà", qual: "Ìmọ̀/Ìrírí", btn: "Fi Iṣẹ́ Náà Sọ́lẹ̀", cancel: "Fagilee", success: "A ti fi iṣẹ́ náà sọ́lẹ̀ ní àṣeyọrí!" }
+        };
+
+        window.applyLanguage = (lang) => {
+            const l = translations[lang];
+            document.querySelector('.lang-post-job-head').innerText = l.head;
+            document.querySelector('.lang-post-job-sub').innerText = l.sub;
+            document.querySelector('.lang-sec-1').innerText = l.sec1;
+            document.querySelector('.lang-sec-2').innerText = l.sec2;
+            document.querySelector('.lang-label-title').innerText = l.title;
+            document.querySelector('.lang-label-cat').innerText = l.cat;
+            document.querySelector('.lang-label-type').innerText = l.type;
+            document.querySelector('.lang-label-loc').innerText = l.loc;
+            document.querySelector('.lang-label-sal').innerText = l.sal;
+            document.querySelector('.lang-label-desc').innerText = l.desc;
+            document.querySelector('.lang-label-qual').innerText = l.qual;
+            document.querySelector('.lang-publish-btn').innerText = l.btn;
+            document.querySelector('.lang-cancel').innerText = l.cancel;
+            
+            localStorage.setItem('kHubLang', lang);
+            document.getElementById('lang-select-desktop').value = lang;
+        };
+
+        // --- AUTH & LOAD ---
+        onAuthStateChanged(auth, (user) => {
+            if (!user) { window.location.href = 'k-hub-login.html'; }
+            else { currentUserId = user.uid; }
+        });
+
+        const currentLang = localStorage.getItem('kHubLang') || 'en';
+        applyLanguage(currentLang);
+
+        // --- SUBMISSION LOGIC ---
+        async function notifyFollowers(authorId, itemName) {
+            const q = query(collection(db, "follows"), where("followingId", "==", authorId));
+            const snap = await getDocs(q);
+            const userName = auth.currentUser.displayName || "A verified recruiter";
+            
+            snap.forEach((followerDoc) => {
+                sendNotification(
+                    followerDoc.data().followerId,
+                    'post',
+                    'New Job: ' + itemName + ' ✨',
+                    `${userName} just posted a new vacancy. Apply now!`
+                );
+            });
+        }
+
+        document.getElementById('job-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const jobTitle = document.getElementById('title').value;
+
+            btn.disabled = true;
+            btn.innerText = "...";
+            
+            const jobData = {
+                userId: currentUserId, 
+                title: jobTitle,
+                category: document.getElementById('category').value,
+                type: document.getElementById('type').value,
+                location: document.getElementById('location').value,
+                salary: document.getElementById('salary').value,
+                description: document.getElementById('description').value,
+                qualifications: document.getElementById('qualifications').value,
+                postedAt: serverTimestamp(),
+                status: 'active'
+            };
+
+            try {
+                await addDoc(collection(db, "jobs"), jobData);
+                await sendNotification(currentUserId, 'post', 'Job Published! 💼', `Vacancy for "${jobTitle}" is now live.`);
+                await notifyFollowers(currentUserId, jobTitle);
+
+                alert(translations[localStorage.getItem('kHubLang') || 'en'].success);
+                window.location.href = 'user-dashboard.html';
+            } catch (error) {
+                alert("Error: " + error.message);
+                btn.disabled = false;
+                btn.innerText = translations[localStorage.getItem('kHubLang') || 'en'].btn;
+            }
+        });
+    </script>
+</body>
+</html>
