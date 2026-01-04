@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Update Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; }
+        input, textarea { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; padding: 12px; border-radius: 12px; color: white; outline: none; }
+        input:focus { border-color: #8B5CF6; }
+        .lang-dropdown { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 6px 12px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; outline: none; cursor: pointer; }
+    </style>
+</head>
+<body class="p-6 min-h-screen flex flex-col items-center justify-center">
+
+    <div class="absolute top-6 right-6">
+        <select id="lang-select-global" class="lang-dropdown" onchange="applyLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="ha">Hausa</option>
+            <option value="ig">Igbo</option>
+            <option value="yo">Yoruba</option>
+        </select>
+    </div>
+
+    <div class="max-w-md w-full glass-panel p-8">
+        <h1 class="text-2xl font-black italic mb-2 uppercase tracking-tighter">
+            <span class="lang-edit-title-1">Edit</span> <span class="text-purple-500 lang-edit-title-2">Profile</span>
+        </h1>
+        <p class="text-gray-500 text-[10px] uppercase tracking-widest mb-8 font-bold lang-edit-sub">Update your public identity</p>
+
+        <form id="edit-profile-form" class="space-y-6">
+            <div>
+                <label class="text-[10px] uppercase font-black text-gray-400 block mb-2 lang-label-name">Full Name</label>
+                <input type="text" id="edit-fullname" placeholder="Enter your full name" required>
+            </div>
+
+            <div>
+                <label class="text-[10px] uppercase font-black text-gray-400 block mb-2 lang-label-bio">Bio / Description</label>
+                <textarea id="edit-bio" rows="4" placeholder="Tell buyers about yourself..."></textarea>
+            </div>
+
+            <div>
+                <label class="text-[10px] uppercase font-black text-gray-400 block mb-2 lang-label-pic">Profile Picture URL</label>
+                <input type="text" id="edit-pic" placeholder="Link to an image (optional)">
+            </div>
+
+            <div class="flex gap-4 pt-4">
+                <button type="button" onclick="history.back()" class="flex-1 text-xs font-black uppercase text-gray-500 lang-cancel">Cancel</button>
+                <button type="submit" id="save-btn" class="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 py-4 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-purple-500/20 lang-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- LANGUAGE SYNC SYSTEM ---
+        const translations = {
+            en: { edit1: "Edit", edit2: "Profile", sub: "Update your public identity", name: "Full Name", bio: "Bio / Description", pic: "Profile Picture URL", cancel: "Cancel", save: "Save Changes", updating: "UPDATING...", success: "Profile updated successfully!" },
+            ha: { edit1: "Gyara", edit2: "Bayanai", sub: "Sabunta bayanan ka na fili", name: "Cikakken Suna", bio: "Bayanin Kan Ka", pic: "Hoto (URL)", cancel: "Soke", save: "Ajiye", updating: "ANA CIKIN YI...", success: "An sabunta bayanan ka!" },
+            ig: { edit1: "Dezie", edit2: "Profaịlụ", sub: "Melite onye ị bụ n'ihu ọha", name: "Aha zuru ezu", bio: "Nkọwa gbasara gị", pic: "Foto Profaịlụ", cancel: "Kagbuo", save: "Chekwaa", updating: "NA-EMELITE...", success: "Emelitere profaịlụ gị nke ọma!" },
+            yo: { edit1: "Ṣatúnṣe", edit2: "Profaịlụ", sub: "Ṣatúnṣe dídán mọ́ràn rẹ", name: "Orukọ Kikun", bio: "Ìtàn nípa rẹ", pic: "Fọ́tò rẹ", cancel: "Fagilee", save: "Fi Pamọ́", updating: "ÀŃṢATÚNṢE...", success: "A ti tún profaịlụ rẹ ṣe!" }
+        };
+
+        window.applyLanguage = function(lang) {
+            const l = translations[lang];
+            localStorage.setItem('kHubLang', lang); // SAVE Choice
+            
+            document.querySelector('.lang-edit-title-1').innerText = l.edit1;
+            document.querySelector('.lang-edit-title-2').innerText = l.edit2;
+            document.querySelector('.lang-edit-sub').innerText = l.sub;
+            document.querySelector('.lang-label-name').innerText = l.name;
+            document.querySelector('.lang-label-bio').innerText = l.bio;
+            document.querySelector('.lang-label-pic').innerText = l.pic;
+            document.querySelector('.lang-cancel').innerText = l.cancel;
+            document.querySelector('.lang-save').innerText = l.save;
+            
+            document.getElementById('lang-select-global').value = lang;
+        };
+
+        // Initialize Language on Load
+        const savedLang = localStorage.getItem('kHubLang') || 'en';
+        applyLanguage(savedLang);
+
+        // --- FIREBASE LOGIC ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeW7PFz9wntXO0OUj9N5V1DdkUxxI2VkQ",
+            authDomain: "k-hub-b4d8f.firebaseapp.com",
+            projectId: "k-hub-b4d8f",
+            storageBucket: "k-hub-b4d8f.firebasestorage.app",
+            messagingSenderId: "117649715938",
+            appId: "1:117649715938:web:7768d7b4d27d66e8ba24bb"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUser = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    document.getElementById('edit-fullname').value = data.fullName || "";
+                    document.getElementById('edit-bio').value = data.bio || "";
+                    document.getElementById('edit-pic').value = data.profilePic || "";
+                }
+            } else { window.location.href = "k-hub-login.html"; }
+        });
+
+        document.getElementById('edit-profile-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const lang = localStorage.getItem('kHubLang') || 'en';
+            const btn = document.getElementById('save-btn');
+            btn.innerText = translations[lang].updating;
+            btn.disabled = true;
+
+            try {
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    fullName: document.getElementById('edit-fullname').value,
+                    bio: document.getElementById('edit-bio').value,
+                    profilePic: document.getElementById('edit-pic').value,
+                    lastUpdated: new Date()
+                });
+                alert(translations[lang].success);
+                window.location.href = "user-dashboard.html";
+            } catch (error) {
+                alert("Error: " + error.message);
+                btn.innerText = translations[lang].save;
+                btn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>
