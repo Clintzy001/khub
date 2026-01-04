@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact | K-HUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { background: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; }
+        input, textarea { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
+        .btn-gradient { background: linear-gradient(90deg, #A855F7 0%, #3B82F6 100%); }
+        .lang-dropdown { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 6px 12px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; outline: none; cursor: pointer; }
+    </style>
+</head>
+<body class="p-4 md:p-12 min-h-screen">
+
+    <header class="max-w-3xl mx-auto flex justify-between items-center mb-8">
+        <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='index.html'">
+            <svg class="w-10 h-10 mb-1" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="10" fill="url(#k-grad-contact)"/>
+                <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs><linearGradient id="k-grad-contact" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/></linearGradient></defs>
+            </svg>
+            <h1 class="text-[8px] font-black italic tracking-tighter leading-none">K-HUB</h1>
+        </div>
+
+        <select id="lang-select" class="lang-dropdown" onchange="applyLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="ha">Hausa</option>
+            <option value="ig">Igbo</option>
+            <option value="yo">Yoruba</option>
+        </select>
+    </header>
+
+    <div class="max-w-3xl mx-auto glass-panel p-8 md:p-12">
+        <h1 class="text-4xl font-black mb-2 tracking-tighter italic lang-contact-head">GET IN TOUCH</h1>
+        <p class="text-purple-400 text-xs font-bold uppercase tracking-widest mb-10 lang-contact-sub">We usually respond within 24 hours</p>
+
+        <form class="space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] uppercase font-black text-gray-500 lang-label-name">Full Name</label>
+                    <input type="text" id="input-name" class="rounded-xl p-4 outline-none focus:ring-1 ring-purple-500 font-bold">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] uppercase font-black text-gray-500 lang-label-email">Email Address</label>
+                    <input type="email" id="input-email" class="rounded-xl p-4 outline-none focus:ring-1 ring-purple-500 font-bold">
+                </div>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label class="text-[10px] uppercase font-black text-gray-500 lang-label-msg">Message</label>
+                <textarea id="input-msg" rows="5" class="rounded-xl p-4 outline-none focus:ring-1 ring-purple-500 font-bold"></textarea>
+            </div>
+            <button type="submit" class="btn-gradient w-full py-4 rounded-xl font-black uppercase tracking-widest lang-send">Send Message</button>
+        </form>
+
+        <div class="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row gap-8 justify-between text-xs text-gray-500">
+            <div>
+                <p class="font-black text-white uppercase tracking-widest lang-office">OFFICE</p>
+                <p>Kano State, Nigeria</p>
+            </div>
+            <div>
+                <p class="font-black text-white uppercase tracking-widest lang-email">EMAIL</p>
+                <p>support@k-hub.com</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            en: { head: "GET IN TOUCH", sub: "We usually respond within 24 hours", name: "Full Name", email: "Email Address", msg: "Message", send: "Send Message", office: "OFFICE", emailLabel: "EMAIL" },
+            ha: { head: "MAGANA DA MU", sub: "Muna ba da amsa cikin sa'o'i 24", name: "Cikakken Suna", email: "Adireshin Email", msg: "Saƙo", send: "Aika Saƙo", office: "OFFICE", emailLabel: "EMAIL" },
+            ig: { head: "KPỌỌ ANYỊ", sub: "Anyị na-aza n'ime awa 24", name: "Aha zuru ezu", email: "Email gị", msg: "Ozi", send: "Zipu Ozi", office: "OFFICE", emailLabel: "EMAIL" },
+            yo: { head: "BÁ WA SỌ̀RỌ̀", sub: "A máa ń fèsì láàárín wákàtí 24", name: "Orúkọ Kíkún", email: "Àdírẹ́sì Imeèlì", msg: "Ìsọfúnni", send: "Fi Iṣẹ́ Ránṣẹ́", office: "OFFICE", emailLabel: "EMAIL" }
+        };
+
+        function applyLanguage(lang) {
+            const l = translations[lang];
+            // Save choice globally
+            localStorage.setItem('kHubLang', lang);
+            
+            // Apply text
+            document.querySelector('.lang-contact-head').innerText = l.head;
+            document.querySelector('.lang-contact-sub').innerText = l.sub;
+            document.querySelector('.lang-label-name').innerText = l.name;
+            document.querySelector('.lang-label-email').innerText = l.email;
+            document.querySelector('.lang-label-msg').innerText = l.msg;
+            document.querySelector('.lang-send').innerText = l.send;
+            document.querySelector('.lang-office').innerText = l.office;
+            document.querySelector('.lang-email').innerText = l.emailLabel;
+
+            // Sync Dropdown
+            document.getElementById('lang-select').value = lang;
+        }
+
+        // AUTO-SYNC ON LOAD
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('kHubLang') || 'en';
+            applyLanguage(savedLang);
+        });
+    </script>
+</body>
+</html>
