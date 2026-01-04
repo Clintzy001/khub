@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Hub | Listing Details</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        :root { --neon-purple: #8B5CF6; --neon-blue: #3B82F6; }
+        body { background-color: #06080C; color: white; font-family: 'Inter', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #06080c 60%); }
+        .neon-gradient { background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        #map { height: 250px; width: 100%; border-radius: 24px; z-index: 10; border: 1px solid rgba(139, 92, 246, 0.3); }
+        
+        .star-rating { color: #fbbf24; cursor: pointer; font-size: 1.5rem; }
+        .fav-active { color: #ef4444 !important; fill: #ef4444 !important; transform: scale(1.2); }
+        
+        .status-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+
+        .lang-dropdown { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 6px 12px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; outline: none; cursor: pointer; }
+    </style>
+</head>
+<body class="overflow-x-hidden pb-10">
+
+    <header class="sticky top-0 z-50 bg-[#06080C]/80 backdrop-blur-md border-b border-white/5 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='index.html'">
+                <svg class="w-10 h-10 mb-1" viewBox="0 0 40 40" fill="none">
+                    <rect width="40" height="40" rx="10" fill="url(#k-grad-listing)"/>
+                    <path d="M12 10V30M12 20L28 10M20 15L28 30" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs><linearGradient id="k-grad-listing" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#8B5CF6"/><stop offset="1" stop-color="#3B82F6"/></linearGradient></defs>
+                </svg>
+                <h1 class="text-[8px] font-black italic tracking-tighter leading-none">K-HUB</h1>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <select id="lang-select" class="lang-dropdown lang-select-dropdown">
+                    <option value="en">English</option>
+                    <option value="ha">Hausa</option>
+                    <option value="ig">Igbo</option>
+                    <option value="yo">Yoruba</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 md:px-6 py-8">
+        <div id="loading-state" class="text-center py-20">
+            <div class="animate-spin w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+        </div>
+
+        <div id="listing-content" class="hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-8">
+                    <div class="glass-card rounded-[40px] overflow-hidden bg-white/5 relative aspect-video shadow-2xl">
+                        <img id="main-image" src="" alt="Listing" class="w-full h-full object-cover">
+                        <div class="absolute top-6 left-6">
+                            <span id="category-badge" class="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-xl italic"></span>
+                        </div>
+                        <button id="fav-btn" class="absolute top-6 right-6 p-4 bg-black/40 backdrop-blur-lg rounded-2xl border border-white/10 transition-all active:scale-90">
+                            <svg id="fav-icon" class="w-6 h-6 text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="glass-card p-8 rounded-[32px]">
+                        <div class="flex flex-col md:flex-row justify-between gap-6 mb-6">
+                            <div>
+                                <h1 id="listing-title" class="text-3xl md:text-5xl font-black italic uppercase tracking-tighter mb-4"></h1>
+                                <p id="listing-location" class="text-gray-400 flex items-center gap-2 font-black text-xs uppercase tracking-widest">
+                                    <svg class="w-4 h-4 text-purple-500" fill="currentColor" viewBox="0 0 20 20"><path d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9z"></path></svg>
+                                    <span id="location-text"></span>
+                                </p>
+                            </div>
+                            <div class="bg-emerald-500/10 border border-emerald-500/20 px-8 py-4 rounded-3xl text-center flex flex-col justify-center">
+                                <span id="listing-price" class="text-3xl font-black text-emerald-400 italic"></span>
+                            </div>
+                        </div>
+                        <p id="listing-desc" class="text-gray-300 leading-relaxed text-lg whitespace-pre-line border-t border-white/5 pt-6 font-medium"></p>
+                    </div>
+
+                    <div class="glass-card p-8 rounded-[32px]">
+                        <h2 class="text-xl font-black italic uppercase tracking-tighter mb-6 flex items-center gap-2">
+                            <span data-lang-key="reviews">User Reviews</span> 
+                            <span id="avg-rating-pill" class="text-sm bg-yellow-500/20 text-yellow-500 px-3 py-1 rounded-lg">★ 0.0</span>
+                        </h2>
+                        <div id="reviews-list" class="space-y-4"></div>
+                        <div class="mt-8 p-6 bg-white/5 rounded-[24px] border border-white/10">
+                            <div id="star-input" class="flex gap-2 mb-4">
+                                <span data-val="1" class="star-rating">☆</span><span data-val="2" class="star-rating">☆</span><span data-val="3" class="star-rating">☆</span><span data-val="4" class="star-rating">☆</span><span data-val="5" class="star-rating">☆</span>
+                            </div>
+                            <textarea id="review-text" class="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm focus:border-purple-500 outline-none mb-4 text-white font-bold" placeholder="Write your experience..." data-lang-key="review_placeholder"></textarea>
+                            <button id="submit-review" class="w-full md:w-auto px-10 py-4 neon-gradient rounded-2xl font-black uppercase text-xs tracking-widest" data-lang-key="post_review">Post Review</button>
+                        </div>
+                    </div>
+                </div>
+
+                <aside class="space-y-6">
+                    <div class="glass-card p-8 rounded-[40px] border border-purple-500/20 text-center relative overflow-hidden">
+                        <div id="owner-initial" class="w-24 h-24 rounded-full neon-gradient mx-auto flex items-center justify-center font-black text-4xl mb-4 italic shadow-lg">?</div>
+                        
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <div id="status-dot" class="w-2.5 h-2.5 rounded-full bg-gray-500"></div>
+                            <span id="status-text" class="text-[10px] font-black uppercase tracking-widest text-gray-500 italic">Checking status...</span>
+                        </div>
+
+                        <h3 id="owner-name" class="font-black italic uppercase text-2xl mb-2 tracking-tighter">...</h3>
+                        <div id="seller-badges" class="flex flex-wrap justify-center gap-2 mb-6">
+                            <span class="text-[9px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1.5 rounded-full font-black uppercase tracking-widest italic" data-lang-key="verified">Verified Seller ✅</span>
+                        </div>
+                        
+                        <div class="space-y-3 pt-6 border-t border-white/5">
+                            <a id="call-btn" href="#" class="block w-full py-4 neon-gradient rounded-2xl font-black uppercase tracking-widest text-xs" data-lang-key="call_now">Call Now</a>
+                            <a id="wa-btn" href="#" target="_blank" class="block w-full py-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 rounded-2xl font-black uppercase tracking-widest text-xs">WhatsApp</a>
+                        </div>
+                    </div>
+                    <div class="glass-card p-3 rounded-[32px] overflow-hidden"><div id="map"></div></div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module">
+        import { db, doc, getDoc, collection, addDoc, query, where, getDocs, serverTimestamp } from './firebase-config.js';
+
+        const translations = {
+            en: { reviews: "User Reviews", review_placeholder: "Write your experience...", post_review: "Post Review", verified: "Verified Seller ✅", call_now: "Call Now", online: "Online", offline: "Offline" },
+            ha: { reviews: "Ra'ayin Mutane", review_placeholder: "Rubuta yadda kaji...", post_review: "Aika", verified: "Amintaccen Mai Shago ✅", call_now: "Bugawa Waya", online: "Yana Nan", offline: "Baya Nan" },
+            ig: { reviews: "Nyocha Ndị Ọrụ", review_placeholder: "Dee ahụmịhe gị...", post_review: "Zipụ Nyocha", verified: "Onye Na-ere Ahịa ✅", call_now: "Kpọọ Ugbu a", online: "Ọ nọ n'ịntanetị", offline: "Ọ nọghị" },
+            yo: { reviews: "Àwọn Àtúnyẹ̀wò", review_placeholder: "Kọ ìrírí rẹ...", post_review: "Fi Àtúnyẹ̀wò Ránṣẹ́", verified: "Olùtajà Gidi ✅", call_now: "Kpè nísinsìnyí", online: "Ó wà lórí afẹ́fẹ́", offline: "Kò sí lórí afẹ́fẹ́" }
+        };
+
+        window.applyLanguage = (lang) => {
+            localStorage.setItem('kHubLang', lang);
+            const l = translations[lang];
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = l[key];
+                else el.innerText = l[key];
+            });
+            document.getElementById('lang-select').value = lang;
+        };
+
+        document.getElementById('lang-select').onchange = (e) => applyLanguage(e.target.value);
+
+        let map, selectedRating = 0;
+        const urlParams = new URLSearchParams(window.location.search);
+        const itemId = urlParams.get('id');
+        const type = urlParams.get('type');
+
+        async function initListing() {
+            if (!itemId || !type) { window.location.href = 'index.html'; return; }
+            applyLanguage(localStorage.getItem('kHubLang') || 'en');
+            
+            try {
+                const snap = await getDoc(doc(db, type, itemId));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    document.getElementById('listing-title').innerText = data.name || data.title;
+                    document.getElementById('listing-desc').innerText = data.description || "No description provided.";
+                    document.getElementById('main-image').src = data.imageUrl || 'https://via.placeholder.com/800';
+                    document.getElementById('listing-price').innerText = `₦${Number(data.price || data.salary || 0).toLocaleString()}`;
+                    document.getElementById('location-text').innerText = data.location || data.area || "Kano, Nigeria";
+                    document.getElementById('owner-name').innerText = data.name || "K-Hub User";
+                    document.getElementById('owner-initial').innerText = (data.name || "K").charAt(0).toUpperCase();
+
+                    updateAvailability(data.lastSeen);
+                    checkFavoriteStatus();
+
+                    const badge = document.getElementById('category-badge');
+                    badge.innerText = type.replace('s', '').toUpperCase();
+                    badge.classList.add(type === 'products' ? 'bg-purple-600' : 'bg-blue-600');
+
+                    if (data.phone) {
+                        const phone = data.phone.replace(/\D/g, '');
+                        document.getElementById('call-btn').href = `tel:${phone}`;
+                        document.getElementById('wa-btn').href = `https://wa.me/234${phone.slice(-10)}?text=I saw your ${data.name} on K-Hub`;
+                    }
+
+                    loadMap(data.lat, data.lng, data.name || data.title);
+                    loadReviews();
+                    document.getElementById('loading-state').classList.add('hidden');
+                    document.getElementById('listing-content').classList.remove('hidden');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function updateAvailability(lastSeen) {
+            const dot = document.getElementById('status-dot');
+            const txt = document.getElementById('status-text');
+            const lang = localStorage.getItem('kHubLang') || 'en';
+            if (!lastSeen) { txt.innerText = translations[lang].offline; return; }
+            
+            const diffMinutes = Math.floor((new Date() - lastSeen.toDate()) / 60000);
+            if (diffMinutes < 10) {
+                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 status-pulse";
+                txt.innerText = translations[lang].online;
+                txt.className = "text-[10px] font-black uppercase tracking-widest text-emerald-500 italic";
+            } else {
+                txt.innerText = translations[lang].offline;
+            }
+        }
+
+        function loadMap(lat, lng, title) {
+            map = L.map('map', { zoomControl: false }).setView([lat || 12.0022, lng || 8.5920], 14);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+            L.marker([lat || 12.0022, lng || 8.5920]).addTo(map);
+        }
+
+        async function loadReviews() {
+            const snap = await getDocs(query(collection(db, "reviews"), where("itemId", "==", itemId)));
+            let html = "";
+            snap.forEach(doc => {
+                const r = doc.data();
+                html += `<div class="p-5 bg-white/5 rounded-2xl border border-white/5 shadow-sm"><div class="text-yellow-500 text-sm mb-2">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div><p class="text-xs font-bold text-gray-300 leading-relaxed">${r.comment}</p></div>`;
+            });
+            document.getElementById('reviews-list').innerHTML = html || `<p class="text-[10px] font-black uppercase text-gray-600 tracking-widest italic">No reviews yet.</p>`;
+        }
+
+        initListing();
+    </script>
+</body>
+</html>
