@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOBHUB | Logistics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --brand: #4A148C; --accent: #FFAB00; }
+        .bg-brand { background-color: var(--brand); }
+        .text-brand { color: var(--brand); }
+        .booking-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .booking-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Step Indicator styling */
+        .step-line { position: absolute; left: 19px; top: 25px; bottom: 25px; width: 2px; background: #E0E0E0; z-index: 0; }
+        .step-dot { position: relative; z-index: 10; width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 2px solid white; }
+    </style>
+</head>
+<body class="bg-gray-50 pb-24 font-sans">
+
+    <header class="bg-brand text-white px-6 py-6 rounded-b-[40px] shadow-lg">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-black italic tracking-tighter">JOBHUB LOGISTICS</h1>
+                <p class="text-[10px] uppercase font-bold opacity-80">Fast & Reliable Delivery</p>
+            </div>
+            <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                <i class="fas fa-truck-fast text-xl"></i>
+            </div>
+        </div>
+
+        <div class="relative mt-4">
+            <input type="text" placeholder="Enter Tracking ID (e.g., JH-9920)" class="w-full py-4 px-6 rounded-2xl text-gray-900 font-bold text-sm outline-none shadow-xl">
+            <button class="absolute right-2 top-2 bg-brand p-2 px-4 rounded-xl text-white text-xs font-black">TRACK</button>
+        </div>
+    </header>
+
+    <div class="flex gap-4 px-6 -mt-4 overflow-x-auto no-scrollbar py-4">
+        <button class="bg-white shadow-md min-w-[100px] p-4 rounded-2xl text-center border-2 border-brand">
+            <i class="fas fa-box text-brand mb-2"></i>
+            <p class="text-[10px] font-black uppercase">Send Package</p>
+        </button>
+        <button class="bg-white shadow-md min-w-[100px] p-4 rounded-2xl text-center">
+            <i class="fas fa-motorcycle text-gray-400 mb-2"></i>
+            <p class="text-[10px] font-black uppercase text-gray-500">Bike Delivery</p>
+        </button>
+        <button class="bg-white shadow-md min-w-[100px] p-4 rounded-2xl text-center">
+            <i class="fas fa-truck text-gray-400 mb-2"></i>
+            <p class="text-[10px] font-black uppercase text-gray-500">Inter-State</p>
+        </button>
+    </div>
+
+    <main class="px-6 mt-4">
+        
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-8">
+            <h2 class="text-sm font-black uppercase tracking-widest mb-6 text-brand">Quick Booking</h2>
+            
+            <div class="relative space-y-8">
+                <div class="step-line"></div>
+                
+                <div class="flex gap-4">
+                    <div class="mt-1"><div class="step-dot"></div></div>
+                    <div class="flex-1">
+                        <label class="text-[9px] font-black text-gray-400 uppercase">Pickup Location</label>
+                        <input type="text" placeholder="Where are we picking from?" class="w-full border-b py-2 text-sm font-bold outline-none focus:border-brand">
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="mt-1"><div class="step-dot !bg-orange-500"></div></div>
+                    <div class="flex-1">
+                        <label class="text-[9px] font-black text-gray-400 uppercase">Dropoff Location</label>
+                        <input type="text" placeholder="Destination address?" class="w-full border-b py-2 text-sm font-bold outline-none focus:border-brand">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mt-8">
+                <div class="bg-gray-50 p-3 rounded-2xl border">
+                    <label class="text-[8px] font-black text-gray-400 uppercase block mb-1">Item Weight</label>
+                    <select class="bg-transparent font-bold text-xs w-full outline-none">
+                        <option>Light (< 5kg)</option>
+                        <option>Medium (5-20kg)</option>
+                        <option>Heavy (> 20kg)</option>
+                    </select>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-2xl border">
+                    <label class="text-[8px] font-black text-gray-400 uppercase block mb-1">Schedule</label>
+                    <input type="time" class="bg-transparent font-bold text-xs w-full outline-none">
+                </div>
+            </div>
+
+            <button onclick="window.open('https://wa.me/2347051337399?text=I want to book a delivery')" class="w-full mt-6 bg-brand text-white py-4 rounded-2xl font-black text-sm shadow-lg active:scale-95 transition-transform uppercase">
+                Calculate & Book Now
+            </button>
+        </div>
+
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-black text-sm uppercase tracking-tighter">Verified Drivers Near You</h3>
+            <span class="text-[10px] font-bold text-brand">See All</span>
+        </div>
+
+        <div class="space-y-4">
+            <div class="booking-card bg-white p-4 rounded-3xl border border-gray-100 flex items-center gap-4">
+                <div class="relative">
+                    <img src="https://ui-avatars.com/api/?name=Sani+Logistics&background=4A148C&color=fff" class="w-14 h-14 rounded-2xl object-cover">
+                    <div class="absolute -bottom-1 -right-1 bg-green-500 w-4 h-4 rounded-full border-2 border-white"></div>
+                </div>
+                <div class="flex-1">
+                    <div class="flex justify-between">
+                        <h4 class="font-black text-sm uppercase">Sani Logistics</h4>
+                        <div class="text-[10px] font-bold text-orange-500"><i class="fas fa-star"></i> 4.9</div>
+                    </div>
+                    <p class="text-[10px] text-gray-500 font-bold mb-2">Motorcycle • 0.5km away</p>
+                    <div class="flex gap-2">
+                        <span class="bg-gray-100 text-[8px] px-2 py-1 rounded-md font-black">INTER-KANO</span>
+                        <span class="bg-gray-100 text-[8px] px-2 py-1 rounded-md font-black">EXPRESS</span>
+                    </div>
+                </div>
+                <button class="bg-brand/10 text-brand p-3 rounded-xl"><i class="fas fa-phone"></i></button>
+            </div>
+
+            <div class="booking-card bg-white p-4 rounded-3xl border border-gray-100 flex items-center gap-4">
+                <div class="relative">
+                    <img src="https://ui-avatars.com/api/?name=Kano+Vans&background=1A237E&color=fff" class="w-14 h-14 rounded-2xl object-cover">
+                    <div class="absolute -bottom-1 -right-1 bg-green-500 w-4 h-4 rounded-full border-2 border-white"></div>
+                </div>
+                <div class="flex-1">
+                    <div class="flex justify-between">
+                        <h4 class="font-black text-sm uppercase">Kano Cargo Vans</h4>
+                        <div class="text-[10px] font-bold text-orange-500"><i class="fas fa-star"></i> 4.7</div>
+                    </div>
+                    <p class="text-[10px] text-gray-500 font-bold mb-2">Small Van • 2.1km away</p>
+                    <div class="flex gap-2">
+                        <span class="bg-gray-100 text-[8px] px-2 py-1 rounded-md font-black">BULK ITEMS</span>
+                        <span class="bg-gray-100 text-[8px] px-2 py-1 rounded-md font-black">HOME MOVE</span>
+                    </div>
+                </div>
+                <button class="bg-brand/10 text-brand p-3 rounded-xl"><i class="fas fa-phone"></i></button>
+            </div>
+        </div>
+    </main>
+
+    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around items-center py-4 z-50">
+        <a href="index.html" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-[10px] font-bold">Home</span>
+        </a>
+        <div class="flex flex-col items-center text-brand">
+            <i class="fas fa-truck text-xl"></i>
+            <span class="text-[10px] font-bold">Logistics</span>
+        </div>
+        <div class="relative -top-8">
+            <button class="bg-brand w-16 h-16 rounded-full shadow-2xl text-white border-4 border-white">
+                <i class="fas fa-plus text-2xl"></i>
+            </button>
+        </div>
+        <a href="shop.html" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-shopping-bag text-xl"></i>
+            <span class="text-[10px] font-bold">Shop</span>
+        </a>
+        <div class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-user text-xl"></i>
+            <span class="text-[10px] font-bold">Profile</span>
+        </div>
+    </nav>
+
+</body>
+</html>
