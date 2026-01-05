@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHUB | Logistics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --brand: #4A148C; --accent: #FFAB00; }
+        
+        /* Dark Mode Colors */
+        .dark { --bg-page: #121212; --bg-card: #1E1E1E; --text-main: #FFFFFF; --text-dim: #A0A0A0; --border: #2D2D2D; }
+        .light { --bg-page: #F9FAFB; --bg-card: #FFFFFF; --text-main: #111827; --text-dim: #6B7280; --border: #F3F4F6; }
+
+        body { background-color: var(--bg-page); color: var(--text-main); transition: background 0.3s ease; }
+        .bg-brand { background-color: var(--brand); }
+        .text-brand { color: var(--brand); }
+        
+        /* Themed Elements */
+        .themed-card { background-color: var(--bg-card); border-color: var(--border); color: var(--text-main); }
+        .themed-input { background-color: transparent; color: var(--text-main); border-color: var(--border); }
+        .themed-text-dim { color: var(--text-dim); }
+
+        .booking-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .booking-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .service-btn.active { border-color: var(--brand) !important; background-color: rgba(74, 20, 140, 0.1); transform: scale(0.95); }
+        .service-btn.active i, .service-btn.active p { color: var(--brand) !important; }
+
+        .step-line { position: absolute; left: 19px; top: 25px; bottom: 25px; width: 2px; background: #E0E0E0; z-index: 0; }
+        .step-dot { position: relative; z-index: 10; width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 2px solid white; }
+        
+        .pulse-btn { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(74, 20, 140, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(74, 20, 140, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 20, 140, 0); }
+        }
+
+        .tc-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .tc-active .tc-content { max-height: 1000px; }
+
+        #serviceModal { display: none; }
+        .modal-open { overflow: hidden; }
+    </style>
+</head>
+<body class="light pb-24 font-sans">
+
+    <header class="bg-brand text-white px-6 py-6 rounded-b-[40px] shadow-lg">
+        <div class="flex justify-between items-start mb-6">
+            <div>
+                <h1 class="text-2xl font-black italic tracking-tighter uppercase">KHUB LOGISTICS</h1>
+                <p class="text-[10px] uppercase font-bold opacity-80">Fast & Reliable Delivery</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="toggleTheme()" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/20">
+                    <i id="themeIcon" class="fas fa-moon"></i>
+                </button>
+                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-truck-fast text-lg"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative mt-4 text-gray-900">
+            <input type="text" placeholder="Enter Tracking ID (e.g., KH-9920)" class="w-full py-4 px-6 rounded-2xl font-bold text-sm outline-none shadow-xl">
+            <button class="absolute right-2 top-2 bg-brand p-2 px-4 rounded-xl text-white text-xs font-black">TRACK</button>
+        </div>
+    </header>
+
+    <div class="flex gap-4 px-6 -mt-4 overflow-x-auto no-scrollbar py-4">
+        <button onclick="selectService('General Package', this)" class="service-btn themed-card shadow-md min-w-[100px] p-4 rounded-2xl text-center border-2 border-transparent transition-all">
+            <i class="fas fa-box themed-text-dim mb-2"></i>
+            <p class="text-[10px] font-black uppercase themed-text-dim">Send Package</p>
+        </button>
+        <button onclick="selectService('Bike Delivery', this)" class="service-btn themed-card shadow-md min-w-[100px] p-4 rounded-2xl text-center border-2 border-transparent transition-all">
+            <i class="fas fa-motorcycle themed-text-dim mb-2"></i>
+            <p class="text-[10px] font-black uppercase themed-text-dim">Bike Delivery</p>
+        </button>
+        <button onclick="selectService('Inter-State', this)" class="service-btn themed-card shadow-md min-w-[100px] p-4 rounded-2xl text-center border-2 border-transparent transition-all">
+            <i class="fas fa-truck themed-text-dim mb-2"></i>
+            <p class="text-[10px] font-black uppercase themed-text-dim">Inter-State</p>
+        </button>
+    </div>
+
+    <main class="px-6 mt-4">
+        <div class="themed-card p-6 rounded-3xl shadow-sm border mb-8">
+            <h2 class="text-sm font-black uppercase tracking-widest mb-6 text-brand">Quick Booking</h2>
+            <div class="relative space-y-8">
+                <div class="step-line opacity-20"></div>
+                <div class="flex gap-4">
+                    <div class="mt-1"><div class="step-dot"></div></div>
+                    <div class="flex-1">
+                        <label class="text-[9px] font-black themed-text-dim uppercase">Pickup Location</label>
+                        <input type="text" id="pickup" placeholder="Where from?" class="w-full border-b py-2 text-sm font-bold outline-none focus:border-brand themed-input">
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <div class="mt-1"><div class="step-dot !bg-orange-500"></div></div>
+                    <div class="flex-1">
+                        <label class="text-[9px] font-black themed-text-dim uppercase">Dropoff Location</label>
+                        <input type="text" id="dropoff" placeholder="Destination?" class="w-full border-b py-2 text-sm font-bold outline-none focus:border-brand themed-input">
+                    </div>
+                </div>
+            </div>
+            <button onclick="bookGeneral()" class="w-full mt-6 bg-brand text-white py-4 rounded-2xl font-black text-sm shadow-lg active:scale-95 transition-transform uppercase">
+                Calculate & Book Now
+            </button>
+        </div>
+
+        <h3 class="font-black text-sm uppercase tracking-tighter mb-4">Verified Drivers (Kano)</h3>
+        <div id="driversList" class="space-y-4 mb-10"></div>
+
+        <div id="tcSection" class="themed-card rounded-2xl p-4 mb-10 border">
+            <button onclick="toggleTC()" class="w-full flex justify-between items-center outline-none">
+                <span class="text-[10px] font-black uppercase tracking-widest themed-text-dim">Terms & Conditions</span>
+                <i id="tcIcon" class="fas fa-chevron-down themed-text-dim text-xs transition-transform"></i>
+            </button>
+            <div class="tc-content mt-4 text-[11px] themed-text-dim leading-relaxed space-y-3">
+                <p><strong>1. Delivery Policy:</strong> KHUB connects users with verified partners in Kano.</p>
+                <p><strong>2. Payments:</strong> Direct delivery payments should be settled as agreed.</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="serviceModal" class="fixed inset-0 z-[100] bg-black/80 flex items-end justify-center">
+        <div class="themed-card w-full rounded-t-[40px] p-8">
+            <h3 class="text-xl font-black uppercase italic mb-2">Choose Service</h3>
+            <p class="text-xs themed-text-dim mb-6 font-bold">What type of delivery for <span id="pendingDriverName" class="text-brand"></span>?</p>
+            <div class="grid grid-cols-1 gap-3">
+                <button onclick="finalizeBooking('Send Package')" class="w-full py-4 bg-brand/10 border border-brand/20 rounded-2xl font-black uppercase text-sm flex items-center justify-between px-6">
+                    <span>Send Package</span> <i class="fas fa-box text-brand"></i>
+                </button>
+                <button onclick="finalizeBooking('Bike Delivery')" class="w-full py-4 bg-brand/10 border border-brand/20 rounded-2xl font-black uppercase text-sm flex items-center justify-between px-6">
+                    <span>Bike Delivery</span> <i class="fas fa-motorcycle text-brand"></i>
+                </button>
+                <button onclick="finalizeBooking('Inter-State')" class="w-full py-4 bg-brand/10 border border-brand/20 rounded-2xl font-black uppercase text-sm flex items-center justify-between px-6">
+                    <span>Inter-State</span> <i class="fas fa-truck text-brand"></i>
+                </button>
+            </div>
+            <button onclick="closeModal()" class="w-full mt-6 py-2 themed-text-dim font-bold text-xs uppercase tracking-widest text-center">Cancel</button>
+        </div>
+    </div>
+
+    <nav class="fixed bottom-0 w-full themed-card border-t flex justify-around items-center py-4 z-50">
+        <a href="index.html" class="flex flex-col items-center themed-text-dim"><i class="fas fa-home text-xl"></i><span class="text-[10px] font-bold">Home</span></a>
+        <div class="flex flex-col items-center text-brand"><i class="fas fa-truck text-xl"></i><span class="text-[10px] font-bold">Logistics</span></div>
+        <div class="relative -top-8 text-center">
+            <a href="driver-reg.html" class="bg-brand w-16 h-16 rounded-full shadow-2xl text-white border-4 border-white flex items-center justify-center pulse-btn"><i class="fas fa-plus text-2xl"></i></a>
+            <p class="text-[9px] font-black text-brand mt-1 uppercase">Earn</p>
+        </div>
+        <a href="shop.html" class="flex flex-col items-center themed-text-dim"><i class="fas fa-shopping-bag text-xl"></i><span class="text-[10px] font-bold">Shop</span></a>
+        <a href="https://wa.me/2347051337399" class="flex flex-col items-center themed-text-dim"><i class="fab fa-whatsapp text-xl"></i><span class="text-[10px] font-bold">Chat</span></a>
+    </nav>
+
+    <script>
+        const adminWhatsApp = "2347051337399";
+        let selectedService = "";
+        let pendingDriver = "";
+
+        // --- THEME LOGIC ---
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            if (body.classList.contains('light')) {
+                body.classList.replace('light', 'dark');
+                icon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.replace('dark', 'light');
+                icon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+            renderDrivers(); // Re-render to ensure card colors stay consistent
+        }
+
+        // Apply saved theme on load
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.classList.replace('light', savedTheme);
+        if(savedTheme === 'dark') document.getElementById('themeIcon').classList.replace('fa-moon', 'fa-sun');
+
+        // --- SERVICE LOGIC ---
+        function selectService(service, btnElement) {
+            selectedService = service;
+            document.querySelectorAll('.service-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+        }
+
+        function contactDriver(driverName) {
+            pendingDriver = driverName;
+            if (!selectedService) {
+                document.getElementById('pendingDriverName').innerText = driverName;
+                document.getElementById('serviceModal').style.display = 'flex';
+                document.body.classList.add('modal-open');
+            } else {
+                finalizeBooking(selectedService);
+            }
+        }
+
+        function finalizeBooking(service) {
+            const msg = `Hello KHUB, I want to book a *${service}* service with your verified driver: *${pendingDriver}*. Please provide details.`;
+            window.open(`https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(msg)}`);
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('serviceModal').style.display = 'none';
+            document.body.classList.remove('modal-open');
+        }
+
+        function toggleTC() {
+            const section = document.getElementById('tcSection');
+            const icon = document.getElementById('tcIcon');
+            section.classList.toggle('tc-active');
+            icon.style.transform = section.classList.contains('tc-active') ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+
+        // --- DRIVER DATA ---
+        const drivers = [
+            { name: "Sani Logistics", vehicle: "Motorcycle", img: "https://ui-avatars.com/api/?name=Sani+Logistics&background=4A148C&color=fff", rating: "4.9" },
+            { name: "Abba Express", vehicle: "Small Car", img: "https://ui-avatars.com/api/?name=Abba+Express&background=00897B&color=fff", rating: "4.8" },
+            { name: "Kano Wheels", vehicle: "Cargo Van", img: "https://ui-avatars.com/api/?name=Kano+Wheels&background=E64A19&color=fff", rating: "5.0" },
+            { name: "Musa Delivery", vehicle: "Motorcycle", img: "https://ui-avatars.com/api/?name=Musa+D&background=1976D2&color=fff", rating: "4.7" },
+            { name: "Quick Move", vehicle: "Truck", img: "https://ui-avatars.com/api/?name=Quick+Move&background=388E3C&color=fff", rating: "4.9" },
+            { name: "Umaru & Sons", vehicle: "Motorcycle", img: "https://ui-avatars.com/api/?name=Umaru+S&background=FBC02D&color=fff", rating: "4.6" },
+            { name: "Sahara Cargo", vehicle: "Heavy Truck", img: "https://ui-avatars.com/api/?name=Sahara+C&background=7B1FA2&color=fff", rating: "4.8" },
+            { name: "Dala Logistics", vehicle: "Motorcycle", img: "https://ui-avatars.com/api/?name=Dala+L&background=C2185B&color=fff", rating: "5.0" },
+            { name: "Bello Transport", vehicle: "Small Car", img: "https://ui-avatars.com/api/?name=Bello+T&background=5D4037&color=fff", rating: "4.5" },
+            { name: "North Star", vehicle: "Cargo Van", img: "https://ui-avatars.com/api/?name=North+S&background=455A64&color=fff", rating: "4.7" },
+            { name: "Gidan Speed", vehicle: "Motorcycle", img: "https://ui-avatars.com/api/?name=Gidan+S&background=AFB42B&color=fff", rating: "4.9" },
+            { name: "Skyline Express", vehicle: "Motorcycle", img: "https://ui-avatars.com/api/?name=Skyline+E&background=0097A7&color=fff", rating: "4.8" },
+            { name: "Yusuf Logistics", vehicle: "Small Car", img: "https://ui-avatars.com/api/?name=Yusuf+L&background=689F38&color=fff", rating: "4.9" },
+            { name: "Fast Track KN", vehicle: "Motorcycle", img: "https://ui-avatars.com/api/?name=Fast+T&background=512DA8&color=fff", rating: "4.6" },
+            { name: "Alkali Movers", vehicle: "Truck", img: "https://ui-avatars.com/api/?name=Alkali+M&background=D32F2F&color=fff", rating: "4.7" },
+            { name: "City Runners", vehicle: "Motorcycle", img: "https://ui-avatars.com/api/?name=City+R&background=303F9F&color=fff", rating: "5.0" },
+            { name: "Zaid Dispatch", vehicle: "Motorcycle", img: "https://ui-avatars.com/api/?name=Zaid+D&background=0288D1&color=fff", rating: "4.8" },
+            { name: "Kofar Cargo", vehicle: "Cargo Van", img: "https://ui-avatars.com/api/?name=Kofar+C&background=F57C00&color=fff", rating: "4.9" },
+            { name: "Jigawa Connect", vehicle: "Truck", img: "https://ui-avatars.com/api/?name=Jigawa+C&background=388E3C&color=fff", rating: "4.7" },
+            { name: "Tahir Logistics", vehicle: "Motorcycle", img: "https://ui-avatars.com/api/?name=Tahir+L&background=4A148C&color=fff", rating: "4.9" }
+        ];
+
+        function renderDrivers() {
+            const container = document.getElementById('driversList');
+            container.innerHTML = drivers.map(d => `
+                <div onclick="contactDriver('${d.name}')" class="booking-card themed-card p-4 rounded-3xl border flex items-center gap-4 shadow-sm">
+                    <div class="relative">
+                        <img src="${d.img}" class="w-14 h-14 rounded-2xl object-cover border border-gray-100">
+                        <div class="absolute -bottom-1 -right-1 bg-green-500 w-4 h-4 rounded-full border-2 border-white"></div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-black text-sm uppercase">${d.name}</h4>
+                            <div class="flex items-center gap-1 bg-orange-50 dark:bg-orange-500/10 px-2 py-0.5 rounded-lg">
+                                <i class="fas fa-star text-orange-500 text-[10px]"></i>
+                                <span class="text-[10px] font-black text-orange-600 dark:text-orange-400">${d.rating}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-[10px] font-bold themed-text-dim bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-md uppercase">${d.vehicle}</span>
+                            <span class="text-[9px] font-bold text-brand italic">Verified</span>
+                        </div>
+                    </div>
+                    <div class="bg-brand/10 text-brand p-3 rounded-2xl">
+                        <i class="fab fa-whatsapp text-lg"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function bookGeneral() {
+            const p = document.getElementById('pickup').value || "Not specified";
+            const d = document.getElementById('dropoff').value || "Not specified";
+            const msg = `Hello KHUB, I want to book a delivery:%0A%0A*Pickup:* ${p}%0A*Dropoff:* ${d}%0A%0APlease calculate price.`;
+            window.open(`https://wa.me/${adminWhatsApp}?text=${msg}`);
+        }
+
+        window.onload = renderDrivers;
+    </script>
+</body>
+</html>
