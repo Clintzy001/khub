@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHUB | Logistics (Cloud)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root { --brand: #4A148C; --accent: #FFAB00; }
+        
+        /* Syncing with main shop styles */
+        #htmlTag.dark body { background-color: #000000 !important; color: white; }
+        #htmlTag.dark .themed-card { background-color: #121212; border-color: #333; }
+        #htmlTag.dark .themed-input { color: white; border-color: #333; }
+        
+        /* Category Glow Effect for Logistics Icons */
+        #htmlTag.dark .logistics-icon-bg { 
+            box-shadow: 0 0 15px rgba(186, 104, 200, 0.4); 
+            border: 1px solid rgba(186, 104, 200, 0.6);
+            background-color: #121212 !important;
+            color: #BA68C8 !important;
+        }
+
+        body { background-color: #F9FAFB; transition: 0.3s ease; overflow-x: hidden; }
+        .bg-brand { background-color: var(--brand); }
+        .themed-card { background-color: #ffffff; border-color: #F3F4F6; }
+        .themed-input { background-color: transparent; outline: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .pulse-btn { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(74, 20, 140, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(74, 20, 140, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 20, 140, 0); }
+        }
+
+        .service-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; min-width: 80px; }
+    </style>
+</head>
+<body class="pb-32 font-sans">
+
+    <header class="bg-brand text-white px-6 py-6 rounded-b-[40px] shadow-lg">
+        <div class="flex justify-between items-start mb-6">
+            <div onclick="handleAdminTrigger()">
+                <h1 class="text-2xl font-black italic tracking-tighter uppercase cursor-pointer">KHUB LOGISTICS</h1>
+                <p id="adminStatus" class="text-[10px] uppercase font-bold opacity-80">Fast & Reliable Delivery</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="toggleTheme()" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/20">
+                    <i id="themeIcon" class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+        <div class="relative mt-4">
+            <input type="text" placeholder="Enter Tracking ID..." class="w-full py-4 px-6 rounded-2xl font-bold text-sm outline-none shadow-xl text-gray-900">
+            <button class="absolute right-2 top-2 bg-brand p-2 px-4 rounded-xl text-white text-xs font-black uppercase">Track</button>
+        </div>
+    </header>
+
+    <main class="px-6 mt-8">
+        
+        <div class="flex gap-4 overflow-x-auto no-scrollbar py-6">
+            <div class="service-btn">
+                <div class="logistics-icon-bg w-14 h-14 bg-white shadow-lg rounded-[20px] flex items-center justify-center text-brand text-xl transition-all duration-300">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <span class="text-[9px] font-black uppercase text-gray-500 dark:text-gray-400 tracking-tighter">Deliver</span>
+            </div>
+            <div class="service-btn">
+                <div class="logistics-icon-bg w-14 h-14 bg-white shadow-lg rounded-[20px] flex items-center justify-center text-brand text-xl transition-all duration-300">
+                    <i class="fas fa-motorcycle"></i>
+                </div>
+                <span class="text-[9px] font-black uppercase text-gray-500 dark:text-gray-400 tracking-tighter">Dispatch</span>
+            </div>
+            <div class="service-btn">
+                <div class="logistics-icon-bg w-14 h-14 bg-white shadow-lg rounded-[20px] flex items-center justify-center text-brand text-xl transition-all duration-300">
+                    <i class="fas fa-route"></i>
+                </div>
+                <span class="text-[9px] font-black uppercase text-gray-500 dark:text-gray-400 tracking-tighter">Inter-State</span>
+            </div>
+        </div>
+
+        <div class="themed-card p-6 rounded-3xl shadow-sm border mb-8">
+            <h2 class="text-sm font-black uppercase text-brand mb-6">Quick Booking</h2>
+            <div class="space-y-4">
+                <input type="text" id="pickup" placeholder="Pickup Location" class="w-full border-b py-2 text-sm font-bold themed-input">
+                <input type="text" id="dropoff" placeholder="Dropoff Location" class="w-full border-b py-2 text-sm font-bold themed-input">
+            </div>
+            <button onclick="bookGeneral()" class="w-full mt-6 bg-brand text-white py-4 rounded-2xl font-black text-sm uppercase shadow-lg active:scale-95 transition-all">Book Delivery Now</button>
+        </div>
+
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-black text-sm uppercase dark:text-white">Verified Drivers</h3>
+            <button id="addDriverBtn" onclick="addNewDriver()" class="hidden bg-brand text-white text-[10px] px-3 py-1 rounded-full">+ ADD DRIVER</button>
+        </div>
+        
+        <div id="driversList" class="space-y-4 mb-10"></div>
+    </main>
+
+    <nav class="fixed bottom-0 w-full bg-white/90 dark:bg-black/90 backdrop-blur-lg border-t dark:border-zinc-800 flex justify-around items-center py-4 z-50">
+        <a href="index.html" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-[9px] font-bold mt-1 uppercase">Home</span>
+        </a>
+        <div onclick="window.open('https://wa.me/2347051337399')" class="flex flex-col items-center text-gray-400 cursor-pointer">
+            <i class="fab fa-whatsapp text-xl text-green-500"></i>
+            <span class="text-[9px] font-bold mt-1 uppercase">Chat</span>
+        </div>
+        <div class="relative -top-6 text-center">
+            <div class="bg-brand w-14 h-14 rounded-full shadow-2xl text-white border-4 border-white dark:border-black flex items-center justify-center pulse-btn">
+                <i class="fas fa-truck text-xl text-[#FFAB00]"></i>
+            </div>
+        </div>
+        <a href="shop.html" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-shopping-bag text-xl"></i>
+            <span class="text-[9px] font-bold mt-1 uppercase">Shop</span>
+        </a>
+    </nav>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeW7PFz9wntXO0OUj9N5V1DdkUxxI2VkQ",
+            authDomain: "k-hub-b4d8f.firebaseapp.com",
+            projectId: "k-hub-b4d8f",
+            storageBucket: "k-hub-b4d8f.firebasestorage.app",
+            messagingSenderId: "117649715938",
+            appId: "1:117649715938:web:7768d7b4d27d66e8ba24bb"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let isAdmin = false;
+        let clickCount = 0;
+        const defaultWA = "2347051337399";
+
+        function handleAdminTrigger() {
+            clickCount++;
+            if (clickCount === 3) {
+                isAdmin = !isAdmin;
+                document.getElementById('adminStatus').innerText = isAdmin ? "ADMIN MODE ACTIVE" : "Fast & Reliable Delivery";
+                document.getElementById('addDriverBtn').classList.toggle('hidden', !isAdmin);
+                renderDrivers();
+                clickCount = 0;
+            }
+            setTimeout(() => clickCount = 0, 1000);
+        }
+
+        async function renderDrivers() {
+            const container = document.getElementById('driversList');
+            container.innerHTML = '<p class="text-center text-xs opacity-50 py-10 uppercase font-black">Syncing Cloud...</p>';
+            
+            const snapshot = await db.collection('logistics').orderBy('rating', 'desc').get();
+            container.innerHTML = '';
+
+            snapshot.forEach(doc => {
+                const d = doc.data();
+                const id = doc.id;
+                container.innerHTML += `
+                    <div class="themed-card p-4 rounded-3xl border flex items-center gap-4 shadow-sm">
+                        <img src="https://ui-avatars.com/api/?name=${d.name}&background=4A148C&color=fff" class="w-12 h-12 rounded-2xl">
+                        <div class="flex-1">
+                            <h4 onblur="updateDriver('${id}', 'name', this.innerText)" contenteditable="${isAdmin}" class="font-black text-sm uppercase dark:text-white">${d.name}</h4>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span onblur="updateDriver('${id}', 'vehicle', this.innerText)" contenteditable="${isAdmin}" class="text-[9px] font-bold opacity-60 px-2 py-0.5 bg-gray-100 dark:bg-zinc-800 rounded uppercase">${d.vehicle}</span>
+                                <span class="text-[9px] font-black text-orange-500">★ <span onblur="updateDriver('${id}', 'rating', this.innerText)" contenteditable="${isAdmin}">${d.rating}</span></span>
+                            </div>
+                        </div>
+                        <button onclick="contactDriver('${d.whatsapp || defaultWA}', '${d.name}')" class="bg-green-500/10 text-green-500 p-3 rounded-2xl">
+                            <i class="fab fa-whatsapp text-lg"></i>
+                        </button>
+                    </div>`;
+            });
+        }
+
+        async function updateDriver(id, field, val) {
+            await db.collection('logistics').doc(id).update({ [field]: val });
+        }
+
+        async function addNewDriver() {
+            await db.collection('logistics').add({ name: "New Driver", vehicle: "Motorcycle", rating: "5.0", whatsapp: defaultWA });
+            renderDrivers();
+        }
+
+        function contactDriver(wa, name) {
+            window.open(`https://wa.me/${wa}?text=Hello ${name}, I saw you on KHUB Logistics and want to book a trip.`);
+        }
+
+        function bookGeneral() {
+            const p = document.getElementById('pickup').value;
+            const d = document.getElementById('dropoff').value;
+            window.open(`https://wa.me/${defaultWA}?text=KHUB Logistics Booking:%0APickup: ${p}%0ADropoff: ${d}`);
+        }
+
+        function toggleTheme() {
+            const isDark = document.getElementById('htmlTag').classList.toggle('dark');
+            localStorage.setItem('khub_theme', isDark ? 'dark' : 'light');
+            document.getElementById('themeIcon').className = isDark ? 'fas fa-sun text-yellow-400' : 'fas fa-moon';
+        }
+
+        window.onload = () => {
+            if (localStorage.getItem('khub_theme') === 'dark') {
+                document.getElementById('htmlTag').classList.add('dark');
+                document.getElementById('themeIcon').className = 'fas fa-sun text-yellow-400';
+            }
+            renderDrivers();
+        };
+    </script>
+</body>
+</html>
