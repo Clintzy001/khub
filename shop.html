@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHUB | Market (Cloud)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
+
+    <style>
+        :root { --brand: #4A148C; --brand-light: #7B1FA2; --off-white: #F9F9F9; }
+        body { background-color: var(--off-white); font-family: sans-serif; transition: 0.3s; }
+        .dark { background-color: #121212; color: white; }
+        .dark .bg-white { background-color: #1E1E1E; }
+        
+        .slogan-text {
+            font-family: 'Arial Black', sans-serif; font-weight: 900; font-style: italic;
+            background: linear-gradient(to right, #FFF 20%, #BA68C8 50%, #FFF 80%);
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        .buy-btn { opacity: 0.2; pointer-events: none; transition: 0.3s; }
+        .buy-btn.active { opacity: 1; pointer-events: auto; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .active-cat { border-color: var(--brand) !important; background-color: var(--brand) !important; color: white !important; }
+    </style>
+</head>
+<body class="pb-32">
+
+    <header class="bg-[#4A148C] p-5 pb-12 shadow-lg sticky top-0 z-50 rounded-b-[35px]">
+        <div class="flex justify-between items-center text-white">
+            <h1 class="font-black italic text-2xl uppercase">KHUB <span class="text-[#E1BEE7]">SHOP</span></h1>
+            <div class="flex gap-2">
+                <span id="visitorCount" class="text-[10px] bg-white/10 px-3 py-2 rounded-full font-bold">Visitors: ...</span>
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+        <div class="text-center mt-4"><h2 class="slogan-text text-xl uppercase">KANO SHOPPING MADE EASY</h2></div>
+    </header>
+
+    <div id="adminPanel" class="hidden bg-yellow-400 p-2 text-center text-[10px] font-bold uppercase sticky top-[120px] z-50 text-black">
+        Admin Mode Active • Tap names/prices to edit • Tap images to upload
+    </div>
+
+    <div class="px-5 -mt-6 relative z-10">
+        <input type="text" onkeyup="searchProducts()" id="searchInput" placeholder="Search Kano Market..." class="w-full p-4 rounded-2xl shadow-xl border-none outline-none dark:bg-zinc-800 dark:text-white">
+    </div>
+
+    <section class="mt-8 px-4">
+        <h3 onclick="handleAdminTrigger()" class="font-black uppercase text-[12px] italic mb-4 cursor-pointer dark:text-white">
+            <i class="fas fa-star text-yellow-500 mr-1"></i> Top Sellers
+        </h3>
+        <div id="catScroll" class="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
+            </div>
+    </section>
+
+    <main class="px-4">
+        <h2 id="currentCatLabel" class="font-black text-brand dark:text-white uppercase mb-4 text-sm tracking-widest">Market</h2>
+        <div id="shopGrid" class="grid grid-cols-2 gap-4">
+            </div>
+
+        <div class="mt-10 p-6 rounded-3xl bg-white border dark:bg-zinc-900 dark:border-zinc-800 mb-20">
+            <div class="flex items-center gap-3">
+                <input type="checkbox" id="agreeCheck" onchange="updateButtonStatus()" class="w-6 h-6 accent-purple-800">
+                <label for="agreeCheck" class="font-bold text-gray-700 dark:text-gray-300 uppercase text-[9px]">I agree to verify items before payment</label>
+            </div>
+        </div>
+    </main>
+
+    <nav class="fixed bottom-0 w-full bg-white dark:bg-black border-t dark:border-gray-800 flex justify-around items-center py-4 z-50">
+        <a href="index.html" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-[10px] font-bold uppercase">Home</span>
+        </a>
+        
+        <div onclick="window.open('https://wa.me/2347051337399')" class="flex flex-col items-center text-gray-400 cursor-pointer">
+            <i class="fab fa-whatsapp text-xl"></i>
+            <span class="text-[10px] font-bold uppercase">Chat</span>
+        </div>
+        
+        <div class="relative -top-8 text-center">
+            <div class="brand-purple w-16 h-16 rounded-full shadow-2xl text-white border-4 border-white dark:border-black flex items-center justify-center bg-[#4A148C]">
+                <i class="fas fa-shopping-bag text-2xl"></i>
+            </div>
+            <p class="text-[10px] font-black text-brand-purple mt-1 uppercase text-[#4A148C]">Shop</p>
+        </div>
+
+        <a href="logistics.html" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-truck-fast text-xl"></i>
+            <span class="text-[10px] font-bold uppercase">Logistics</span>
+        </a>
+        
+        <div onclick="handleAdminTrigger()" class="flex flex-col items-center text-gray-400 cursor-pointer">
+            <i class="fas fa-user-shield text-xl"></i>
+            <span class="text-[10px] font-bold uppercase">Admin</span>
+        </div>
+    </nav>
+
+    <script>
+        // FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeW7PFz9wntXO0OUj9N5V1DdkUxxI2VkQ",
+            authDomain: "k-hub-b4d8f.firebaseapp.com",
+            projectId: "k-hub-b4d8f",
+            storageBucket: "k-hub-b4d8f.firebasestorage.app",
+            messagingSenderId: "117649715938",
+            appId: "1:117649715938:web:7768d7b4d27d66e8ba24bb"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        let isAdmin = false;
+        let clickCount = 0;
+        const categories = ["Phones", "Electronics", "Fashion", "Food", "Services"];
+
+        // SEARCH FUNCTION
+        function searchProducts() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.querySelectorAll('#shopGrid > div');
+            cards.forEach(card => {
+                let title = card.querySelector('h3').innerText.toLowerCase();
+                card.style.display = title.includes(input) ? "block" : "none";
+            });
+        }
+
+        // CATEGORY SYSTEM
+        function renderCategories() {
+            const catScroll = document.getElementById('catScroll');
+            catScroll.innerHTML = categories.map(cat => `
+                <button onclick="loadCategory('${cat}')" class="cat-btn px-6 py-2 rounded-full bg-white dark:bg-zinc-800 shadow-sm font-bold text-[10px] uppercase border-2 border-transparent transition-all whitespace-nowrap dark:text-white">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        async function loadCategory(cat) {
+            document.getElementById('currentCatLabel').innerText = cat;
+            
+            // UI Highlight
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.toggle('active-cat', btn.innerText === cat.toUpperCase());
+            });
+
+            const grid = document.getElementById('shopGrid');
+            grid.innerHTML = '<p class="col-span-2 text-center text-xs animate-pulse py-10">Searching Cloud...</p>';
+            
+            const snapshot = await db.collection('market').where('category', '==', cat).get();
+            grid.innerHTML = '';
+
+            if (snapshot.empty) {
+                grid.innerHTML = `
+                    <div class="col-span-2 text-center py-10">
+                        <p class="text-xs text-gray-400 mb-4 uppercase font-bold">No ${cat} items found</p>
+                        ${isAdmin ? `<button onclick="addNewProduct('${cat}')" class="p-6 border-2 border-dashed rounded-3xl text-purple-800 text-xs font-black">+ ADD FIRST ${cat.toUpperCase()}</button>` : ''}
+                    </div>`;
+                return;
+            }
+
+            snapshot.forEach(doc => {
+                const p = doc.data();
+                const id = doc.id;
+                grid.innerHTML += `
+                <div class="bg-white p-3 rounded-3xl shadow-sm border dark:bg-zinc-900 dark:border-zinc-800 relative">
+                    <div class="h-32 bg-gray-100 rounded-2xl mb-2 relative overflow-hidden">
+                        <img src="${p.image}" class="w-full h-full object-cover">
+                        ${isAdmin ? `<input type="file" onchange="uploadImg(this, '${id}')" class="absolute inset-0 opacity-0 cursor-pointer">` : ''}
+                    </div>
+                    <h3 onblur="updateField('${id}', 'name', this.innerText)" contenteditable="${isAdmin}" class="text-[10px] font-bold truncate uppercase ${isAdmin ? 'bg-yellow-50 text-black' : ''}">${p.name}</h3>
+                    <div class="text-green-600 font-black text-sm my-1">₦<span onblur="updateField('${id}', 'price', this.innerText)" contenteditable="${isAdmin}">${p.price}</span></div>
+                    ${isAdmin ? `<button onclick="deleteProduct('${id}', '${cat}')" class="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-[10px]"><i class="fas fa-trash"></i></button>` : ''}
+                    <button onclick="handleBuy('${p.name}', '${p.price}', '${p.whatsapp}')" class="buy-btn w-full py-2 bg-[#25D366] text-white text-[9px] font-black rounded-xl uppercase">WhatsApp</button>
+                </div>`;
+            });
+            updateButtonStatus();
+        }
+
+        // ADMIN LOGIC
+        function handleAdminTrigger() {
+            clickCount++;
+            if (clickCount === 3) {
+                isAdmin = !isAdmin;
+                document.getElementById('adminPanel').classList.toggle('hidden', !isAdmin);
+                loadCategory(document.getElementById('currentCatLabel').innerText);
+                clickCount = 0;
+            }
+            setTimeout(() => clickCount = 0, 1000);
+        }
+
+        async function addNewProduct(cat) {
+            await db.collection('market').add({
+                category: cat,
+                name: "New Item",
+                price: "0",
+                whatsapp: "2347051337399",
+                image: "https://via.placeholder.com/150"
+            });
+            loadCategory(cat);
+        }
+
+        async function updateField(id, field, value) {
+            await db.collection('market').doc(id).update({ [field]: value });
+        }
+
+        async function uploadImg(input, id) {
+            if (!input.files[0]) return;
+            const ref = storage.ref(`products/${id}`);
+            await ref.put(input.files[0]);
+            const url = await ref.getDownloadURL();
+            await db.collection('market').doc(id).update({ image: url });
+            loadCategory(document.getElementById('currentCatLabel').innerText);
+        }
+
+        async function deleteProduct(id, cat) {
+            if(confirm("Delete item?")) {
+                await db.collection('market').doc(id).delete();
+                loadCategory(cat);
+            }
+        }
+
+        // STATS & THEME
+        async function updateStats() {
+            const docRef = db.collection('admin').doc('stats');
+            await docRef.set({ visits: firebase.firestore.FieldValue.increment(1) }, { merge: true });
+            docRef.onSnapshot(doc => {
+                document.getElementById('visitorCount').innerText = `Visitors: ${doc.data().visits}`;
+            });
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.getElementById('htmlTag').classList.toggle('dark');
+            localStorage.setItem('khub_theme', isDark ? 'dark' : 'light');
+            document.getElementById('themeIcon').className = isDark ? 'fas fa-sun text-yellow-400' : 'fas fa-moon';
+        }
+
+        function handleBuy(name, price, wa) {
+            window.open(`https://wa.me/${wa || '2347051337399'}?text=I want to buy ${name} (₦${price})`);
+        }
+
+        function updateButtonStatus() {
+            const agreed = document.getElementById('agreeCheck').checked;
+            document.querySelectorAll('.buy-btn').forEach(btn => btn.classList.toggle('active', agreed));
+        }
+
+        window.onload = () => {
+            if (localStorage.getItem('khub_theme') === 'dark') toggleDarkMode();
+            renderCategories();
+            loadCategory('Phones');
+            updateStats();
+        };
+    </script>
+</body>
+</html>
