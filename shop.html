@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHUB | Market (Cloud)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root { --brand: #4A148C; --off-white: #F9F9F9; }
+        body { background-color: var(--off-white); font-family: sans-serif; transition: 0.3s; overflow-x: hidden; }
+        .dark body { background-color: #000000 !important; color: white; }
+        .dark .bg-white { background-color: #121212 !important; border-color: #333; }
+        .dark .cat-icon-bg { box-shadow: 0 0 15px rgba(186, 104, 200, 0.4); border: 1px solid rgba(186, 104, 200, 0.6); }
+        .slogan-text {
+            font-family: 'Arial Black', sans-serif; font-weight: 900; font-style: italic;
+            background: linear-gradient(to right, #FFF 20%, #BA68C8 50%, #FFF 80%);
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+        .buy-btn { opacity: 0.3; pointer-events: none; transition: 0.3s; }
+        .buy-btn.active { opacity: 1; pointer-events: auto; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .search-container { position: relative; z-index: 60; margin-top: -25px; }
+        header { z-index: 40 !important; }
+        .cat-card { min-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
+        .active-cat-icon { border: 2.5px solid #4A148C; background: #E1BEE7 !important; color: #4A148C !important; transform: scale(1.1); }
+        #tcContainer { transition: all 0.5s ease; max-height: 500px; opacity: 1; overflow: hidden; }
+        #tcContainer.hidden-box { max-height: 0; opacity: 0; margin-top: 0; padding: 0; border: none; }
+    </style>
+</head>
+<body class="pb-32">
+
+    <header class="bg-[#4A148C] p-5 pb-16 shadow-lg sticky top-0 rounded-b-[40px]">
+        <div class="flex justify-between items-center text-white">
+            <h1 class="font-black italic text-2xl uppercase tracking-tighter">KHUB <span class="text-[#E1BEE7]">SHOP</span></h1>
+            <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+        </div>
+        <div class="text-center mt-4"><h2 class="slogan-text text-xl uppercase">KANO SHOPPING MADE EASY</h2></div>
+    </header>
+
+    <div class="px-5 search-container">
+        <input type="text" onkeyup="searchProducts()" id="searchInput" placeholder="Search Kano Market..." class="w-full p-4 rounded-2xl shadow-2xl border-none outline-none dark:bg-zinc-900 dark:text-white border-2 border-white/10">
+    </div>
+
+    <section class="mt-8 mx-4 p-5 rounded-[35px] bg-gradient-to-br from-[#4A148C] to-[#2E0B5B] shadow-2xl overflow-hidden">
+        <h3 class="text-white font-black uppercase text-[10px] mb-4 flex justify-between items-center tracking-widest">
+            <span><i class="fas fa-certificate text-yellow-400 mr-1 animate-pulse"></i> Verified Sellers (15)</span>
+            <span class="opacity-50 text-[8px]">Scroll <i class="fas fa-arrow-right"></i></span>
+        </h3>
+        <div id="sellerContainer" class="flex gap-4 overflow-x-auto no-scrollbar py-2">
+            </div>
+    </section>
+
+    <section class="mt-4 px-2">
+        <div id="catIcons" class="flex gap-4 overflow-x-auto no-scrollbar py-6 px-4"></div>
+    </section>
+
+    <main class="px-4 mt-2">
+        <h2 class="font-black text-brand dark:text-purple-400 uppercase mb-5 text-sm tracking-tighter flex items-center gap-2">
+            <i class="fas fa-fire text-orange-500"></i> Browse: <span id="currentCatLabel">Phones</span>
+        </h2>
+        
+        <div id="shopGrid" class="grid grid-cols-2 gap-4"></div>
+
+        <div id="tcContainer" class="mt-10 p-6 rounded-[30px] bg-white border dark:bg-zinc-900 dark:border-zinc-800 border-dashed">
+            <div class="flex items-start gap-4">
+                <input type="checkbox" id="agreeCheck" onchange="updateButtonStatus()" class="mt-1 w-6 h-6 accent-purple-800 rounded-lg">
+                <div class="flex flex-col">
+                    <label for="agreeCheck" class="font-bold text-gray-700 dark:text-gray-300 uppercase text-[10px]">Verify item before payment</label>
+                    <button class="text-brand dark:text-purple-400 text-[9px] underline font-bold text-left uppercase mt-1">Read Security Terms</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="fixed bottom-0 w-full bg-white/80 dark:bg-black/80 backdrop-blur-lg border-t dark:border-zinc-800 flex justify-around items-center py-4 z-50">
+        <a href="index.html" class="flex flex-col items-center text-gray-400"><i class="fas fa-house text-xl"></i><span class="text-[9px] font-bold mt-1 uppercase">Home</span></a>
+        <a href="shop.html" class="flex flex-col items-center text-brand dark:text-purple-400"><i class="fas fa-shopping-bag text-xl"></i><span class="text-[9px] font-bold mt-1 uppercase">Shop</span></a>
+        <a href="logistics.html" class="flex flex-col items-center text-gray-400"><i class="fas fa-truck-fast text-xl"></i><span class="text-[9px] font-bold mt-1 uppercase">Logistics</span></a>
+        <div onclick="window.open('https://wa.me/2347051337399')" class="flex flex-col items-center text-gray-400"><i class="fab fa-whatsapp text-xl text-green-500"></i><span class="text-[9px] font-bold mt-1 uppercase">Chat</span></div>
+    </nav>
+
+    <script>
+        const SUPABASE_URL = 'https://qsmfskpcthydqrvbrcfy.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzbWZza3BjdGh5ZHFydmJyY2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2OTQzMjUsImV4cCI6MjA4MzI3MDMyNX0.hA0W_kpQ1Irfoj2DRu5Nv0T_8ojb2YzX9g9g_UYgpuA';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const categories = [
+            { name: "Phones", icon: "fa-mobile-screen" },
+            { name: "Electronics", icon: "fa-plug" },
+            { name: "Beauty", icon: "fa-wand-sparkles" },
+            { name: "Fashion", icon: "fa-shirt" },
+            { name: "Cosmetics", icon: "fa-spray-can" },
+            { name: "Foods", icon: "fa-utensils" },
+            { name: "Agro", icon: "fa-leaf" },
+            { name: "Auto & Tools", icon: "fa-car-side" },
+            { name: "Stationary", icon: "fa-book" },
+            { name: "Home", icon: "fa-couch" },
+            { name: "Health Care", icon: "fa-stethoscope" }
+        ];
+
+        function loadSellers() {
+            const sellers = [
+                {name: "A.A Rano", bg: "FFAB00"}, {name: "Sahad Store", bg: "4A148C"}, {name: "Kano Gadgets", bg: "00c853"},
+                {name: "Maitama Mall", bg: "FF5722"}, {name: "Sabon Gari Hub", bg: "2196F3"}, {name: "Farm Fresh", bg: "4CAF50"},
+                {name: "Yankaba Market", bg: "795548"}, {name: "Singa Store", bg: "607D8B"}, {name: "Luxury Wear", bg: "E91E63"},
+                {name: "BUK Gadgets", bg: "9C27B0"}, {name: "Zaria Road Auto", bg: "3F51B5"}, {name: "Kano Electronics", bg: "009688"},
+                {name: "Hajia Beauty", bg: "FFC107"}, {name: "North Foods", bg: "FF9800"}, {name: "Kano Stationary", bg: "673AB7"}
+            ];
+            const container = document.getElementById('sellerContainer');
+            container.innerHTML = sellers.map(s => `
+                <div class="flex-shrink-0 w-28 bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-[25px] flex flex-col items-center">
+                    <img src="https://ui-avatars.com/api/?name=${s.name}&background=${s.bg}&color=fff" class="w-14 h-14 rounded-full border-2 border-[#FFAB00]">
+                    <span class="text-[9px] font-black text-white mt-3 w-full truncate text-center uppercase tracking-tighter">${s.name}</span>
+                </div>
+            `).join('');
+        }
+
+        async function loadCategory(cat) {
+            document.getElementById('currentCatLabel').innerText = cat;
+            const grid = document.getElementById('shopGrid');
+            grid.innerHTML = '<p class="col-span-2 text-center text-[10px] py-10 opacity-50 uppercase font-black">Connecting Kano Cloud...</p>';
+            
+            const { data, error } = await supabaseClient.from('market').select('*').eq('category', cat);
+            grid.innerHTML = '';
+
+            if (data && data.length > 0) {
+                data.forEach(p => {
+                    const agreed = document.getElementById('agreeCheck').checked;
+                    grid.innerHTML += `
+                    <div class="bg-white p-3 rounded-[30px] shadow-lg border-2 border-transparent dark:border-zinc-800 relative overflow-hidden">
+                        <img src="${p.image_url || 'https://via.placeholder.com/150'}" class="w-full h-32 object-cover rounded-2xl mb-3">
+                        <h3 class="text-[10px] font-bold uppercase truncate dark:text-white">${p.name}</h3>
+                        <div class="text-green-600 font-black text-sm my-1 tracking-tighter">₦${p.price}</div>
+                        <button onclick="handleBuy('${p.name}', '${p.price}', '${p.whatsapp}')" class="buy-btn ${agreed ? 'active' : ''} w-full py-2.5 bg-[#25D366] text-white text-[10px] font-black rounded-xl uppercase">WhatsApp</button>
+                    </div>`;
+                });
+            } else {
+                grid.innerHTML = `<div class="col-span-2 text-center py-10 text-gray-500 text-[10px] uppercase font-bold">No items found in "${cat}"</div>`;
+            }
+        }
+
+        function renderCategoryIcons() {
+            const container = document.getElementById('catIcons');
+            container.innerHTML = categories.map(cat => `
+                <div onclick="loadCategory('${cat.name}')" class="cat-card cursor-pointer">
+                    <div class="cat-icon-bg w-14 h-14 rounded-[20px] bg-white dark:bg-zinc-900 shadow-lg flex items-center justify-center text-brand dark:text-purple-400 text-xl">
+                        <i class="fas ${cat.icon}"></i>
+                    </div>
+                    <span class="text-[9px] font-black uppercase text-gray-500 dark:text-gray-400 text-center tracking-tighter mt-1">${cat.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateButtonStatus() {
+            const agreed = document.getElementById('agreeCheck').checked;
+            document.querySelectorAll('.buy-btn').forEach(btn => btn.classList.toggle('active', agreed));
+            if(agreed) setTimeout(() => document.getElementById('tcContainer').classList.add('hidden-box'), 400);
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.getElementById('htmlTag').classList.toggle('dark');
+            document.getElementById('themeIcon').className = isDark ? 'fas fa-sun text-yellow-400' : 'fas fa-moon';
+        }
+
+        function handleBuy(name, price, wa) {
+            window.open(`https://wa.me/${wa || '2347051337399'}?text=I want to buy ${name} (₦${price}) from K-HUB`);
+        }
+
+        function searchProducts() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('#shopGrid > div').forEach(card => {
+                let title = card.querySelector('h3').innerText.toLowerCase();
+                card.style.display = title.includes(input) ? "block" : "none";
+            });
+        }
+
+        window.onload = () => {
+            renderCategoryIcons();
+            loadSellers();
+            loadCategory('Phones');
+        };
+    </script>
+</body>
+</html>
