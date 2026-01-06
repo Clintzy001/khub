@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHUB | Kano's No.1 Service Hub</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root { --brand: #4A148C; --gold: #FFD700; --deep-gold: #B8860B; }
+        body, header, nav, div, main, button { transition: background-color 0.3s ease, color 0.3s ease; }
+        .brand-purple { background-color: var(--brand); }
+        
+        .dark body { background-color: #0f0f0f; color: #ffffff; }
+        .dark .bg-white { background-color: #1a1a1a !important; color: white; }
+        .dark .listing-card { background-color: #1a1a1a; border-color: #333; }
+        
+        /* RESTORED: Banner Designs */
+        .banner { width: 100%; height: 130px; border-radius: 24px; margin-bottom: 20px; display: flex; align-items: center; padding: 0 25px; color: white; position: relative; overflow: hidden; cursor: pointer; transition: transform 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .banner:active { transform: scale(0.96); }
+        .job-banner { background: linear-gradient(135deg, #4A148C 0%, #7B1FA2 100%); }
+        .ad-banner { background: linear-gradient(135deg, #1A237E 0%, #3F51B5 100%); }
+        .banner-icon { position: absolute; right: -15px; bottom: -15px; font-size: 90px; opacity: 0.15; transform: rotate(-15deg); }
+        
+        .price-tag { background-color: #f3e5f5; color: var(--brand); padding: 4px 10px; border-radius: 8px; font-weight: 900; font-size: 0.75rem; white-space: nowrap; }
+        .listings-grid { display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 15px; }
+        @media (min-width: 640px) { .listings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .search-wrap { margin-top: -25px; position: relative; z-index: 45; }
+
+        /* Price Table Styling */
+        .price-table td { padding: 8px; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 11px; font-weight: 700; }
+        .dark .price-table td { border-bottom: 1px solid rgba(255,255,255,0.05); color: #ccc; }
+    </style>
+</head>
+<body class="pb-32 font-sans bg-[#F9F9F9]">
+
+    <header class="bg-[#4A148C] text-white px-6 py-8 rounded-b-[40px] shadow-lg sticky top-0 z-40">
+        <div class="flex justify-between items-center">
+            <div onclick="handleAdminTrigger()" class="cursor-pointer">
+                <h1 class="text-2xl font-black italic tracking-tighter uppercase">KHUB</h1>
+                <p id="adminStatus" class="text-[10px] uppercase font-bold opacity-80 tracking-widest">Kano's No.1 Service Hub</p>
+            </div>
+            <button onclick="toggleTheme()" class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
+                <i id="themeIcon" class="fas fa-moon text-lg text-white"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="px-5 search-wrap">
+        <div class="relative">
+            <input type="text" id="mainSearch" onkeyup="filterListings()" placeholder="Search services..." 
+                class="w-full p-4 pl-12 rounded-2xl shadow-xl border-none outline-none dark:bg-zinc-800 dark:text-white text-sm font-bold">
+            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-brand-purple opacity-40"></i>
+        </div>
+    </div>
+
+    <div class="flex justify-center gap-2 py-6 px-4 overflow-x-auto no-scrollbar">
+        <button id="jobTab" onclick="switchTab('jobs')" class="brand-purple text-white px-8 py-2 rounded-xl font-bold shadow-md text-sm">Jobs</button>
+        <button id="adTab" onclick="switchTab('ads')" class="bg-gray-200 text-gray-600 px-8 py-2 rounded-xl font-bold text-sm">Ads</button>
+        <a href="shop.html" class="bg-gray-200 text-gray-600 px-8 py-2 rounded-xl font-bold text-sm flex items-center">Shop</a>
+    </div>
+
+    <div class="px-5">
+        <div id="bannerSection"></div>
+        <main class="listings-grid mt-4" id="listingContainer"></main>
+    </div>
+
+    <div id="postModal" class="fixed inset-0 bg-white dark:bg-zinc-900 z-[100] p-6 hidden flex-col overflow-y-auto no-scrollbar">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-black uppercase dark:text-white">Listing Services</h2>
+            <button onclick="toggleModal()" class="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center dark:text-white"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="bg-gray-50 dark:bg-black/40 rounded-[30px] p-5 mb-6 border dark:border-zinc-800">
+            <h3 class="text-[10px] font-black uppercase text-brand-purple mb-3 tracking-widest"><i class="fas fa-tags mr-2"></i> Service Price List</h3>
+            <table class="w-full text-left price-table">
+                <tr class="text-brand-purple">
+                    <td>Category</td><td>Daily</td><td>Monthly</td>
+                </tr>
+                <tr><td>Job Listings</td><td>₦500</td><td>₦5,000</td></tr>
+                <tr><td>Business Ads</td><td>₦1,000</td><td>₦15,000</td></tr>
+            </table>
+        </div>
+
+        <div class="p-6 rounded-[30px] border-2 border-dashed border-brand-purple bg-purple-50 dark:bg-black/60 text-center mb-6">
+            <p class="text-[10px] font-black uppercase mb-1 opacity-60 dark:text-white">Bank Transfer Payment</p>
+            <h3 class="text-xl font-black text-deep-gold">6119361548</h3>
+            <p class="text-sm font-black uppercase dark:text-white">OPay | Clinton C. Oleka</p>
+        </div>
+
+        <div class="space-y-3">
+            <input type="text" id="listingTitle" placeholder="What are you offering?" class="w-full p-4 border rounded-2xl dark:bg-gray-800 dark:text-white outline-none font-bold text-sm">
+            <input type="text" id="listingPrice" placeholder="Salary or Price" class="w-full p-4 border rounded-2xl dark:bg-gray-800 dark:text-white outline-none font-bold text-sm">
+            <select id="listingType" class="w-full p-4 border rounded-2xl dark:bg-gray-800 dark:text-white outline-none font-bold text-sm">
+                <option value="jobs">Post as Job</option>
+                <option value="ads">Post as Ad</option>
+            </select>
+            <button onclick="requestVerification()" class="w-full py-5 bg-[#25D366] text-white rounded-2xl font-black uppercase shadow-lg">Verify & Post via WhatsApp</button>
+        </div>
+    </div>
+
+    <nav class="fixed bottom-0 w-full bg-white/95 dark:bg-black/95 backdrop-blur-lg border-t dark:border-gray-800 flex justify-around items-center py-4 z-50">
+        <a href="index.html" class="flex flex-col items-center text-brand-purple">
+            <i class="fas fa-home text-2xl"></i>
+            <span class="text-[9px] font-bold uppercase mt-1">Home</span>
+        </a>
+        <a href="shop.html" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-shopping-bag text-xl"></i>
+            <span class="text-[9px] font-bold uppercase mt-1">Shop</span>
+        </a>
+        <div class="relative -top-8">
+            <button onclick="toggleModal()" class="brand-purple w-16 h-16 rounded-full shadow-2xl text-white border-4 border-white dark:border-zinc-900 flex items-center justify-center">
+                <i class="fas fa-plus text-2xl"></i>
+            </button>
+        </div>
+        <a href="logistics.html" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-truck-fast text-xl"></i>
+            <span class="text-[9px] font-bold uppercase mt-1">Logistics</span>
+        </a>
+        <div onclick="window.open('https://wa.me/2347051337399')" class="flex flex-col items-center text-gray-400 cursor-pointer">
+            <i class="fab fa-whatsapp text-xl text-green-500"></i>
+            <span class="text-[9px] font-bold uppercase mt-1">Chat</span>
+        </div>
+    </nav>
+
+    <script>
+        const SUPABASE_URL = 'https://qsmfskpcthydqrvbrcfy.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzbWZza3BjdGh5ZHFydmJyY2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2OTQzMjUsImV4cCI6MjA4MzI3MDMyNX0.hA0W_kpQ1Irfoj2DRu5Nv0T_8ojb2YzX9g9g_UYgpuA';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let isAdmin = false;
+        let currentTabType = 'jobs';
+
+        function handleAdminTrigger() {
+            let count = parseInt(sessionStorage.getItem('adminClicks') || 0) + 1;
+            sessionStorage.setItem('adminClicks', count);
+            if (count >= 3) {
+                isAdmin = !isAdmin;
+                const status = document.getElementById('adminStatus');
+                status.innerText = isAdmin ? "ADMIN MODE ACTIVE" : "Kano's No.1 Service Hub";
+                status.classList.toggle('text-yellow-500', isAdmin);
+                switchTab(currentTabType);
+                sessionStorage.setItem('adminClicks', 0);
+            }
+        }
+
+        async function switchTab(type) {
+            currentTabType = type;
+            document.getElementById('jobTab').className = type === 'jobs' ? "brand-purple text-white px-8 py-2 rounded-xl font-bold shadow-md text-sm" : "bg-gray-200 text-gray-600 px-8 py-2 rounded-xl font-bold text-sm";
+            document.getElementById('adTab').className = type === 'ads' ? "brand-purple text-white px-8 py-2 rounded-xl font-bold shadow-md text-sm" : "bg-gray-200 text-gray-600 px-8 py-2 rounded-xl font-bold text-sm";
+            
+            // RESTORED: Fancy Banner Display
+            document.getElementById('bannerSection').innerHTML = `
+                <div onclick="window.open('https://wa.me/2347051337399')" class="banner ${type === 'jobs' ? 'job-banner' : 'ad-banner'}">
+                    <div>
+                        <h2 class="text-xl font-black uppercase">${type === 'jobs' ? 'Jobs in Kano' : 'Hot Ads'}</h2>
+                        <p class="text-[10px] font-black opacity-90 uppercase flex items-center gap-2">
+                            <span class="w-2 h-2 bg-green-400 rounded-full animate-ping"></span> Promote Your ${type === 'jobs' ? 'Vacancy' : 'Business'}
+                        </p>
+                    </div>
+                    <i class="fas ${type === 'jobs' ? 'fa-briefcase' : 'fa-fire'} banner-icon"></i>
+                </div>`;
+
+            const container = document.getElementById('listingContainer');
+            container.innerHTML = `<p class="text-center py-10 opacity-50 font-black uppercase text-xs">Connecting to Cloud...</p>`;
+
+            const { data, error } = await supabase.from('listings').select('*').eq('type', type).order('created_at', { ascending: false });
+
+            container.innerHTML = "";
+            if (data && data.length > 0) {
+                data.forEach(item => {
+                    container.innerHTML += `
+                        <div class="listing-card bg-white p-4 rounded-2xl border flex flex-col shadow-sm">
+                            <h4 onblur="updateCloud('${item.id}', 'title', this.innerText)" contenteditable="${isAdmin}" class="font-black text-sm uppercase dark:text-white">${item.title}</h4>
+                            <div class="flex justify-between items-center mt-3">
+                                <span onblur="updateCloud('${item.id}', 'price', this.innerText)" contenteditable="${isAdmin}" class="price-tag">${item.price}</span>
+                                <button onclick="window.open('https://wa.me/${item.whatsapp || '2347051337399'}')" class="brand-purple text-white px-4 py-1 rounded-lg text-[10px] font-black uppercase">Chat</button>
+                            </div>
+                            ${isAdmin ? `<button onclick="deleteCloud('${item.id}')" class="mt-4 text-red-500 text-[10px] font-black uppercase"><i class="fas fa-trash mr-1"></i> Delete</button>` : ''}
+                        </div>`;
+                });
+            } else {
+                container.innerHTML = `<p class="text-center py-10 opacity-30 text-xs font-bold uppercase">No ${type} found</p>`;
+            }
+        }
+
+        function filterListings() {
+            let val = document.getElementById('mainSearch').value.toLowerCase();
+            document.querySelectorAll('.listing-card').forEach(card => {
+                let title = card.querySelector('h4').innerText.toLowerCase();
+                card.style.display = title.includes(val) ? "flex" : "none";
+            });
+        }
+
+        async function updateCloud(id, field, val) {
+            if (!isAdmin) return;
+            await supabase.from('listings').update({ [field]: val }).eq('id', id);
+        }
+
+        async function deleteCloud(id) {
+            if(confirm("Delete permanently?")) {
+                await supabase.from('listings').delete().eq('id', id);
+                switchTab(currentTabType);
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.getElementById('htmlTag').classList.toggle('dark');
+            localStorage.setItem('khub_theme', isDark ? 'dark' : 'light');
+            document.getElementById('themeIcon').className = isDark ? 'fas fa-sun text-yellow-400' : 'fas fa-moon text-white';
+        }
+
+        function toggleModal() {
+            const modal = document.getElementById('postModal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        function requestVerification() {
+            const t = document.getElementById('listingTitle').value;
+            const p = document.getElementById('listingPrice').value;
+            const type = document.getElementById('listingType').value;
+            if(!t || !p) return alert("Please fill all fields");
+            window.open(`https://wa.me/2347051337399?text=NEW ${type.toUpperCase()} REQUEST:%0A*Title:* ${t}%0A*Price:* ${p}`);
+        }
+
+        window.onload = () => {
+            if (localStorage.getItem('khub_theme') === 'dark') {
+                document.getElementById('htmlTag').classList.add('dark');
+                document.getElementById('themeIcon').className = 'fas fa-sun text-yellow-400';
+            }
+            switchTab('jobs');
+        };
+    </script>
+</body>
+</html>
