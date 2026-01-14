@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHUB | Hire Experts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --brand: #4A148C; }
+        body { background-color: #F9F9F9; transition: 0.3s; font-family: sans-serif; overflow-x: hidden; }
+        .dark body { background-color: #121212; color: white; }
+        
+        .slogan-text {
+            font-family: 'Arial Black', sans-serif; font-weight: 900; font-style: italic;
+            background: linear-gradient(to right, #FFF 20%, #BA68C8 50%, #FFF 80%);
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .content-layer { position: relative; z-index: 10; background: #F9F9F9; border-top-left-radius: 40px; border-top-right-radius: 40px; margin-top: -30px; min-height: 80vh; }
+        .dark .content-layer { background: #121212; }
+        
+        .cat-btn { white-space: nowrap; transition: 0.3s; border: 1px solid rgba(255,255,255,0.2); opacity: 0.6; }
+        .cat-btn.active { background-color: white; color: var(--brand); font-weight: 900; transform: scale(1.05); border-color: white; opacity: 1; }
+        
+        .loc-pill { transition: 0.3s; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
+        .loc-pill.active { background: white !important; color: #4A148C !important; border-color: white; }
+
+        .worker-card { transition: 0.3s; border: 1px solid rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+        .dark .worker-card { border-color: rgba(255,255,255,0.1); background: #1e1e1e; }
+        
+        .kano-badge { position: absolute; top: 0; right: 0; background: #E1BEE7; color: #4A148C; font-size: 6px; font-weight: 900; padding: 2px 6px; border-bottom-left-radius: 10px; text-transform: uppercase; z-index: 5; }
+        .pro-badge { position: absolute; top: 0; left: 0; background: #FFD700; color: #000; font-size: 7px; font-weight: 900; padding: 3px 10px; border-bottom-right-radius: 15px; text-transform: uppercase; z-index: 6; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .pro-border { border: 2px solid #FFD700 !important; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
+        
+        .countdown-pill { background: rgba(0,0,0,0.7); color: #FFD700; padding: 2px 6px; border-radius: 6px; font-size: 7px; font-weight: 900; }
+    </style>
+</head>
+<body class="pb-32">
+
+    <header class="bg-[#4A148C] p-6 pb-20 sticky top-0 z-50 shadow-lg rounded-b-[40px]">
+        <div class="flex justify-between items-center text-white mb-4">
+            <button onclick="window.history.back()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="font-black italic text-xl uppercase tracking-tighter">KHUB <span class="text-[#E1BEE7]">EXPERTS</span></h1>
+            <button onclick="toggleTheme()" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+        </div>
+        <div class="text-center mb-4"><h2 class="slogan-text text-lg uppercase">Premium Handyman Hub</h2></div>
+        
+        <div class="relative max-w-md mx-auto mb-4">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-xs"></i>
+            <input type="text" id="searchInput" onkeyup="filterServices()" placeholder="Search skill or name..." class="w-full bg-white/10 border border-white/20 rounded-2xl py-3 pl-10 pr-4 text-white placeholder:text-white/40 text-xs outline-none">
+        </div>
+
+        <div class="flex justify-center gap-3 mb-6">
+            <button onclick="setLocationFilter('All', this)" class="loc-pill active px-4 py-1.5 rounded-full text-[9px] font-black uppercase text-white">All Nigeria</button>
+            <button onclick="setLocationFilter('Kano', this)" class="loc-pill px-4 py-1.5 bg-white/10 text-white rounded-full text-[9px] font-black uppercase">Kano Only</button>
+            <button onclick="setLocationFilter('Outside', this)" class="loc-pill px-4 py-1.5 bg-white/10 text-white rounded-full text-[9px] font-black uppercase">Outside Kano</button>
+        </div>
+
+        <div class="flex gap-2 overflow-x-auto no-scrollbar mb-4">
+            <button onclick="setCategory('All', this)" class="cat-btn active px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white">All Jobs</button>
+            <button onclick="setCategory('Home', this)" class="cat-btn px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white">Home & Property</button>
+            <button onclick="setCategory('Auto', this)" class="cat-btn px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white">Auto & Technical</button>
+            <button onclick="setCategory('Fashion', this)" class="cat-btn px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white">Fashion & Personal</button>
+            <button onclick="setCategory('Tech', this)" class="cat-btn px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white">Tech & Creative</button>
+            <button onclick="setCategory('Crafts', this)" class="cat-btn px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white">Crafts & Misc</button>
+        </div>
+        <div id="subCatContainer" class="flex gap-2 overflow-x-auto no-scrollbar"></div>
+    </header>
+
+    <main class="content-layer px-6 pt-10 shadow-[0_-20px_40px_rgba(0,0,0,0.1)]">
+        <div class="flex justify-between items-center mb-6">
+            <h3 id="categoryTitle" class="font-black text-xs uppercase tracking-widest text-[#4A148C] dark:text-purple-400">Active Providers</h3>
+            <span id="serviceCount" class="text-[9px] font-bold bg-purple-100 dark:bg-zinc-800 text-[#4A148C] dark:text-purple-300 px-2 py-1 rounded-md uppercase">Loading...</span>
+        </div>
+        <div id="serviceGrid" class="grid grid-cols-1 gap-4"></div>
+    </main>
+
+    <div id="reviewOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[250] hidden flex items-end">
+        <div id="reviewSheet" class="w-full bg-white dark:bg-zinc-900 rounded-t-[40px] p-8 shadow-2xl transition-transform duration-300 transform translate-y-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 id="targetWorker" class="text-[#4A148C] dark:text-purple-400 font-black uppercase text-lg">Hiring Expert</h3>
+                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Connect via WhatsApp</p>
+                </div>
+                <button onclick="toggleReviewForm()" class="w-10 h-10 bg-gray-100 dark:bg-zinc-800 rounded-full text-brand">×</button>
+            </div>
+            
+            <div class="mb-6 p-4 rounded-2xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-crown text-yellow-600"></i>
+                    <h4 class="text-[10px] font-black uppercase text-yellow-800 dark:text-yellow-400">Verify Your Profile</h4>
+                </div>
+                <p class="text-[8px] text-yellow-700 dark:text-yellow-300 font-bold mb-3">Pay ₦5,000 monthly to get the PRO Gold Badge & appear first.</p>
+                <div class="bg-white dark:bg-zinc-800 p-3 rounded-xl border border-dashed border-yellow-400 mb-3">
+                    <p class="text-[10px] font-black dark:text-white mb-1">Bank: <span class="text-brand dark:text-purple-400">Opay</span></p>
+                    <p class="text-[10px] font-black dark:text-white mb-1">Acc No: <span class="text-brand dark:text-purple-400">6119361548</span></p>
+                    <p class="text-[8px] font-bold text-gray-500 uppercase">Clinton Chukwuebuka Oleka</p>
+                </div>
+                <button onclick="sendPaymentProof()" class="w-full py-3 bg-yellow-500 text-black text-[9px] font-black rounded-xl uppercase shadow-sm">Send Payment Proof</button>
+            </div>
+
+            <textarea id="reviewText" rows="3" placeholder="Describe the job you need help with..." class="w-full p-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 text-xs outline-none dark:text-white mb-6"></textarea>
+            <button onclick="submitHire()" class="w-full py-5 bg-[#25D366] text-white rounded-[25px] font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-2">
+                <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://qsmfskpcthydqrvbrcfy.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzbWZza3BjdGh5ZHFydmJyY2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2OTQzMjUsImV4cCI6MjA4MzI3MDMyNX0.hA0W_kpQ1Irfoj2DRu5Nv0T_8ojb2YzX9g9g_UYgpuA';
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let allServices = [];
+        let currentCategory = 'All';
+        let activeSubCat = 'All';
+        let currentStateFilter = 'All';
+        let selectedWorker = null;
+
+        const subCategories = {
+            'Home': ['Plumbing', 'Electrical repairs', 'Tiling & flooring', 'Carpentry', 'Painting', 'Masonry', 'POP & ceiling', 'Furniture making', 'Interior decoration', 'Roofing', 'Welding', 'Gate/fence'],
+            'Auto': ['Mechanic', 'Auto electrician', 'Panel beating', 'Battery charging', 'Generator repair', 'AC repair', 'Satellite dish'],
+            'Fashion': ['Tailoring', 'Shoe making', 'Barbing', 'Hairdressing', 'Make-up', 'Nail tech', 'Tattoo'],
+            'Tech': ['Phone/laptop repairs', 'Graphic design', 'Photography', 'Printing & branding'],
+            'Crafts': ['Aluminum doors', 'Soap making', 'Bead making', 'Catering', 'Event decoration', 'Cleaning services', 'Laundry', 'Upholstery', 'Brick molding']
+        };
+
+        async function fetchServices() {
+            const { data, error } = await client.from('listings').select('*').eq('type', 'service');
+            if (data) {
+                allServices = data.sort((a, b) => (b.has_paid === true ? 1 : -1));
+                filterServices();
+            }
+        }
+
+        // Logic for subscription countdown
+        function getDaysLeft(expiryDate) {
+            if (!expiryDate) return null;
+            const diff = new Date(expiryDate) - new Date();
+            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+            return days > 0 ? days : 0;
+        }
+
+        function renderServices(data) {
+            const grid = document.getElementById('serviceGrid');
+            document.getElementById('serviceCount').innerText = `${data.length} Experts`;
+            if(data.length === 0) {
+                grid.innerHTML = `<div class="text-center py-20 opacity-30 font-black uppercase text-xs">No Experts Found</div>`;
+                return;
+            }
+            grid.innerHTML = data.map(worker => {
+                const isKano = (worker.state || worker.area || worker.location || "").toLowerCase().includes('kano');
+                const isPro = worker.is_verified && worker.has_paid;
+                const daysLeft = getDaysLeft(worker.expiry_date); // Requires an expiry_date column in DB
+
+                return `
+                <div class="worker-card ${isPro ? 'pro-border' : ''} bg-white dark:bg-zinc-800 p-4 rounded-[30px] flex items-center gap-4 shadow-sm relative">
+                    ${isPro ? '<div class="pro-badge"><i class="fas fa-certificate mr-1"></i>PRO Verified</div>' : ''}
+                    ${isKano ? '<div class="kano-badge">Kano Expert</div>' : ''}
+                    
+                    <div class="w-16 h-16 rounded-2xl overflow-hidden shrink-0 bg-purple-100 dark:bg-zinc-700 relative">
+                        <img src="${worker.image_url || worker.image || 'https://via.placeholder.com/150'}" class="w-full h-full object-cover">
+                        ${isPro && daysLeft !== null ? `<div class="absolute bottom-1 right-1 countdown-pill">${daysLeft}d left</div>` : ''}
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1">
+                            <h4 class="text-[11px] font-black uppercase dark:text-white truncate">${worker.name || worker.title}</h4>
+                            ${isPro ? '<i class="fas fa-check-circle text-blue-500 text-[10px]"></i>' : ''}
+                        </div>
+                        <p class="text-[9px] font-bold text-[#4A148C] dark:text-purple-400 uppercase">${worker.skill || 'Handyman'}</p>
+                        <p class="text-[8px] text-gray-400 font-bold uppercase truncate"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i>${worker.area || worker.location || 'Nigeria'}</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-[9px] font-black text-green-600">${worker.price ? '₦'+worker.price : 'Contact'}</span>
+                            <button onclick='initHire(${JSON.stringify(worker)})' class="bg-[#4A148C] text-white text-[8px] font-black px-4 py-2 rounded-xl shadow-md">Hire Now</button>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function sendPaymentProof() {
+            const msg = `KHUB VERIFICATION PAYMENT%0AI want to verify my profile.%0ABank: Opay%0AAccount: 6119361548`;
+            window.open(`https://wa.me/2347051337399?text=${msg}`, '_blank');
+        }
+
+        function initHire(worker) {
+            selectedWorker = worker;
+            document.getElementById('targetWorker').innerText = `Hire ${worker.name || worker.title}`;
+            const overlay = document.getElementById('reviewOverlay');
+            overlay.classList.remove('hidden');
+            setTimeout(() => document.getElementById('reviewSheet').classList.remove('translate-y-full'), 10);
+        }
+
+        function toggleReviewForm() {
+            document.getElementById('reviewSheet').classList.add('translate-y-full');
+            setTimeout(() => document.getElementById('reviewOverlay').classList.add('hidden'), 400);
+        }
+
+        function submitHire() {
+            const task = document.getElementById('reviewText').value || "I need your services";
+            const phone = selectedWorker.whatsapp_number || selectedWorker.whatsapp || selectedWorker.phone || "2347051337399";
+            const msg = `KHUB EXPERT REQUEST%0AExpert: ${selectedWorker.name || selectedWorker.title}%0AJob Detail: ${task}`;
+            window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+        }
+
+        function setCategory(cat, btn) {
+            currentCategory = cat; activeSubCat = 'All';
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterServices();
+        }
+
+        function filterServices() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filtered = allServices.filter(s => {
+                const matchesMain = currentCategory === 'All' || s.group === currentCategory;
+                const title = (s.name || s.title || "").toLowerCase();
+                const matchesSearch = title.includes(query) || (s.skill || "").toLowerCase().includes(query);
+                return matchesMain && matchesSearch;
+            });
+            renderServices(filtered);
+        }
+
+        function toggleTheme() {
+            const isDark = document.getElementById('htmlTag').classList.toggle('dark');
+            document.getElementById('themeIcon').className = isDark ? 'fas fa-sun text-yellow-400' : 'fas fa-moon';
+        }
+
+        window.onload = fetchServices;
+    </script>
+</body>
+</html>
