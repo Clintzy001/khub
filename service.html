@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHUB | Hire Experts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --brand: #4A148C; }
+        body { background-color: #F9F9F9; transition: 0.3s; font-family: sans-serif; overflow-x: hidden; }
+        .dark body { background-color: #000; color: white; }
+        
+        .slogan-text {
+            font-family: 'Arial Black', sans-serif; font-weight: 900; font-style: italic;
+            background: linear-gradient(to right, #FFF 20%, #BA68C8 50%, #FFF 80%);
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .content-layer { position: relative; z-index: 70; background: #F9F9F9; border-top-left-radius: 40px; border-top-right-radius: 40px; margin-top: -30px; min-height: 80vh; }
+        .dark .content-layer { background: #000; }
+        
+        .cat-btn { white-space: nowrap; transition: 0.3s; border: 1px solid rgba(255,255,255,0.2); }
+        .cat-btn.active { background-color: white; color: var(--brand); font-weight: 900; transform: scale(1.05); border-color: white; }
+        
+        .loc-pill { transition: 0.3s; cursor: pointer; border: 1px solid #E1BEE7; }
+        .loc-pill.active { background: #4A148C; color: white; border-color: #4A148C; }
+
+        .worker-card { transition: 0.3s; border: 1px solid rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+        .dark .worker-card { border-color: rgba(255,255,255,0.1); background: #111; }
+        
+        .kano-badge { position: absolute; top: 0; right: 0; background: #FFD700; color: #000; font-size: 7px; font-weight: 900; padding: 2px 8px; border-bottom-left-radius: 12px; text-transform: uppercase; z-index: 10; }
+        .verified-shield { background: linear-gradient(135deg, #FFD700, #FFA000); color: #000; font-size: 8px; font-weight: 900; padding: 3px 8px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; border: 1px solid rgba(0,0,0,0.1); margin-top: 4px; }
+        
+        #langSelect { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 12px; font-size: 10px; padding: 4px 8px; outline: none; }
+    </style>
+</head>
+<body class="pb-32">
+
+    <header class="bg-[#4A148C] p-6 pb-20 sticky top-0 z-50 shadow-lg rounded-b-[40px]">
+        <div class="flex justify-between items-center text-white mb-4">
+            <button onclick="window.history.back()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="font-black italic text-xl uppercase tracking-tighter">KHUB <span class="text-[#E1BEE7]">EXPERTS</span></h1>
+            <div class="flex items-center gap-2">
+                <select id="langSelect" onchange="changeLanguage()">
+                    <option value="en">EN</option>
+                    <option value="ha">HA</option>
+                    <option value="yo">YO</option>
+                    <option value="ig">IG</option>
+                </select>
+                <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="text-center mb-4"><h2 id="mainSlogan" class="slogan-text text-lg uppercase">The Handyman Hub</h2></div>
+
+        <div class="relative max-w-md mx-auto mb-4">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-xs"></i>
+            <input type="text" id="searchInput" onkeyup="filterServices()" placeholder="Search skill..." 
+                class="w-full bg-white/10 border border-white/20 rounded-2xl py-3 pl-10 pr-4 text-white placeholder:text-white/40 text-xs outline-none">
+        </div>
+
+        <div class="flex justify-center gap-3 mb-6">
+            <button id="locAll" onclick="setLocationFilter('All', this)" class="loc-pill active px-4 py-1.5 rounded-full text-[9px] font-black uppercase">All Nigeria</button>
+            <button id="locKano" onclick="setLocationFilter('Kano', this)" class="loc-pill px-4 py-1.5 bg-white/10 text-white rounded-full text-[9px] font-black uppercase">Kano</button>
+        </div>
+
+        <div class="flex gap-2 overflow-x-auto no-scrollbar">
+            <button id="catAll" onclick="setCategory('All', this)" class="cat-btn active px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white">All Jobs</button>
+            <button id="catPro" onclick="setCategory('Pro', this)" class="cat-btn px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white">Verified</button>
+            <button onclick="setCategory('Home', this)" class="cat-btn px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white">Home</button>
+            <button onclick="setCategory('Auto', this)" class="cat-btn px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white">Auto</button>
+        </div>
+    </header>
+
+    <main class="content-layer px-6 pt-10">
+        <div class="flex justify-between items-center mb-6">
+            <h3 id="activeTitle" class="font-black text-xs uppercase tracking-widest text-brand dark:text-white">Active Providers</h3>
+            <span id="serviceCount" class="text-[9px] font-bold bg-purple-100 text-brand px-2 py-1 rounded-md uppercase">0 Experts</span>
+        </div>
+
+        <div id="serviceGrid" class="grid grid-cols-1 gap-4"></div>
+
+        <div class="mt-12 text-center pb-10">
+            <button onclick="toggleTC()" class="text-[9px] font-black uppercase text-gray-400 tracking-widest underline">Terms & Conditions</button>
+        </div>
+    </main>
+
+    <div id="tcOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[300] hidden flex items-center justify-center p-6">
+        <div class="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-[40px] p-8 max-h-[70vh] overflow-y-auto no-scrollbar">
+            <h3 class="font-black text-brand dark:text-white uppercase mb-4">KHUB Terms</h3>
+            <div class="text-[11px] text-gray-600 dark:text-gray-400 space-y-3 leading-relaxed">
+                <p>1. Payments are direct to experts.</p>
+                <p>2. Registration fee is ₦5,000.</p>
+                <p>3. Pay to Opay: 6119361548.</p>
+            </div>
+            <button onclick="toggleTC()" class="w-full mt-6 py-3 bg-brand text-white rounded-2xl font-black text-[10px] uppercase">I Understand</button>
+        </div>
+    </div>
+
+    <div id="reviewOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[250] hidden flex items-end">
+        <div id="reviewSheet" class="w-full bg-white dark:bg-zinc-900 rounded-t-[40px] p-8 shadow-2xl transform translate-y-full">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <img id="sheetImg" class="w-14 h-14 rounded-2xl object-cover border-2 border-purple-100">
+                    <div>
+                        <h3 id="targetWorker" class="text-brand dark:text-purple-400 font-black uppercase text-base">Expert</h3>
+                        <p id="sheetSkill" class="text-[10px] font-bold text-green-600 uppercase"></p>
+                    </div>
+                </div>
+                <button onclick="toggleReviewForm()" class="w-10 h-10 bg-gray-100 dark:bg-zinc-800 rounded-full text-brand">×</button>
+            </div>
+
+            <div id="adminPanel" class="hidden mb-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-2xl border border-red-200">
+                <button onclick="deleteExpert()" class="w-full py-2 bg-red-600 text-white rounded-xl font-black text-[10px] uppercase">Admin: Delete Account</button>
+            </div>
+
+            <textarea id="reviewText" rows="2" placeholder="Tell the expert what you need..." 
+                class="w-full p-4 rounded-2xl bg-gray-50 dark:bg-zinc-800 text-xs outline-none mb-6"></textarea>
+            
+            <button id="hireBtn" onclick="submitHire()" class="w-full py-5 bg-[#25D366] text-white rounded-[25px] font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-2">
+                <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 1. SUPABASE MISSING INIT
+        const _supabase = supabase.createClient('YOUR_URL', 'YOUR_KEY');
+        const ADMIN_PHONE = "2347051337399";
+
+        let allServices = [];
+        let currentCategory = 'All';
+        let currentStateFilter = 'All';
+        let selectedWorker = null;
+
+        const translations = {
+            en: { slogan: "The Handyman Hub", search: "Search skill...", active: "Active Providers", hire: "Contact Expert" },
+            ha: { slogan: "Gidan Kwararru", search: "Nemo gwani...", active: "Masu Aiki", hire: "Tuntuɓi Gwani" },
+            yo: { slogan: "Ile Awọn Amoye", search: "Wa iṣẹ...", active: "Awọn Amoye", hire: "Kansí Amoye" },
+            ig: { slogan: "Ebe Ndị Ọkachamara", search: "Chọọ ọrụ...", active: "Ndị Ọrụ", hire: "Kpọtụrụ Onye Ọrụ" }
+        };
+
+        async function fetchExperts() {
+            const { data, error } = await _supabase.from('experts').select('*').eq('status', 'active');
+            allServices = data || [];
+            filterServices();
+        }
+
+        function changeLanguage() {
+            const lang = document.getElementById('langSelect').value;
+            const t = translations[lang];
+            document.getElementById('mainSlogan').innerText = t.slogan;
+            document.getElementById('searchInput').placeholder = t.search;
+            document.getElementById('activeTitle').innerText = t.active;
+            document.getElementById('hireBtn').innerHTML = `<i class="fab fa-whatsapp"></i> ${t.hire}`;
+        }
+
+        function renderServices(data) {
+            const grid = document.getElementById('serviceGrid');
+            document.getElementById('serviceCount').innerText = `${data.length} Experts`;
+            grid.innerHTML = data.map(worker => `
+                <div class="worker-card bg-white dark:bg-zinc-900 p-4 rounded-[30px] flex items-center gap-4 shadow-sm">
+                    ${worker.state === 'Kano' ? '<div class="kano-badge">Kano Expert</div>' : ''}
+                    <div class="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border-2 border-purple-50">
+                        <img src="${worker.image}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start">
+                            <h4 class="text-[11px] font-black uppercase dark:text-white truncate">${worker.name}</h4>
+                            ${worker.isVerified ? '<div class="verified-shield"><i class="fas fa-check-circle"></i></div>' : ''}
+                        </div>
+                        <p class="text-[9px] font-bold text-brand dark:text-purple-400 uppercase">${worker.skill}</p>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="text-[9px] font-black text-green-600">₦${worker.price}</span>
+                            <button onclick='initHire(${JSON.stringify(worker)})' class="bg-brand text-white text-[8px] font-black px-4 py-2 rounded-xl">Details</button>
+                        </div>
+                    </div>
+                </div>`).join('');
+        }
+
+        function initHire(worker) {
+            selectedWorker = worker;
+            document.getElementById('targetWorker').innerText = worker.name;
+            document.getElementById('sheetImg').src = worker.image;
+            document.getElementById('sheetSkill').innerText = worker.skill;
+            
+            // ADMIN CHECK Logic
+            const visitorPhone = localStorage.getItem('userPhone'); 
+            document.getElementById('adminPanel').classList.toggle('hidden', visitorPhone !== ADMIN_PHONE);
+
+            const overlay = document.getElementById('reviewOverlay');
+            const sheet = document.getElementById('reviewSheet');
+            overlay.classList.remove('hidden');
+            setTimeout(() => sheet.classList.remove('translate-y-full'), 10);
+        }
+
+        async function deleteExpert() {
+            if(confirm("Admin: Delete this seller permanently?")) {
+                const { error } = await _supabase.from('experts').delete().eq('id', selectedWorker.id);
+                if(!error) location.reload();
+            }
+        }
+
+        function filterServices() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allServices.filter(s => {
+                const matchesCat = currentCategory === 'All' ? true : (currentCategory === 'Pro' ? s.isVerified : s.group === currentCategory);
+                const matchesLoc = currentStateFilter === 'All' ? true : (currentStateFilter === 'Kano' ? s.state === 'Kano' : s.state !== 'Kano');
+                return (s.name.toLowerCase().includes(query) || s.skill.toLowerCase().includes(query)) && matchesCat && matchesLoc;
+            });
+            renderServices(filtered);
+        }
+
+        function setCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterServices();
+        }
+
+        function setLocationFilter(loc, btn) {
+            currentStateFilter = loc;
+            document.querySelectorAll('.loc-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterServices();
+        }
+
+        function submitHire() {
+            const msg = `KHUB REQUEST:%0AJob: ${document.getElementById('reviewText').value}`;
+            window.open(`https://wa.me/${selectedWorker.phone}?text=${msg}`, '_blank');
+        }
+
+        function toggleDarkMode() { document.getElementById('htmlTag').classList.toggle('dark'); }
+        function toggleTC() { document.getElementById('tcOverlay').classList.toggle('hidden'); }
+        function toggleReviewForm() { document.getElementById('reviewSheet').classList.add('translate-y-full'); setTimeout(() => document.getElementById('reviewOverlay').classList.add('hidden'), 400); }
+
+        window.onload = fetchExperts;
+    </script>
+</body>
+</html>
