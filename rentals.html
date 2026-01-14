@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHUB | Property & Rentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --brand: #4A148C; }
+        body { background-color: #F9F9F9; transition: 0.3s; font-family: sans-serif; overflow-x: hidden; }
+        .dark body { background-color: #000; color: white; }
+        
+        .slogan-text {
+            font-family: 'Arial Black', sans-serif; font-weight: 900; font-style: italic;
+            background: linear-gradient(to right, #FFF 20%, #BA68C8 50%, #FFF 80%);
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Adjusted margins for "Pro" look */
+        .hero-img-container { position: relative; z-index: 60; margin-top: -45px; transition: 0.5s; }
+        .content-layer { position: relative; z-index: 70; background: #F9F9F9; border-top-left-radius: 40px; border-top-right-radius: 40px; margin-top: -30px; }
+        .dark .content-layer { background: #000; }
+        .cat-btn.active { background-color: white; color: var(--brand); font-weight: 900; transform: scale(1.05); }
+        
+        #uploadOverlay { transition: opacity 0.3s ease; }
+        #formSheet { transition: transform 0.4s cubic-bezier(0.17, 0.84, 0.44, 1); }
+        .upload-box { border: 2px dashed #E1BEE7; transition: 0.3s; position: relative; }
+
+        .save-btn.active i { color: #ff3b30; transform: scale(1.2); }
+
+        #google_translate_element { margin-bottom: 10px; }
+        .goog-te-gadget-simple { background: rgba(255,255,255,0.1) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 12px; padding: 5px !important; }
+        .goog-te-gadget-simple span { color: white !important; font-size: 10px !important; text-transform: uppercase; font-weight: bold; }
+    </style>
+</head>
+<body class="pb-32">
+
+    <header class="bg-[#4A148C] p-6 pb-20 sticky top-0 z-50 shadow-lg rounded-b-[40px]">
+        <div class="flex justify-between items-center text-white mb-4">
+            <button onclick="window.history.back()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="font-black italic text-xl uppercase tracking-tighter">KHUB <span class="text-[#E1BEE7]">RENTALS</span></h1>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleUploadForm()" class="px-3 py-1.5 bg-yellow-500 rounded-full text-[9px] font-black border border-white/20 uppercase text-black">Agent Verify +</button>
+                <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div id="google_translate_element" class="flex justify-center"></div>
+        <div class="text-center mb-6"><h2 class="slogan-text text-lg uppercase">Find Your Perfect Space</h2></div>
+
+        <div class="space-y-3 max-w-md mx-auto mb-6">
+            <div class="relative">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-xs"></i>
+                <input type="text" id="searchInput" onkeyup="filterRentals()" placeholder="Search shops, offices, apartments..." 
+                    class="w-full bg-white/10 border border-white/20 rounded-2xl py-3 pl-10 pr-4 text-white placeholder:text-white/40 text-xs outline-none focus:bg-white/20 transition-all">
+            </div>
+            <div class="flex items-center gap-2 px-2">
+                <span class="text-[8px] font-black text-white/60 uppercase">Budget:</span>
+                <input type="range" id="priceRange" min="50000" max="10000000" step="50000" value="10000000" oninput="updatePriceUI()" class="flex-1 accent-yellow-500 h-1">
+                <span id="priceValue" class="text-[9px] font-black text-yellow-400">₦10M+</span>
+            </div>
+        </div>
+
+        <div class="flex gap-2 overflow-x-auto no-scrollbar">
+            <button onclick="setCategory('All', this)" class="cat-btn active px-5 py-2 rounded-full border border-white/20 text-[10px] uppercase font-bold text-white transition-all">All</button>
+            <button onclick="setCategory('Shop', this)" class="cat-btn px-5 py-2 rounded-full border border-white/20 text-[10px] uppercase font-bold text-white transition-all">Shops</button>
+            <button onclick="setCategory('Office', this)" class="cat-btn px-5 py-2 rounded-full border border-white/20 text-[10px] uppercase font-bold text-white transition-all">Offices</button>
+            <button onclick="setCategory('Home', this)" class="cat-btn px-5 py-2 rounded-full border border-white/20 text-[10px] uppercase font-bold text-white transition-all">Homes</button>
+        </div>
+    </header>
+
+    <div class="px-6 hero-img-container">
+        <div class="relative w-full h-72 rounded-[35px] overflow-hidden shadow-2xl border-4 border-white dark:border-zinc-800 bg-zinc-200">
+            <img id="propImg" src="" class="w-full h-full object-cover">
+            
+            <button onclick="shareListing()" class="absolute top-4 left-4 w-10 h-10 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20">
+                <i class="fas fa-share-nodes"></i>
+            </button>
+            <button onclick="this.classList.toggle('active')" class="save-btn absolute top-4 left-16 w-10 h-10 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20">
+                <i class="fas fa-heart"></i>
+            </button>
+            
+            <div id="statusBadge" class="absolute top-4 right-4 bg-green-500 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase">Verified</div>
+        </div>
+    </div>
+
+    <div class="content-layer px-6 pt-10 shadow-[0_-20px_40px_rgba(0,0,0,0.1)]">
+        <div class="flex justify-between items-start">
+            <div>
+                <h2 id="propTitle" class="text-2xl font-black uppercase tracking-tighter text-[#4A148C] dark:text-purple-400">Loading...</h2>
+                <p id="propLocation" class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase mt-1">
+                    <i class="fas fa-map-pin mr-1 text-red-500"></i> <span id="locLabel">...</span>
+                </p>
+            </div>
+            <div class="text-right flex flex-col items-end">
+                <span id="propPrice" class="text-xl font-black text-brand dark:text-purple-400">₦0</span>
+                <button onclick="markAsSold()" class="mt-2 text-[8px] font-black text-orange-600 uppercase border border-orange-500/20 px-2 py-1 rounded-lg">Mark Rented</button>
+            </div>
+        </div>
+
+        <div id="vitalSpecs" class="flex gap-4 mt-6 overflow-x-auto no-scrollbar pb-2"></div>
+
+        <div id="features" class="flex gap-3 mt-4"></div>
+
+        <div class="mt-8">
+            <h3 class="font-black text-xs uppercase tracking-widest mb-3 text-brand dark:text-white">Live Map View</h3>
+            <div id="mapContainer" class="w-full h-40 rounded-2xl overflow-hidden border dark:border-zinc-800 bg-zinc-100 mb-6">
+                <iframe id="googleMap" width="100%" height="100%" frameborder="0" style="border:0" allowfullscreen></iframe>
+            </div>
+
+            <h3 class="font-black text-xs uppercase tracking-widest mb-3 text-brand dark:text-white">Listing Description</h3>
+            <p id="propDesc" class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed font-medium bg-white dark:bg-zinc-900 p-4 rounded-2xl border dark:border-zinc-800">...</p>
+        </div>
+
+        <div class="mt-10">
+            <h3 class="font-black text-xs uppercase tracking-widest mb-4 text-brand dark:text-white">Browse More Space</h3>
+            <div id="rentalGallery" class="flex gap-4 overflow-x-auto no-scrollbar pb-6"></div>
+        </div>
+
+        <div class="mt-10 mb-10 text-center p-6 border-t dark:border-zinc-800">
+            <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest leading-loose">
+                KHUB Rentals is a verified listing platform. <br>
+                <a href="#" class="text-brand dark:text-purple-400 underline">Terms of Service</a> • <a href="#" class="text-brand dark:text-purple-400 underline">Privacy Policy</a>
+            </p>
+        </div>
+    </div>
+
+    <div id="uploadOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] hidden flex items-end">
+        <div id="formSheet" class="w-full bg-white dark:bg-zinc-900 rounded-t-[40px] p-8 shadow-2xl transform translate-y-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <div><h3 class="text-brand dark:text-purple-400 font-black uppercase text-xl">Agent Portal</h3></div>
+                <button onclick="toggleUploadForm()" class="w-10 h-10 bg-gray-100 dark:bg-zinc-800 rounded-full text-brand">×</button>
+            </div>
+            <form id="propertyForm" class="space-y-4 pb-10">
+                <div class="grid grid-cols-2 gap-3">
+                    <select id="userType" class="p-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 text-[10px] font-bold outline-none" required>
+                        <option value="Home">Home</option>
+                        <option value="Shop">Shop</option>
+                        <option value="Office">Office</option>
+                    </select>
+                    <input type="password" id="memberCode" placeholder="Agent ID" class="p-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 text-[10px] outline-none" required>
+                </div>
+
+                <div class="upload-box rounded-3xl bg-gray-100 dark:bg-zinc-800 h-40 flex flex-col items-center justify-center">
+                    <input type="file" id="imageInput" accept="image/*" class="absolute inset-0 opacity-0 z-10 cursor-pointer" onchange="handleImage(this)">
+                    <img id="imagePreview" class="absolute inset-0 w-full h-full object-cover rounded-3xl hidden">
+                    <div id="upLabel" class="text-center">
+                        <i class="fas fa-images text-brand text-2xl mb-2"></i>
+                        <p class="text-[9px] font-black text-gray-400 uppercase">Tap to Upload Photo</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <input type="number" id="formBeds" placeholder="Beds" class="p-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 text-[10px] outline-none">
+                    <input type="number" id="formBaths" placeholder="Baths" class="p-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 text-[10px] outline-none">
+                    <input type="text" id="formSize" placeholder="Size (sqft)" class="p-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 text-[10px] outline-none">
+                </div>
+
+                <input type="text" id="formTitle" placeholder="Title" class="w-full p-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 text-xs outline-none" required>
+                <input type="number" id="formPrice" placeholder="Annual Rent (₦)" class="w-full p-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 text-xs outline-none" required>
+                <input type="text" id="formLoc" placeholder="Full Location" class="w-full p-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 text-xs outline-none" required>
+                <textarea id="formDesc" rows="3" placeholder="Description & Features..." class="w-full p-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 text-xs outline-none" required></textarea>
+                
+                <button type="submit" id="submitBtn" class="w-full py-5 bg-brand text-white rounded-[25px] font-black uppercase tracking-widest shadow-xl">Post Now</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="fixed bottom-0 w-full p-4 bg-white/80 dark:bg-black/80 backdrop-blur-lg border-t dark:border-zinc-800 flex gap-2 z-[100]">
+        <button onclick="window.open('tel:2347051337399')" class="w-12 h-12 bg-gray-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center text-brand">
+            <i class="fas fa-phone"></i>
+        </button>
+        <button onclick="contactLister()" class="flex-1 bg-[#25D366] text-white rounded-xl font-black uppercase text-[10px] flex items-center justify-center gap-2">
+            <i class="fab fa-whatsapp text-base"></i> Book This Space
+        </button>
+    </div>
+
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script>
+        const SUPABASE_URL = 'https://qsmfskpcthydqrvbrcfy.supabase.co';
+        const SUPABASE_KEY = 'YOUR_KEY_HERE'; 
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const ADMIN_WHATSAPP = "2347051337399";
+
+        let allRentals = [];
+        let currentCategory = 'All';
+        let currentActiveProp = null;
+        let base64Photo = "";
+
+        // Function to update Price Label and Filter
+        function updatePriceUI() {
+            const maxPrice = parseInt(document.getElementById('priceRange').value);
+            const priceLabel = document.getElementById('priceValue');
+            
+            if (maxPrice >= 10000000) {
+                priceLabel.innerText = "₦10M+";
+            } else if (maxPrice >= 1000000) {
+                priceLabel.innerText = `₦${(maxPrice/1000000).toFixed(1)}M`;
+            } else {
+                priceLabel.innerText = `₦${(maxPrice/1000).toFixed(0)}K`;
+            }
+            filterRentals();
+        }
+
+        function handleImage(input) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                base64Photo = e.target.result;
+                document.getElementById('imagePreview').src = base64Photo;
+                document.getElementById('imagePreview').classList.remove('hidden');
+                document.getElementById('upLabel').classList.add('hidden');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        async function loadRentals() {
+            const { data } = await _supabase.from('rentals').select('*').eq('status', 'available').order('created_at', {ascending: false});
+            if (data) {
+                allRentals = data;
+                updateActiveProperty(data[0]);
+                renderGallery(data);
+            }
+        }
+
+        function filterRentals() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const maxPrice = parseInt(document.getElementById('priceRange').value);
+
+            const filtered = allRentals.filter(r => 
+                (currentCategory === 'All' || r.category === currentCategory) && 
+                (r.location.toLowerCase().includes(query) || r.title.toLowerCase().includes(query)) &&
+                (Number(r.price) <= maxPrice)
+            );
+            renderGallery(filtered);
+        }
+
+        function updateActiveProperty(p) {
+            if(!p) return;
+            currentActiveProp = p;
+            document.getElementById('propTitle').innerText = p.title;
+            document.getElementById('propPrice').innerText = `₦${Number(p.price).toLocaleString()}`;
+            document.getElementById('locLabel').innerText = p.location;
+            document.getElementById('propImg').src = p.image_url;
+            document.getElementById('propDesc').innerText = p.description;
+            
+            document.getElementById('vitalSpecs').innerHTML = `
+                <div class="flex items-center gap-2 bg-gray-100 dark:bg-zinc-800 px-4 py-2 rounded-xl shrink-0">
+                    <i class="fas fa-bed text-brand text-xs"></i><span class="text-[10px] font-black uppercase">${p.beds || 0} Beds</span>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-100 dark:bg-zinc-800 px-4 py-2 rounded-xl shrink-0">
+                    <i class="fas fa-bath text-brand text-xs"></i><span class="text-[10px] font-black uppercase">${p.baths || 0} Baths</span>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-100 dark:bg-zinc-800 px-4 py-2 rounded-xl shrink-0">
+                    <i class="fas fa-expand text-brand text-xs"></i><span class="text-[10px] font-black uppercase">${p.sqft || 'N/A'}</span>
+                </div>
+            `;
+
+            const mapQuery = encodeURIComponent(p.location);
+            document.getElementById('googleMap').src = `https://maps.google.com/maps?q=${mapQuery}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+
+            document.getElementById('features').innerHTML = `
+                <div class="bg-purple-100 dark:bg-purple-900/40 px-3 py-1 rounded-full text-[9px] font-black text-brand uppercase">${p.category}</div>
+                <div class="bg-blue-100 dark:bg-blue-900/40 px-3 py-1 rounded-full text-[9px] font-black text-blue-600 uppercase">Verified Agent</div>
+            `;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.getElementById('propertyForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const code = document.getElementById('memberCode').value;
+            btn.innerText = "VERIFYING AGENT..."; btn.disabled = true;
+
+            const { data: agent, error: authError } = await _supabase
+                .from('khub_members')
+                .select('*')
+                .eq('verification_code', code)
+                .eq('is_active', true)
+                .single();
+
+            if (authError || !agent || new Date(agent.expiry_date) < new Date()) {
+                alert("Invalid or Expired Agent ID. Please contact Admin to renew.");
+                btn.innerText = "Post Now"; btn.disabled = false;
+                return;
+            }
+
+            btn.innerText = "POSTING...";
+            const payload = {
+                title: document.getElementById('formTitle').value,
+                price: document.getElementById('formPrice').value,
+                location: document.getElementById('formLoc').value,
+                category: document.getElementById('userType').value,
+                image_url: base64Photo,
+                description: document.getElementById('formDesc').value,
+                beds: document.getElementById('formBeds').value,
+                baths: document.getElementById('formBaths').value,
+                sqft: document.getElementById('formSize').value,
+                status: 'available',
+                payment_verified: true,
+                agent_verified_id: code
+            };
+
+            const { error } = await _supabase.from('rentals').insert([payload]);
+            if(!error) { alert("Listing Successful!"); location.reload(); }
+            else { alert(error.message); btn.disabled = false; }
+        };
+
+        function renderGallery(data) {
+            const container = document.getElementById('rentalGallery');
+            container.innerHTML = data.map(item => `
+                <div onclick='updateActiveProperty(${JSON.stringify(item)})' class="flex-shrink-0 w-40 cursor-pointer">
+                    <div class="overflow-hidden rounded-2xl shadow-lg border-2 border-transparent hover:border-brand transition-all">
+                        <img src="${item.image_url}" class="w-full h-24 object-cover">
+                    </div>
+                    <h4 class="text-[9px] font-black uppercase text-brand dark:text-white truncate mt-2">${item.title}</h4>
+                    <p class="text-[8px] text-green-600 font-bold">₦${Number(item.price).toLocaleString()}</p>
+                </div>
+            `).join('');
+        }
+
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+        }
+
+        function setCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterRentals();
+        }
+
+        function toggleUploadForm() {
+            const overlay = document.getElementById('uploadOverlay');
+            const sheet = document.getElementById('formSheet');
+            if(overlay.classList.contains('hidden')) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => sheet.classList.remove('translate-y-full'), 10);
+            } else {
+                sheet.classList.add('translate-y-full');
+                setTimeout(() => overlay.classList.add('hidden'), 400);
+            }
+        }
+
+        function shareListing() {
+            if (navigator.share) {
+                navigator.share({ title: 'KHUB Rental', text: `Check this: ${currentActiveProp.title}`, url: window.location.href });
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.getElementById('htmlTag').classList.toggle('dark');
+            document.getElementById('themeIcon').className = isDark ? 'fas fa-sun text-yellow-400' : 'fas fa-moon';
+        }
+
+        window.onload = loadRentals;
+    </script>
+</body>
+</html>
