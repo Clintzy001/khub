@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHUB | Property & Tools Rentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --brand: #4A148C; }
+        body { background-color: #F9F9F9; transition: 0.3s; font-family: sans-serif; overflow-x: hidden; }
+        .dark body { background-color: #121212; color: white; }
+        
+        .slogan-text {
+            font-family: 'Arial Black', sans-serif; font-weight: 900; font-style: italic;
+            background: linear-gradient(to right, #FFF 20%, #BA68C8 50%, #FFF 80%);
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .hero-img-container { position: relative; z-index: 60; margin-top: -45px; transition: 0.5s; }
+        .content-layer { position: relative; z-index: 70; background: #F9F9F9; border-top-left-radius: 40px; border-top-right-radius: 40px; margin-top: -30px; min-height: 80vh; }
+        .dark .content-layer { background: #121212; }
+        
+        .cat-btn { white-space: nowrap; transition: 0.3s; border: 1px solid rgba(255,255,255,0.2); opacity: 0.6; }
+        .cat-btn.active { background-color: white; color: var(--brand); font-weight: 900; transform: scale(1.05); opacity: 1; border-color: white; }
+        
+        #mapContainer { height: 200px; border-radius: 24px; overflow: hidden; border: 2px solid #E1BEE7; margin-top: 15px; }
+        .dark #mapContainer { border-color: #4A148C; }
+        .star-rating { color: #fbbf24; }
+        
+        /* Upload Box Design */
+        .upload-box { border: 2px dashed #E1BEE7; transition: 0.3s; }
+        .upload-box:hover { border-color: var(--brand); background: rgba(74, 20, 140, 0.05); }
+    </style>
+</head>
+<body class="pb-32">
+
+    <header class="bg-[#4A148C] p-6 pb-20 sticky top-0 z-50 shadow-lg rounded-b-[40px]">
+        <div class="flex justify-between items-center text-white mb-4">
+            <button onclick="window.history.back()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="font-black italic text-xl uppercase tracking-tighter">KHUB <span class="text-[#E1BEE7]">RENTALS</span></h1>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleUploadForm()" class="px-3 py-1.5 bg-yellow-500 rounded-full text-[9px] font-black border border-white/20 uppercase text-black">Agent Verify +</button>
+                <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+        <div class="text-center mb-6"><h2 class="slogan-text text-lg uppercase">Find Your Perfect Space</h2></div>
+        
+        <div class="space-y-3 max-w-md mx-auto mb-6">
+            <input type="text" id="searchInput" onkeyup="filterRentals()" placeholder="Search location or item..." class="w-full bg-white/10 border border-white/20 rounded-2xl py-3 px-4 text-white text-xs outline-none">
+            <div class="flex items-center gap-2 px-2">
+                <input type="range" id="priceRange" min="1000" max="5000000" step="10000" value="5000000" oninput="updatePriceUI()" class="flex-1 accent-yellow-500 h-1">
+                <span id="priceValue" class="text-[9px] font-black text-yellow-400">₦5M</span>
+            </div>
+        </div>
+
+        <div class="flex gap-2 overflow-x-auto no-scrollbar">
+            <button onclick="setCategory('All', this)" class="cat-btn active px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white transition-all">All</button>
+            <button onclick="setCategory('Shop', this)" class="cat-btn px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white transition-all">Shops</button>
+            <button onclick="setCategory('Tool', this)" class="cat-btn px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white transition-all">Tools</button>
+            <button onclick="setCategory('Home', this)" class="cat-btn px-5 py-2 rounded-full text-[10px] uppercase font-bold text-white transition-all">Homes</button>
+        </div>
+    </header>
+
+    <div class="px-6 hero-img-container">
+        <div class="relative w-full h-72 rounded-[35px] overflow-hidden shadow-2xl border-4 border-white dark:border-zinc-800 bg-zinc-200">
+            <img id="propImg" src="https://via.placeholder.com/400x300?text=Select+Item" class="w-full h-full object-cover">
+            <button onclick="shareListing()" class="absolute top-4 left-4 w-10 h-10 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20">
+                <i class="fas fa-share-nodes"></i>
+            </button>
+            <button id="heartBtn" onclick="toggleFavorite()" class="absolute top-4 left-16 w-10 h-10 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20">
+                <i class="fas fa-heart"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="content-layer px-6 pt-10 shadow-[0_-20px_40px_rgba(0,0,0,0.1)]">
+        <div class="flex justify-between items-start">
+            <div class="flex-1">
+                <h2 id="propTitle" class="text-2xl font-black uppercase tracking-tighter text-[#4A148C] dark:text-purple-400">Select Item</h2>
+                <div class="flex items-center gap-1 mb-2">
+                    <div class="star-rating text-[10px]">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <span class="text-[9px] font-bold text-gray-400">(4.8 • 12 Reviews)</span>
+                </div>
+                <p id="propLocation" class="text-gray-500 text-xs font-bold uppercase mt-1">
+                    <i class="fas fa-map-marker-alt text-red-500 mr-1"></i> Location loading...
+                </p>
+            </div>
+            <span id="propPrice" class="text-xl font-black text-brand dark:text-purple-400">₦0</span>
+        </div>
+
+        <div id="mapContainer">
+            <iframe id="googleMap" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+
+        <div class="mt-8">
+            <h3 class="font-black text-xs uppercase tracking-widest mb-3 text-brand dark:text-white">Description</h3>
+            <p id="propDesc" class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed font-medium bg-white dark:bg-zinc-900 p-4 rounded-2xl border dark:border-zinc-800">...</p>
+        </div>
+
+        <div class="mt-10">
+            <h3 class="font-black text-xs uppercase tracking-widest mb-4 text-brand dark:text-white">Available Rentals</h3>
+            <div id="rentalGallery" class="flex gap-4 overflow-x-auto no-scrollbar pb-6"></div>
+        </div>
+    </div>
+
+    <div id="uploadOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] hidden flex items-end">
+        <div id="formSheet" class="w-full bg-white dark:bg-zinc-900 rounded-t-[40px] p-8 shadow-2xl transform translate-y-full max-h-[90vh] overflow-y-auto">
+             <div class="flex justify-between items-center mb-4">
+                <h3 class="font-black uppercase text-brand">Post New Listing</h3>
+                <button onclick="toggleUploadForm()" class="text-2xl">×</button>
+             </div>
+             <form id="propertyForm" class="space-y-4">
+                <div class="upload-box rounded-3xl bg-gray-100 dark:bg-zinc-800 h-40 flex flex-col items-center justify-center cursor-pointer relative" onclick="document.getElementById('imageInput').click()">
+                    <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="previewGalleryImage(this)">
+                    <img id="imagePreview" class="absolute inset-0 w-full h-full object-cover rounded-3xl hidden">
+                    <div id="upLabel" class="text-center">
+                        <i class="fas fa-images text-brand text-2xl mb-2"></i>
+                        <p class="text-[9px] font-black text-gray-400 uppercase">Select Photo From Gallery</p>
+                    </div>
+                </div>
+                
+                <input type="text" id="formTitle" placeholder="Item Name" class="w-full p-4 rounded-xl bg-gray-100 dark:bg-zinc-800 text-xs outline-none" required>
+                <input type="number" id="formPrice" placeholder="Price (₦)" class="w-full p-4 rounded-xl bg-gray-100 dark:bg-zinc-800 text-xs outline-none" required>
+                <input type="text" id="formLoc" placeholder="Location (e.g. Hotoro, Kano)" class="w-full p-4 rounded-xl bg-gray-100 dark:bg-zinc-800 text-xs outline-none" required>
+                <button type="submit" id="submitBtn" class="w-full py-5 bg-brand text-white rounded-[25px] font-black uppercase">Post Listing</button>
+             </form>
+        </div>
+    </div>
+
+    <div class="fixed bottom-0 w-full p-4 bg-white/80 dark:bg-black/80 backdrop-blur-lg border-t dark:border-zinc-800 flex gap-2 z-[100]">
+        <button onclick="window.open('tel:2347051337399')" class="w-12 h-12 bg-gray-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center text-brand">
+            <i class="fas fa-phone"></i>
+        </button>
+        <button onclick="initWhatsAppBooking()" class="flex-1 bg-[#25D366] text-white rounded-xl font-black uppercase text-[10px] flex items-center justify-center gap-2">
+            <i class="fab fa-whatsapp text-base"></i> Book This Item
+        </button>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://qsmfskpcthydqrvbrcfy.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzbWZza3BjdGh5ZHFydmJyY2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2OTQzMjUsImV4cCI6MjA4MzI3MDMyNX0.hA0W_kpQ1Irfoj2DRu5Nv0T_8ojb2YzX9g9g_UYgpuA';
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let allRentals = [];
+        let currentActiveProp = null;
+        let currentCategory = 'All';
+
+        async function loadData() {
+            const { data } = await client.from('listings').select('*').eq('type', 'rental');
+            if (data && data.length > 0) {
+                allRentals = data;
+                updateActiveProperty(data[0]);
+                renderGallery(data);
+            }
+        }
+
+        function updateActiveProperty(p) {
+            if(!p) return;
+            currentActiveProp = p;
+            document.getElementById('propTitle').innerText = p.title;
+            document.getElementById('propPrice').innerText = `₦${Number(p.price).toLocaleString()}`;
+            document.getElementById('propLocation').innerHTML = `<i class="fas fa-map-marker-alt text-red-500 mr-1"></i> ${p.location}`;
+            document.getElementById('propImg').src = p.image_url;
+            document.getElementById('propDesc').innerText = p.description || "Top-quality service with KHUB verified rental.";
+
+            const mapQuery = encodeURIComponent(p.location + ", Kano, Nigeria");
+            document.getElementById('googleMap').src = `https://maps.google.com/maps?q=${mapQuery}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updatePriceUI() {
+            const val = parseInt(document.getElementById('priceRange').value);
+            const priceLabel = document.getElementById('priceValue');
+            priceLabel.innerText = val >= 1000000 ? `₦${(val/1000000).toFixed(1)}M` : `₦${(val/1000).toFixed(0)}K`;
+            filterRentals();
+        }
+
+        function previewGalleryImage(input) {
+            const preview = document.getElementById('imagePreview');
+            const label = document.getElementById('upLabel');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    label.classList.add('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function handleAgentUpload(event) {
+            event.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const file = document.getElementById('imageInput').files[0];
+            
+            if (!file) return alert("Select an image first!");
+            
+            btn.innerText = "Uploading...";
+            btn.disabled = true;
+
+            try {
+                const fileName = `prop_${Date.now()}.png`;
+                const { data: storageData, error: storageError } = await client.storage
+                    .from('listing-images')
+                    .upload(fileName, file);
+
+                if (storageError) throw storageError;
+
+                const { data: urlData } = client.storage.from('listing-images').getPublicUrl(fileName);
+                
+                const { error: dbError } = await client.from('listings').insert([{
+                    title: document.getElementById('formTitle').value,
+                    price: document.getElementById('formPrice').value,
+                    location: document.getElementById('formLoc').value,
+                    image_url: urlData.publicUrl,
+                    type: 'rental',
+                    group: 'Home',
+                    whatsapp_number: '2347051337399'
+                }]);
+
+                if (dbError) throw dbError;
+                alert("Success!");
+                location.reload();
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                btn.innerText = "Post Listing";
+                btn.disabled = false;
+            }
+        }
+
+        document.getElementById('propertyForm').onsubmit = handleAgentUpload;
+
+        function setCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterRentals();
+        }
+
+        function filterRentals() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const maxPrice = parseInt(document.getElementById('priceRange').value);
+            const filtered = allRentals.filter(r => 
+                (currentCategory === 'All' || r.group === currentCategory) &&
+                (r.title.toLowerCase().includes(query) || r.location.toLowerCase().includes(query)) &&
+                (Number(r.price) <= maxPrice)
+            );
+            renderGallery(filtered);
+        }
+
+        function renderGallery(data) {
+            const gallery = document.getElementById('rentalGallery');
+            gallery.innerHTML = data.map(item => `
+                <div onclick='updateActiveProperty(${JSON.stringify(item)})' class="flex-shrink-0 w-40 cursor-pointer">
+                    <div class="overflow-hidden rounded-2xl border-2 border-transparent hover:border-brand shadow-lg bg-zinc-100">
+                        <img src="${item.image_url}" class="w-full h-24 object-cover">
+                    </div>
+                    <h4 class="text-[9px] font-black uppercase text-brand dark:text-white truncate mt-2">${item.title}</h4>
+                    <p class="text-[8px] font-bold text-green-600">₦${Number(item.price).toLocaleString()}</p>
+                </div>
+            `).join('');
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.getElementById('htmlTag').classList.toggle('dark');
+            document.getElementById('themeIcon').className = isDark ? 'fas fa-sun text-yellow-400' : 'fas fa-moon';
+        }
+
+        function toggleUploadForm() {
+            const overlay = document.getElementById('uploadOverlay');
+            overlay.classList.toggle('hidden');
+            setTimeout(() => document.getElementById('formSheet').classList.toggle('translate-y-full'), 50);
+        }
+
+        function shareListing() {
+            if (navigator.share && currentActiveProp) {
+                navigator.share({ title: currentActiveProp.title, url: window.location.href });
+            }
+        }
+
+        function toggleFavorite() {
+            document.getElementById('heartBtn').classList.toggle('text-red-500');
+        }
+
+        function initWhatsAppBooking() {
+            const msg = `Interested in: ${currentActiveProp.title} at ${currentActiveProp.location}`;
+            window.open(`https://wa.me/2347051337399?text=${encodeURIComponent(msg)}`);
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
