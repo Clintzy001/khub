@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Dashboard | K-HUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --brand: #4b1b7c; --brand-light: #6d2fd1; --gold: #FFD700; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f7f7fb; transition: 0.3s; }
+        .dark body { background-color: #0f0f1a; color: white; }
+        .brand-purple { background-color: var(--brand); }
+        .text-brand { color: var(--brand); }
+        .dark .text-brand { color: #a78bfa; } 
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+        .dark .glass-card { background: rgba(30, 30, 46, 0.8); border: 1px solid rgba(255,255,255,0.05); }
+        .promote-gradient { background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); color: #000; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .tab-btn.active { color: var(--brand); border-bottom: 2px solid var(--brand); opacity: 1; }
+        .dark .tab-btn.active { color: #a78bfa; border-bottom: 2px solid #a78bfa; }
+        
+        /* Specific Purple Text for Reviews */
+        .review-text-purple { color: #4b1b7c !important; }
+        .dark .review-text-purple { color: #d8b4fe !important; }
+
+        .status-pill { padding: 2px 8px; border-radius: 20px; font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-active { background: #22c55e; color: white; }
+        .status-expired { background: #ef4444; color: white; }
+    </style>
+</head>
+<body class="pb-32">
+
+    <header class="brand-purple text-white px-6 py-8 rounded-b-[40px] shadow-lg sticky top-0 z-40">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                </a>
+                <div class="flex items-center gap-3">
+                    <div class="relative w-12 h-12 cursor-pointer" onclick="document.getElementById('pInput').click()">
+                        <img id="pImg" src="https://ui-avatars.com/api/?name=Service+Provider&background=FFD700&color=000" class="w-full h-full rounded-2xl object-cover border-2 border-white/20">
+                        <input type="file" id="pInput" class="hidden" accept="image/*" onchange="previewImage(this, 'pImg')">
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="pName" onblur="saveProfile()" placeholder="Business Name" class="bg-transparent border-none outline-none text-lg font-black italic uppercase leading-none w-32 placeholder-white/50">
+                            <i id="vBadge" class="fas fa-certificate text-gold hidden"></i>
+                        </div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <p class="text-[9px] font-bold opacity-70 tracking-widest uppercase">ID: <span id="pID">SP-0000</span></p>
+                            <span id="vStatus" class="status-pill status-expired">Checking...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="toggleTheme()" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+                <i id="themeIcon" class="fas fa-sun"></i>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+            <div class="bg-white/10 p-3 rounded-2xl text-center border border-white/10">
+                <p class="text-[8px] font-bold uppercase opacity-60">Revenue</p>
+                <h3 class="text-sm font-black">₦<span id="revCount">0</span></h3>
+            </div>
+            <div class="bg-white/10 p-3 rounded-2xl text-center border border-white/10">
+                <p class="text-[8px] font-bold uppercase opacity-60">Rating</p>
+                <h3 class="text-sm font-black"><span id="avgRating">5.0</span> <i class="fas fa-star text-[10px] text-gold"></i></h3>
+            </div>
+            <div class="bg-white/10 p-3 rounded-2xl text-center border border-white/10">
+                <p class="text-[8px] font-bold uppercase opacity-60">Services</p>
+                <h3 class="text-sm font-black" id="sCount">0</h3>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-6">
+        <div class="flex gap-6 mb-6 border-b dark:border-zinc-800">
+            <button onclick="switchTab('listings')" id="tab-listings" class="tab-btn active pb-2 text-[11px] font-black uppercase opacity-40 transition-all">My Listings</button>
+            <button onclick="switchTab('reviews')" id="tab-reviews" class="tab-btn pb-2 text-[11px] font-black uppercase opacity-40 transition-all">Reviews & Feedback</button>
+        </div>
+
+        <div id="view-listings" class="space-y-6">
+            <div id="vBanner" class="promote-gradient p-5 rounded-[30px] shadow-lg flex justify-between items-center cursor-pointer" onclick="openVModal()">
+                <div class="w-2/3">
+                    <h2 class="text-sm font-black uppercase leading-tight">Apply for Verified Provider</h2>
+                    <p class="text-[9px] font-bold opacity-90 mt-1">Boost visibility & trust with a gold badge.</p>
+                </div>
+                <i class="fas fa-chevron-right opacity-50"></i>
+            </div>
+
+            <div class="flex justify-between items-center">
+                <h2 class="font-black uppercase text-[10px] tracking-widest text-gray-500">Live Services</h2>
+                <button onclick="toggleSModal()" class="brand-purple text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase shadow-lg">
+                    <i class="fas fa-plus mr-1"></i> New Service
+                </button>
+            </div>
+
+            <div id="service-listings" class="space-y-4">
+                <div class="text-center py-20 opacity-20 font-black uppercase text-[10px]">Loading Services...</div>
+            </div>
+        </div>
+
+        <div id="view-reviews" class="hidden space-y-4">
+            <div class="glass-card p-5 rounded-[30px] mb-4 border dark:border-zinc-800">
+                <p class="text-[10px] font-black review-text-purple uppercase mb-1 opacity-60">Overall Sentiment</p>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-black review-text-purple">98%</h2>
+                        <span class="text-[9px] font-bold text-green-500 uppercase">Highly Rated Provider</span>
+                    </div>
+                    <i class="fas fa-smile-beam text-4xl review-text-purple opacity-20"></i>
+                </div>
+            </div>
+            
+            <h3 class="font-black uppercase text-[10px] tracking-widest text-gray-500 px-2">Latest Comments</h3>
+            <div id="reviews-container" class="space-y-4"></div>
+        </div>
+    </main>
+
+    <div class="fixed bottom-0 left-0 right-0 p-6 flex justify-center pointer-events-none">
+        <div class="glass-card px-8 py-4 rounded-full shadow-2xl pointer-events-auto border dark:border-zinc-800 flex gap-8 text-gray-400">
+            <i class="fas fa-home" onclick="location.href='index.html'"></i>
+            <i class="fas fa-chart-pie text-brand"></i>
+            <i class="fas fa-wallet" onclick="alert('Wallet coming soon!')"></i>
+            <i class="fas fa-cog"></i>
+        </div>
+    </div>
+
+    <div id="sModal" class="fixed inset-0 bg-white dark:bg-zinc-900 z-[70] p-6 hidden flex-col overflow-y-auto no-scrollbar">
+        <div class="flex justify-between items-center mb-6">
+            <h2 id="sModalTitle" class="text-xl font-black uppercase dark:text-white">New Service</h2>
+            <button onclick="toggleSModal()" class="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center dark:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="space-y-4 pb-10">
+            <input type="hidden" id="editSId">
+            <input type="text" id="sTitle" placeholder="Service Title" class="w-full p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl dark:text-white outline-none font-bold text-sm">
+            <textarea id="sDesc" placeholder="Describe service..." rows="3" class="w-full p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl dark:text-white outline-none font-bold text-sm"></textarea>
+            <div class="grid grid-cols-2 gap-3">
+                <input type="number" id="sPrice" placeholder="Price (₦)" class="p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl dark:text-white outline-none font-bold text-sm">
+                <select id="sCat" class="p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl dark:text-white outline-none font-bold text-sm">
+                    <option value="Digital">Digital</option>
+                    <option value="Home">Home Service</option>
+                    <option value="Beauty">Beauty/Fashion</option>
+                </select>
+            </div>
+            <input type="text" id="sWa" placeholder="WhatsApp Number" class="w-full p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl dark:text-white outline-none font-bold text-sm">
+            <input type="text" id="sLoc" placeholder="Shop/Office Location" class="w-full p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl dark:text-white outline-none font-bold text-sm">
+            <button onclick="submitService()" class="w-full py-5 brand-purple text-white rounded-2xl font-black uppercase shadow-xl mt-4">Confirm & Publish</button>
+        </div>
+    </div>
+
+    <div id="vModal" class="fixed inset-0 bg-white dark:bg-zinc-900 z-[80] p-6 hidden flex-col overflow-y-auto no-scrollbar">
+        <div class="flex justify-between items-center mb-6">
+            <button onclick="closeVModal()" class="w-10 h-10 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center dark:text-white"><i class="fas fa-arrow-left"></i></button>
+            <h2 class="text-lg font-black uppercase dark:text-white">Badge Request</h2>
+        </div>
+        <div class="bg-black text-white p-8 rounded-[40px] text-center mb-6">
+            <i class="fas fa-certificate text-5xl text-gold mb-4"></i>
+            <p class="text-[10px] font-bold uppercase opacity-50 mb-1 italic">Subscription Fee</p>
+            <h3 class="text-3xl font-black text-gold">₦5,000 / Month</h3>
+            <p class="text-[9px] font-bold uppercase mt-4 opacity-40">Payment Details:</p>
+            <h4 class="text-xl font-black">6119361548</h4>
+            <p class="text-xs font-bold uppercase mt-1">K-HUB ADMIN (OPAY)</p>
+        </div>
+        <button onclick="sendVProof()" class="w-full py-5 bg-[#25D366] text-white rounded-2xl font-black uppercase shadow-xl flex items-center justify-center gap-3">
+            <i class="fab fa-whatsapp text-xl"></i> Send Proof (₦5,000)
+        </button>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://qsmfskpcthydqrvbrcfy.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzbWZza3BjdGh5ZHFydmJyY2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2OTQzMjUsImV4cCI6MjA4MzI3MDMyNX0.hA0W_kpQ1Irfoj2DRu5Nv0T_8ojb2YzX9g9g_UYgpuA';
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        function toggleTheme() {
+            const isDark = document.getElementById('htmlTag').classList.toggle('dark');
+            const icon = document.getElementById('themeIcon');
+            icon.className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+            localStorage.setItem('khub_theme', isDark ? 'dark' : 'light');
+        }
+
+        // ... [Rest of functionality remains identical] ...
+        let myServices = [];
+        const mockReviews = [
+            { user: "Tunde W.", rating: 5, comment: "Excellent laundry service, delivered on time!", date: "2 mins ago" },
+            { user: "Sarah J.", rating: 4, comment: "Great tutor, highly recommended. Understood the topics well.", date: "1 hour ago" },
+            { user: "Victor O.", rating: 5, comment: "Very professional and neat office space.", date: "3 days ago" }
+        ];
+
+        function checkVerificationStatus() {
+            const lastPayment = localStorage.getItem('kh_last_payment'); 
+            const statusEl = document.getElementById('vStatus');
+            const badgeEl = document.getElementById('vBadge');
+            const bannerEl = document.getElementById('vBanner');
+            
+            if (!lastPayment) {
+                statusEl.innerText = "Expired";
+                statusEl.className = "status-pill status-expired";
+                badgeEl.classList.add('hidden');
+                bannerEl.classList.remove('hidden');
+                return;
+            }
+
+            const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+            const now = new Date().getTime();
+            
+            if (now - lastPayment < thirtyDays) {
+                statusEl.innerText = "Active";
+                statusEl.className = "status-pill status-active";
+                badgeEl.classList.remove('hidden');
+                bannerEl.classList.add('hidden'); 
+            } else {
+                statusEl.innerText = "Expired";
+                statusEl.className = "status-pill status-expired";
+                badgeEl.classList.add('hidden');
+                bannerEl.classList.remove('hidden');
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('view-listings').classList.toggle('hidden', tab !== 'listings');
+            document.getElementById('view-reviews').classList.toggle('hidden', tab !== 'reviews');
+            if(tab === 'reviews') renderReviews();
+        }
+
+        function renderReviews() {
+            const container = document.getElementById('reviews-container');
+            container.innerHTML = '';
+            mockReviews.forEach(r => {
+                let stars = '';
+                for(let i=0; i<5; i++) stars += `<i class="fas fa-star ${i < r.rating ? 'text-gold' : 'text-gray-200'} text-[8px]"></i>`;
+                container.innerHTML += `
+                    <div class="glass-card p-5 rounded-[30px] border dark:border-zinc-800">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-[10px] font-black uppercase review-text-purple">${r.user}</h4>
+                            <span class="text-[8px] font-bold opacity-40 uppercase review-text-purple">${r.date}</span>
+                        </div>
+                        <div class="mb-2">${stars}</div>
+                        <p class="text-[11px] font-bold opacity-80 review-text-purple">"${r.comment}"</p>
+                    </div>`;
+            });
+        }
+
+        async function loadServices() {
+            const { data } = await client.from('listings').select('*').eq('type', 'service').order('created_at', { ascending: false });
+            if (data) { myServices = data; document.getElementById('sCount').innerText = data.length; renderServices(data); }
+        }
+
+        function renderServices(list) {
+            const container = document.getElementById('service-listings');
+            container.innerHTML = list.length === 0 ? '<div class="text-center py-10 opacity-30 text-[10px] uppercase font-black">No services found</div>' : '';
+            list.forEach(s => {
+                container.innerHTML += `
+                    <div class="glass-card p-5 rounded-[30px] border dark:border-zinc-800">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="bg-brand/10 text-brand text-[7px] px-2 py-1 rounded-md font-black uppercase mb-2 inline-block">${s.category}</span>
+                                <h3 class="font-black text-sm uppercase dark:text-white">${s.title}</h3>
+                            </div>
+                            <p class="text-xs font-black text-brand">₦${s.price}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editS('${s.id}')" class="flex-1 bg-gray-100 dark:bg-zinc-800 py-3 rounded-xl text-[9px] font-black uppercase dark:text-white">Edit</button>
+                            <button onclick="deleteS('${s.id}')" class="w-12 bg-red-50 dark:bg-red-900/10 text-red-500 rounded-xl flex items-center justify-center"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        async function submitService() {
+            const id = document.getElementById('editSId').value;
+            const payload = {
+                title: document.getElementById('sTitle').value,
+                description: document.getElementById('sDesc').value,
+                price: document.getElementById('sPrice').value,
+                category: document.getElementById('sCat').value,
+                whatsapp: document.getElementById('sWa').value,
+                location: document.getElementById('sLoc').value,
+                type: 'service'
+            };
+            const { error } = id ? await client.from('listings').update(payload).eq('id', id) : await client.from('listings').insert([payload]);
+            if (!error) { toggleSModal(); loadServices(); }
+        }
+
+        async function deleteS(id) { if(confirm("Delete service?")) { await client.from('listings').delete().eq('id', id); loadServices(); } }
+        function toggleSModal() { document.getElementById('sModal').classList.toggle('hidden'); document.getElementById('sModal').classList.toggle('flex'); }
+        function openVModal() { document.getElementById('vModal').classList.remove('hidden'); document.getElementById('vModal').classList.add('flex'); }
+        function closeVModal() { document.getElementById('vModal').classList.add('hidden'); }
+        
+        function sendVProof() { window.open(`https://wa.me/2347051337399?text=Monthly Verification Receipt. ID:*${document.getElementById('pID').innerText}*`); }
+        function saveProfile() { localStorage.setItem('kh_provider_name', document.getElementById('pName').value); }
+        function previewImage(i, t) { if(i.files[0]) { let r = new FileReader(); r.onload=(e)=>{document.getElementById(t).src=e.target.result;}; r.readAsDataURL(i.files[0]); } }
+
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('khub_theme');
+            if (savedTheme === 'dark') {
+                document.getElementById('htmlTag').classList.add('dark');
+                document.getElementById('themeIcon').className = 'fas fa-moon';
+            }
+            loadServices();
+            checkVerificationStatus();
+            document.getElementById('pID').innerText = localStorage.getItem('kh_provider_id') || 'SP-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('pName').value = localStorage.getItem('kh_provider_name') || '';
+        };
+    </script>
+</body>
+</html>
