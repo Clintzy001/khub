@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHUB | Market (Cloud)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root { --brand: #4A148C; --off-white: #F9F9F9; }
+        body { background-color: var(--off-white); font-family: sans-serif; transition: 0.3s; overflow-x: hidden; }
+        .dark body { background-color: #000000 !important; color: white; }
+        .dark .bg-white { background-color: #121212 !important; border-color: #333; }
+        .brand-purple { background-color: var(--brand); }
+        
+        .cat-icon-bg { transition: all 0.3s ease; }
+        .dark .cat-icon-bg { box-shadow: 0 0 15px rgba(186, 104, 200, 0.2); border: 1px solid rgba(186, 104, 200, 0.3); }
+        .active-cat-icon { 
+            border: 2px solid #4A148C !important; 
+            background: #E1BEE7 !important; 
+            color: #4A148C !important; 
+            transform: scale(1.1); 
+        }
+        .dark .active-cat-icon {
+            border-color: #BA68C8 !important;
+            background: #4A148C !important;
+            color: white !important;
+        }
+
+        .slogan-text {
+            font-family: 'Arial Black', sans-serif; font-weight: 900; font-style: italic;
+            background: linear-gradient(to right, #FFF 20%, #BA68C8 50%, #FFF 80%);
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+        
+        .buy-btn { opacity: 0.3; pointer-events: none; transition: 0.3s; }
+        .buy-btn.active { opacity: 1; pointer-events: auto; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .search-container { position: relative; z-index: 60; margin-top: -25px; }
+        
+        .role-btn.active-role { border-color: #4A148C; background-color: #f3e5f5; color: #4A148C; }
+        .dark .role-btn.active-role { border-color: #bb86fc; background-color: #311b92; color: white; }
+    </style>
+</head>
+<body class="pb-32">
+
+    <div id="authModal" class="fixed inset-0 bg-white dark:bg-zinc-900 z-[100] p-6 hidden flex-col overflow-y-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h2 id="authTitle" class="text-2xl font-black uppercase dark:text-white">Join KHUB</h2>
+            <button onclick="toggleAuthModal()" class="text-xl dark:text-white"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div id="authFields" class="space-y-4">
+            <input type="email" id="authEmail" placeholder="Email Address" class="w-full p-4 border rounded-2xl dark:bg-gray-800 dark:text-white outline-none font-bold">
+            <input type="password" id="authPassword" placeholder="Password" class="w-full p-4 border rounded-2xl dark:bg-gray-800 dark:text-white outline-none font-bold">
+            
+            <div id="roleSelector" class="grid grid-cols-2 gap-2">
+                <button onclick="setRole('seller')" class="role-btn border p-3 rounded-xl text-[10px] font-bold uppercase dark:text-white active-role">Seller</button>
+                <button onclick="setRole('agent')" class="role-btn border p-3 rounded-xl text-[10px] font-bold uppercase dark:text-white">Agent</button>
+                <button onclick="setRole('driver')" class="role-btn border p-3 rounded-xl text-[10px] font-bold uppercase dark:text-white">Driver</button>
+                <button onclick="setRole('service')" class="role-btn border p-3 rounded-xl text-[10px] font-bold uppercase dark:text-white">Service Provider</button>
+            </div>
+
+            <button onclick="handleAuth()" id="authSubmitBtn" class="w-full py-5 brand-purple text-white rounded-2xl font-black uppercase shadow-lg">Sign Up</button>
+            <p class="text-center text-xs font-bold opacity-50 cursor-pointer dark:text-white" onclick="toggleAuthMode()">Already have an account? Login</p>
+        </div>
+
+        <div id="logoutView" class="hidden space-y-6 text-center py-10">
+            <div class="w-20 h-20 brand-purple rounded-3xl mx-auto flex items-center justify-center text-white text-3xl">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div>
+                <p id="userEmailDisplay" class="font-black dark:text-white truncate"></p>
+                <p class="text-[10px] uppercase font-bold text-gray-400">KHUB Verified Member</p>
+            </div>
+            <button onclick="handleLogout()" class="w-full py-5 bg-red-600 text-white rounded-2xl font-black uppercase shadow-lg">Logout from KHUB</button>
+        </div>
+    </div>
+
+    <header class="bg-[#4A148C] p-5 pb-16 shadow-lg sticky top-0 rounded-b-[40px] z-40">
+        <div class="flex justify-between items-center text-white">
+            <h1 class="font-black italic text-2xl uppercase tracking-tighter">KHUB <span class="text-[#E1BEE7]">SHOP</span></h1>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="toggleAuthModal()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20">
+                    <i class="fas fa-user" id="userIcon"></i>
+                </button>
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+        <div class="text-center mt-4"><h2 id="slogan" class="slogan-text text-xl uppercase">KANO SHOPPING MADE EASY</h2></div>
+    </header>
+
+    <div class="px-5 search-container">
+        <input type="text" onkeyup="searchProducts()" id="searchInput" placeholder="Search Kano Market..." class="w-full p-4 rounded-2xl shadow-2xl border-none outline-none dark:bg-zinc-900 dark:text-white border-2 border-white/10">
+    </div>
+
+    <section class="mt-8 mx-4 p-5 rounded-[35px] bg-gradient-to-br from-[#4A148C] to-[#2E0B5B] shadow-2xl overflow-hidden">
+        <h3 class="text-white font-black uppercase text-[10px] mb-4 flex justify-between items-center tracking-widest">
+            <span><i class="fas fa-certificate text-yellow-400 mr-1"></i> Verified Sellers</span>
+        </h3>
+        <div id="sellerContainer" class="flex gap-4 overflow-x-auto no-scrollbar py-2"></div>
+    </section>
+
+    <section class="mt-4 px-2">
+        <div id="catIcons" class="flex gap-4 overflow-x-auto no-scrollbar py-6 px-4"></div>
+    </section>
+
+    <main class="px-4 mt-2">
+        <h2 class="font-black text-brand dark:text-purple-400 uppercase mb-5 text-sm tracking-tighter flex items-center gap-2">
+            <i class="fas fa-fire text-orange-500"></i> Browse: <span id="currentCatLabel">Phones</span>
+        </h2>
+        
+        <div id="shopGrid" class="grid grid-cols-2 gap-4"></div>
+
+        <div id="tcContainer" class="mt-10 mb-10 p-6 rounded-[30px] bg-white border dark:bg-zinc-900 dark:border-zinc-800 border-dashed">
+            <div class="flex items-start gap-4">
+                <input type="checkbox" id="agreeCheck" onchange="updateButtonStatus()" class="mt-1 w-6 h-6 accent-purple-800 rounded-lg">
+                <div class="flex flex-col">
+                    <label id="verifyText" for="agreeCheck" class="font-bold text-gray-700 dark:text-gray-300 uppercase text-[10px]">Verify item before payment</label>
+                    <a href="#" class="text-brand dark:text-purple-400 text-[9px] underline font-bold text-left uppercase mt-1">Security Terms</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="fixed bottom-0 w-full bg-white/80 dark:bg-black/80 backdrop-blur-lg border-t dark:border-zinc-800 flex justify-around items-center py-4 z-50 rounded-t-[30px]">
+        <a href="index.html" class="flex flex-col items-center text-gray-400"><i class="fas fa-house text-xl"></i><span class="text-[9px] font-bold mt-1 uppercase">Home</span></a>
+        <a href="shop.html" class="flex flex-col items-center text-brand dark:text-purple-400"><i class="fas fa-shopping-bag text-xl"></i><span class="text-[9px] font-bold mt-1 uppercase">Shop</span></a>
+        <a href="logistics.html" class="flex flex-col items-center text-gray-400"><i class="fas fa-truck-fast text-xl"></i><span class="text-[9px] font-bold mt-1 uppercase">Logistics</span></a>
+        <div onclick="window.open('https://wa.me/2347051337399')" class="flex flex-col items-center text-gray-400"><i class="fab fa-whatsapp text-xl text-green-500"></i><span class="text-[9px] font-bold mt-1 uppercase">Chat</span></div>
+    </nav>
+
+    <script>
+        const SUPABASE_URL = 'https://qsmfskpcthydqrvbrcfy.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzbWZza3BjdGh5ZHFydmJyY2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2OTQzMjUsImV4cCI6MjA4MzI3MDMyNX0.hA0W_kpQ1Irfoj2DRu5Nv0T_8ojb2YzX9g9g_UYgpuA';
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let selectedRole = 'seller';
+        let isLoginMode = false;
+
+        // --- AUTH ENGINE ---
+        async function checkSession() {
+            const { data: { session } } = await client.auth.getSession();
+            const authFields = document.getElementById('authFields');
+            const logoutView = document.getElementById('logoutView');
+            const userIcon = document.getElementById('userIcon');
+
+            if (session) {
+                authFields.classList.add('hidden');
+                logoutView.classList.remove('hidden');
+                document.getElementById('userEmailDisplay').innerText = session.user.email;
+                userIcon.classList.remove('fa-user');
+                userIcon.classList.add('fa-user-check', 'text-green-400');
+                document.getElementById('authTitle').innerText = "My KHUB Profile";
+            } else {
+                authFields.classList.remove('hidden');
+                logoutView.classList.add('hidden');
+                userIcon.classList.add('fa-user');
+                userIcon.classList.remove('fa-user-check', 'text-green-400');
+                document.getElementById('authTitle').innerText = isLoginMode ? "Welcome Back" : "Join KHUB";
+            }
+        }
+
+        async function handleLogout() {
+            const { error } = await client.auth.signOut();
+            if (error) alert(error.message);
+            location.reload();
+        }
+
+        function toggleAuthModal() {
+            const modal = document.getElementById('authModal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+            checkSession();
+        }
+
+        function setRole(role) {
+            selectedRole = role;
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active-role'));
+            event.target.classList.add('active-role');
+        }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').innerText = isLoginMode ? "Welcome Back" : "Join KHUB";
+            document.getElementById('authSubmitBtn').innerText = isLoginMode ? "Login" : "Sign Up";
+            document.getElementById('roleSelector').style.display = isLoginMode ? "none" : "grid";
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            if(!email || !password) return alert("Please fill fields");
+
+            if (isLoginMode) {
+                const { data, error } = await client.auth.signInWithPassword({ email, password });
+                if (error) return alert(error.message);
+                location.reload();
+            } else {
+                const { data, error } = await client.auth.signUp({
+                    email, password,
+                    options: { data: { role: selectedRole } }
+                });
+                if (error) return alert(error.message);
+                await client.from('profiles').insert([{ id: data.user.id, role: selectedRole, full_name: email.split('@')[0] }]);
+                alert("Account created! Check email.");
+                location.reload();
+            }
+        }
+
+        // --- SHOP ENGINE ---
+        const categories = [
+            { name: "Phones", icon: "fa-mobile-screen" },
+            { name: "Electronics", icon: "fa-plug" },
+            { name: "Beauty", icon: "fa-wand-sparkles" },
+            { name: "Fashion", icon: "fa-shirt" },
+            { name: "Cosmetics", icon: "fa-spray-can" },
+            { name: "Foods", icon: "fa-utensils" }
+        ];
+
+        async function loadCategory(cat) {
+            document.getElementById('currentCatLabel').innerText = cat;
+            document.querySelectorAll('.cat-icon-bg').forEach(bg => bg.classList.remove('active-cat-icon'));
+            event?.currentTarget?.querySelector('.cat-icon-bg')?.classList.add('active-cat-icon');
+
+            const grid = document.getElementById('shopGrid');
+            grid.innerHTML = '<p class="col-span-2 text-center text-[10px] py-10 opacity-50 uppercase font-black">Loading Cloud Items...</p>';
+            
+            const { data } = await client.from('market').select('*').eq('category', cat);
+            grid.innerHTML = '';
+            
+            if (data && data.length > 0) {
+                data.forEach(p => {
+                    const agreed = document.getElementById('agreeCheck').checked;
+                    grid.innerHTML += `
+                    <div class="bg-white dark:bg-zinc-900 p-3 rounded-[30px] shadow-lg border dark:border-zinc-800">
+                        <img src="${p.image_url || 'https://via.placeholder.com/150'}" class="w-full h-32 object-cover rounded-2xl mb-3">
+                        <h3 class="text-[10px] font-bold uppercase truncate dark:text-white">${p.name}</h3>
+                        <div class="text-green-600 font-black text-sm my-1">₦${p.price}</div>
+                        <button onclick="handleBuy('${p.name}', '${p.price}', '${p.whatsapp}')" class="buy-btn ${agreed ? 'active' : ''} w-full py-2.5 bg-[#25D366] text-white text-[10px] font-black rounded-xl uppercase">WhatsApp</button>
+                    </div>`;
+                });
+            } else { grid.innerHTML = `<p class="col-span-2 text-center py-10 text-[10px] uppercase font-bold opacity-30">No items available</p>`; }
+        }
+
+        function renderCategoryIcons() {
+            document.getElementById('catIcons').innerHTML = categories.map(cat => `
+                <div onclick="loadCategory('${cat.name}')" class="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0">
+                    <div class="cat-icon-bg w-14 h-14 rounded-[20px] bg-white dark:bg-zinc-900 shadow-lg flex items-center justify-center text-brand dark:text-purple-400 text-xl border">
+                        <i class="fas ${cat.icon}"></i>
+                    </div>
+                    <span class="text-[9px] font-black uppercase text-gray-400">${cat.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.getElementById('htmlTag').classList.toggle('dark');
+            localStorage.setItem('khub_theme', isDark ? 'dark' : 'light');
+            document.getElementById('themeIcon').className = isDark ? 'fas fa-sun text-yellow-400' : 'fas fa-moon';
+        }
+
+        function updateButtonStatus() {
+            const agreed = document.getElementById('agreeCheck').checked;
+            document.querySelectorAll('.buy-btn').forEach(btn => btn.classList.toggle('active', agreed));
+        }
+
+        function handleBuy(name, price, wa) { window.open(`https://wa.me/${wa || '2347051337399'}?text=I want to buy ${name} from KHUB SHOP`); }
+
+        window.onload = () => {
+            if(localStorage.getItem('khub_theme') === 'dark') toggleDarkMode();
+            checkSession();
+            renderCategoryIcons();
+            loadCategory('Phones');
+        };
+    </script>
+</body>
+</html>
