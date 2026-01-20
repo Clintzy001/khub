@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard | K-HUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --brand: #4b1b7c; --brand-light: #6d2fd1; --gold: #FFD700; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f7f7fb; transition: 0.3s; }
+        .dark body { background-color: #0f0f1a; color: white; }
+        .brand-purple { background-color: var(--brand); }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+        .dark .glass-card { background: rgba(30, 30, 46, 0.8); border: 1px solid rgba(255,255,255,0.05); }
+        .promote-gradient { background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); color: #000; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="pb-32">
+
+    <header class="brand-purple text-white px-6 py-6 rounded-b-[40px] shadow-lg sticky top-0 z-40">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                </a>
+                <div class="flex items-center gap-3">
+                    <div class="relative w-12 h-12 cursor-pointer group" onclick="document.getElementById('profileInput').click()">
+                        <img id="profileImg" src="https://ui-avatars.com/api/?name=S&background=6d2fd1&color=fff" class="w-full h-full rounded-2xl object-cover border-2 border-white/20">
+                        <div class="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i class="fas fa-camera text-[10px]"></i>
+                        </div>
+                        <input type="file" id="profileInput" class="hidden" accept="image/*" onchange="previewImage(this, 'profileImg')">
+                    </div>
+                    <div>
+                        <input type="text" id="bizName" onblur="saveProfileData()" placeholder="Store Name" class="bg-transparent border-none outline-none text-lg font-black italic uppercase leading-none w-32 placeholder-white/50">
+                        <p class="text-[9px] font-bold opacity-70 tracking-widest uppercase mt-1">ID: <span id="sellerID">KH-0000</span></p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="toggleTheme()" class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/20">
+                <i id="themeIcon" class="fas fa-moon"></i>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+            <div class="bg-white/10 p-3 rounded-2xl text-center border border-white/10">
+                <p class="text-[8px] font-bold uppercase opacity-60">Views</p>
+                <h3 class="text-base font-black">1.4k</h3>
+            </div>
+            <div class="bg-white/10 p-3 rounded-2xl text-center border border-white/10">
+                <p class="text-[8px] font-bold uppercase opacity-60">WA Clicks</p>
+                <h3 class="text-base font-black">62</h3>
+            </div>
+            <div class="bg-white/10 p-3 rounded-2xl text-center border border-white/10">
+                <p class="text-[8px] font-bold uppercase opacity-60">Ads</p>
+                <h3 class="text-base font-black" id="productCount">0</h3>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-6">
+        <div class="glass-card flex items-center px-4 py-3 rounded-2xl mb-6 dark:border-zinc-800">
+            <i class="fas fa-search text-gray-400 mr-3 text-xs"></i>
+            <input type="text" id="listingSearch" onkeyup="filterListings()" placeholder="Search my items..." class="bg-transparent border-none outline-none text-[11px] font-bold w-full dark:text-white">
+        </div>
+
+        <div class="glass-card p-4 rounded-[28px] mb-6 flex items-center justify-between border-dashed border-2 border-brand/20">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gray-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center overflow-hidden cursor-pointer" onclick="document.getElementById('logoInput').click()">
+                    <img id="logoImg" src="" class="hidden w-full h-full object-cover">
+                    <i id="logoPlaceholder" class="fas fa-store text-gray-400 text-xs"></i>
+                </div>
+                <div>
+                    <h3 class="text-[10px] font-black uppercase dark:text-white">Shop Logo</h3>
+                    <p class="text-[8px] font-bold text-gray-400 italic">Tap icon to change</p>
+                </div>
+            </div>
+            <input type="file" id="logoInput" class="hidden" accept="image/*" onchange="previewImage(this, 'logoImg')">
+            <button onclick="saveProfileData()" class="text-[8px] font-black uppercase bg-brand/10 text-brand px-3 py-1 rounded-lg">Save</button>
+        </div>
+
+        <div class="promote-gradient p-5 rounded-[30px] mb-8 shadow-lg flex justify-between items-center transition-transform active:scale-95 cursor-pointer" onclick="openPromotionInfo()">
+            <div class="w-2/3">
+                <h2 class="text-sm font-black uppercase leading-tight">Monthly Premium</h2>
+                <p class="text-[9px] font-bold opacity-90 mt-1">Boost visibility for only ₦5,000</p>
+            </div>
+            <div class="bg-black text-white px-3 py-2 rounded-xl text-[9px] font-black uppercase shadow-lg">Go Pro</div>
+        </div>
+
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="font-black uppercase text-[10px] tracking-widest text-gray-500">Inventory</h2>
+            <button onclick="togglePostModal()" class="brand-purple text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase shadow-lg">
+                <i class="fas fa-plus mr-1"></i> Add Item
+            </button>
+        </div>
+
+        <div id="seller-listings" class="space-y-4">
+            <div class="text-center py-20 opacity-20 font-black uppercase text-[10px]">Loading...</div>
+        </div>
+    </main>
+
+    <div id="promoModal" class="fixed inset-0 bg-white dark:bg-zinc-900 z-[80] p-6 hidden flex-col overflow-y-auto no-scrollbar">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-3">
+                <button onclick="closePromoModal()" class="w-10 h-10 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center dark:text-white">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 class="text-lg font-black uppercase dark:text-white leading-none">Boost Service</h2>
+            </div>
+        </div>
+        <div class="bg-purple-50 dark:bg-zinc-800/50 p-6 rounded-[35px] border-2 border-brand border-dashed mb-6">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-xs font-black text-brand uppercase">Premium Plan</h3>
+                <span class="bg-brand text-white text-[10px] px-3 py-1 rounded-full font-black">₦5,000 / MO</span>
+            </div>
+            <ul class="text-[11px] font-bold space-y-3 opacity-80">
+                <li><i class="fas fa-check-circle text-green-500 mr-2"></i> Rank #1 in Search Results</li>
+                <li><i class="fas fa-check-circle text-green-500 mr-2"></i> Golden Verification Badge</li>
+                <li><i class="fas fa-check-circle text-green-500 mr-2"></i> Featured on Homepage Banner</li>
+            </ul>
+        </div>
+        <div class="bg-black text-white p-8 rounded-[40px] text-center mb-8">
+            <p class="text-[10px] font-bold uppercase opacity-50 mb-1 tracking-tighter">Transfer ₦5,000 to OPay</p>
+            <h3 class="text-3xl font-black text-gold tracking-tight">6119361548</h3>
+            <p class="text-xs font-bold uppercase mt-1">Clinton C. Oleka</p>
+        </div>
+        <button onclick="sendProof()" class="w-full py-5 bg-[#25D366] text-white rounded-2xl font-black uppercase shadow-xl flex items-center justify-center gap-3">
+            <i class="fab fa-whatsapp text-xl"></i> Send Proof to WhatsApp
+        </button>
+    </nav>
+
+    <div id="postModal" class="fixed inset-0 bg-white dark:bg-zinc-900 z-[70] p-6 hidden flex-col overflow-y-auto no-scrollbar">
+        <div class="flex justify-between items-center mb-6">
+            <h2 id="modalTitle" class="text-xl font-black uppercase dark:text-white">Post Item</h2>
+            <button onclick="togglePostModal()" class="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center dark:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="space-y-4 pb-10">
+            <input type="hidden" id="editItemId">
+            <div class="w-full h-48 bg-gray-50 dark:bg-zinc-800 rounded-[30px] border-2 border-dashed border-gray-200 dark:border-zinc-700 flex flex-col items-center justify-center cursor-pointer overflow-hidden relative" onclick="document.getElementById('productInput').click()">
+                <img id="productImgPreview" src="" class="hidden w-full h-full object-cover">
+                <div id="productPlaceholder" class="text-center">
+                    <i class="fas fa-camera text-2xl text-gray-300 mb-2"></i>
+                    <p class="text-[10px] font-black uppercase text-gray-400">Add Item Image</p>
+                </div>
+            </div>
+            <input type="file" id="productInput" class="hidden" accept="image/*" onchange="previewImage(this, 'productImgPreview')">
+            <input type="text" id="pTitle" placeholder="What are you selling?" class="w-full p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl dark:text-white outline-none font-bold text-sm">
+            <input type="text" id="pPrice" placeholder="Price (₦)" class="w-full p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl dark:text-white outline-none font-bold text-sm">
+            <input type="text" id="pWa" placeholder="WhatsApp Number" class="w-full p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl dark:text-white outline-none font-bold text-sm">
+            <button id="submitBtn" onclick="submitProduct()" class="w-full py-5 brand-purple text-white rounded-2xl font-black uppercase shadow-xl">Confirm & Post</button>
+        </div>
+    </div>
+
+    <nav class="fixed bottom-0 w-full bg-white dark:bg-black flex justify-around items-center py-4 z-50 rounded-t-[35px] shadow-2xl">
+        <a href="index.html" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-home text-lg"></i>
+            <span class="text-[9px] font-bold uppercase mt-1">Home</span>
+        </a>
+        <a href="seller.html" class="flex flex-col items-center text-brand-purple">
+            <i class="fas fa-layer-group text-lg"></i>
+            <span class="text-[9px] font-bold uppercase mt-1">Manage</span>
+        </a>
+        <a href="https://wa.me/2347051337399" class="flex flex-col items-center text-gray-400">
+            <i class="fab fa-whatsapp text-2xl text-green-500"></i>
+            <span class="text-[9px] font-bold uppercase mt-1">Support</span>
+        </a>
+    </nav>
+
+    <script>
+        const SUPABASE_URL = 'https://qsmfskpcthydqrvbrcfy.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzbWZza3BzdGh5ZHFydmJyY2Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2OTQzMjUsImV4cCI6MjA4MzI3MDMyNX0.hA0W_kpQ1Irfoj2DRu5Nv0T_8ojb2YzX9g9g_UYgpuA';
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let localItems = [];
+
+        function generateSellerID() {
+            const id = localStorage.getItem('kh_seller_id') || 'KH-' + Math.floor(1000 + Math.random() * 9000);
+            localStorage.setItem('kh_seller_id', id);
+            document.getElementById('sellerID').innerText = id;
+            
+            // Load Profile Data
+            const savedName = localStorage.getItem('kh_biz_name') || 'Store Name';
+            document.getElementById('bizName').value = savedName;
+            
+            const savedProfile = localStorage.getItem('kh_profile_img');
+            if(savedProfile) document.getElementById('profileImg').src = savedProfile;
+
+            const savedLogo = localStorage.getItem('kh_logo_img');
+            if(savedLogo) {
+                document.getElementById('logoImg').src = savedLogo;
+                document.getElementById('logoImg').classList.remove('hidden');
+                document.getElementById('logoPlaceholder').classList.add('hidden');
+            }
+        }
+
+        function saveProfileData() {
+            const name = document.getElementById('bizName').value;
+            localStorage.setItem('kh_biz_name', name);
+            
+            const profileImg = document.getElementById('profileImg').src;
+            localStorage.setItem('kh_profile_img', profileImg);
+
+            const logoImg = document.getElementById('logoImg').src;
+            localStorage.setItem('kh_logo_img', logoImg);
+            
+            alert("Profile updated locally!");
+        }
+
+        function previewImage(input, targetId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.getElementById(targetId);
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    if(targetId === 'logoImg') document.getElementById('logoPlaceholder').classList.add('hidden');
+                    if(targetId === 'productImgPreview') document.getElementById('productPlaceholder').classList.add('hidden');
+                    saveProfileData(); // Auto-save when image is picked
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function filterListings() {
+            const q = document.getElementById('listingSearch').value.toLowerCase();
+            renderItems(localItems.filter(i => i.name.toLowerCase().includes(q)));
+        }
+
+        async function loadMyListings() {
+            const { data } = await client.from('listings').select('*').eq('type', 'shop').order('created_at', { ascending: false });
+            if (data) { localItems = data; document.getElementById('productCount').innerText = data.length; renderItems(data); }
+        }
+
+        function renderItems(items) {
+            const container = document.getElementById('seller-listings');
+            container.innerHTML = items.length === 0 ? '<div class="text-center py-10 opacity-30 text-[10px] uppercase font-black">Empty Inventory</div>' : '';
+            items.forEach(item => {
+                container.innerHTML += `
+                    <div class="glass-card p-4 rounded-[28px] border dark:border-zinc-800">
+                        <div class="flex items-center gap-4 mb-3">
+                            <div class="w-14 h-14 bg-purple-100 dark:bg-zinc-800 rounded-2xl flex items-center justify-center text-brand-light">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-black text-xs uppercase dark:text-white leading-tight">${item.name}</h4>
+                                <p class="text-[10px] font-bold text-brand-light">₦${item.price}</p>
+                            </div>
+                            <button onclick="editItem('${item.id}', '${item.name}', '${item.price}', '${item.whatsapp}')" class="w-8 h-8 bg-gray-50 dark:bg-zinc-800 rounded-lg text-gray-400">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 border-t dark:border-zinc-800 pt-3">
+                            <button onclick="openPromotionInfo()" class="bg-gold text-black py-2 rounded-xl text-[8px] font-black uppercase">Boost</button>
+                            <button onclick="window.open('https://wa.me/${item.whatsapp || '2347051337399'}')" class="bg-green-500 text-white py-2 rounded-xl text-[8px] font-black uppercase flex items-center justify-center gap-1">
+                                <i class="fab fa-whatsapp"></i> Chat
+                            </button>
+                            <button onclick="deleteItem('${item.id}')" class="bg-gray-100 dark:bg-zinc-800 text-red-500 rounded-xl">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function togglePostModal() { 
+            const m = document.getElementById('postModal'); m.classList.toggle('hidden'); m.classList.toggle('flex');
+            if(m.classList.contains('hidden')) {
+                document.getElementById('editItemId').value = ''; document.getElementById('modalTitle').innerText = 'Post Item';
+                document.getElementById('pTitle').value = ''; document.getElementById('pPrice').value = ''; document.getElementById('pWa').value = '';
+                document.getElementById('productImgPreview').classList.add('hidden');
+                document.getElementById('productPlaceholder').classList.remove('hidden');
+            }
+        }
+
+        function editItem(id, name, price, wa) {
+            document.getElementById('editItemId').value = id;
+            document.getElementById('pTitle').value = name;
+            document.getElementById('pPrice').value = price;
+            document.getElementById('pWa').value = wa;
+            document.getElementById('modalTitle').innerText = 'Edit Item';
+            document.getElementById('submitBtn').innerText = 'Save Changes';
+            togglePostModal();
+        }
+
+        async function submitProduct() {
+            const id = document.getElementById('editItemId').value;
+            const name = document.getElementById('pTitle').value;
+            const price = document.getElementById('pPrice').value;
+            const wa = document.getElementById('pWa').value;
+            if(!name || !price) return alert("Fill fields");
+            const payload = { name, price, whatsapp: wa, type: 'shop', verified: false };
+            const { error } = id ? await client.from('listings').update(payload).eq('id', id) : await client.from('listings').insert([payload]);
+            if (error) alert("Error"); else { togglePostModal(); loadMyListings(); }
+        }
+
+        async function deleteItem(id) { if(confirm("Delete?")) { await client.from('listings').delete().eq('id', id); loadMyListings(); } }
+        function openPromotionInfo() { document.getElementById('promoModal').classList.remove('hidden'); document.getElementById('promoModal').classList.add('flex'); }
+        function closePromoModal() { document.getElementById('promoModal').classList.add('hidden'); }
+        function sendProof() { window.open(`https://wa.me/2347051337399?text=ID:*${document.getElementById('sellerID').innerText}* Premium Proof Request`); }
+        function toggleTheme() { 
+            const isDark = document.getElementById('htmlTag').classList.toggle('dark');
+            document.getElementById('themeIcon').className = isDark ? 'fas fa-sun text-yellow-400' : 'fas fa-moon';
+            localStorage.setItem('khub_theme', isDark ? 'dark' : 'light');
+        }
+
+        window.onload = () => {
+            if (localStorage.getItem('khub_theme') === 'dark') document.getElementById('htmlTag').classList.add('dark');
+            generateSellerID();
+            loadMyListings();
+        };
+    </script>
+</body>
+</html>
