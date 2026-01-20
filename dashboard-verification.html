@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>K-HUB Verification</title>
+  <link rel="stylesheet" href="../css/dashboard.css" />
+</head>
+<body>
+
+<div class="verification-container">
+
+  <!-- STATUS -->
+  <div class="status-card not-verified" id="statusCard">
+    ❌ Account Not Verified
+  </div>
+
+  <!-- BENEFITS -->
+  <div class="benefits-card">
+    <h3>Why Verify Your Account?</h3>
+    <ul>
+      <li>✔ Trusted seller badge</li>
+      <li>✔ Higher listing visibility</li>
+      <li>✔ Increased buyer trust</li>
+      <li>✔ Protection against fraud</li>
+    </ul>
+  </div>
+
+  <!-- VERIFICATION FORM -->
+  <form class="verification-form" id="verifyForm">
+
+    <label>Account Type</label>
+    <select required>
+      <option value="">Select</option>
+      <option>Seller</option>
+      <option>Agent</option>
+      <option>Driver / Dispatch</option>
+      <option>Service Provider</option>
+    </select>
+
+    <label>WhatsApp Number</label>
+    <input type="tel" placeholder="+234..." required />
+
+    <label>Upload Valid ID</label>
+    <input type="file" accept="image/*" required />
+
+    <label>Business Proof (Optional)</label>
+    <input type="file" accept="image/*" />
+
+    <div class="fee-box">
+      Verification Monthly Fee: <strong>₦5,000</strong>
+    </div>
+
+    <button type="submit" class="pay-btn">
+      Pay & Submit Verification
+    </button>
+
+  </form>
+
+</div>
+
+<script src="../js/verification.js"></script>
+</body>
+</html>
